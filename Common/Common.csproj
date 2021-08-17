@@ -5,6 +5,14 @@
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <PackageId>matthiasffm.Common</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>matthiasffm</Authors>
+    <Company>matthiasffm</Company>
   </PropertyGroup>
 
 </Project>
