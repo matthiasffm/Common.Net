@@ -14,7 +14,7 @@
     <Authors>matthiasffm</Authors>
     <Company>matthiasffm</Company>
     <PackageDescription>common code for all my .Net projects</PackageDescription>
-    <!--<RepositoryUrl>https://github.com/matthiasffm/Common.Net</RepositoryUrl>-->
+    <RepositoryUrl>https://github.com/matthiasffm/Common.Net</RepositoryUrl>
   </PropertyGroup>
 
 </Project>
