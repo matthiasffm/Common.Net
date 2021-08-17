@@ -26,7 +26,9 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
-    - name: Package
+    - name: Build package
       run: dotnet pack --configuration Release
-           dotnet nuget add source --username matthiasffm --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/matthiasffm/index.json"
-           dotnet nuget push "bin/Release/matthiasffm.Common.1.0.0.nupkg" --source "github"
+    - name: Add nuget source
+      run: dotnet nuget add source --username matthiasffm --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/matthiasffm/index.json"
+    - name: Publish nuget package
+      run: dotnet nuget push "bin/Release/matthiasffm.Common.1.0.0.nupkg" --source "github"
