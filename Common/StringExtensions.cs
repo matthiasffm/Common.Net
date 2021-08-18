@@ -1,8 +1,7 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using System.Text;
 
-namespace Common;
+namespace matthiasffm.Common;
 
 public static class StringExtensions
 {

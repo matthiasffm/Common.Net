@@ -1,6 +1,6 @@
 ﻿using System.Collections;
 
-namespace Common;
+namespace matthiasffm.Common;
 
 // TODO: notnull für T und R?
 

@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Common;
+﻿namespace matthiasffm.Common;
 
 public static class GenericsExtensions
 {

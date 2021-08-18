@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 
-namespace Common.Test;
+namespace matthiasffm.Common.Test;
 
 public class TestOption
 {

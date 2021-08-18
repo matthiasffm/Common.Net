@@ -1,4 +1,4 @@
-﻿//namespace Common;
+﻿//namespace matthiasffm.Common;
 
 ///// <summary>
 ///// Klasse für Fehlerbehandlung per Optionen

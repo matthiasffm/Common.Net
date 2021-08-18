@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Common;
+﻿namespace matthiasffm.Common;
 
 /// <summary>
 /// Loglevel
