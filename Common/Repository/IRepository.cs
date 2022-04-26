@@ -1,4 +1,4 @@
-﻿namespace Common.Repository;
+﻿namespace matthiasffm.Common.Repository;
 
 public interface IRepository : IReadonlyRepository
 {

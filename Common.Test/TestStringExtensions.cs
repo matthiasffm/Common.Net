@@ -1,10 +1,35 @@
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
+
+using matthiasffm.Common.Text;
 
 namespace matthiasffm.Common.Test;
 
 public class TestStringExtensions
 {
+    /// <summary>
+    /// Prüft das Entfernen von Akzenten
+    /// </summary>
+    [Test]
+    public void TestRemoveAccents()
+    {
+        "dé".RemoveAccents().Should().Be("de");
+        "Dončić".RemoveAccents().Should().Be("Doncic");
+    }
+
+    /// <summary>
+    /// Prüft das Entfernen von Punkt- und Stric
+    /// </summary>
+    [Test]
+    public void TestRemovePunctuation()
+    {
+        "d'aaron".RemovePunctuation().Should().Be("daaron");
+        "t.j.".RemovePunctuation().Should().Be("tj");
+    }
+
+    /// <summary>
+    /// Prüft die Levenshtein-Entferung zwischen 2 Zeichenketten
+    /// </summary>
     [Test]
     public void TestLevenshtein()
     {

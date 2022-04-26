@@ -1,6 +1,8 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 
+using matthiasffm.Common.Functional;
+
 namespace matthiasffm.Common.Test;
 
 public class TestOption
@@ -59,7 +61,7 @@ public class TestOption
 
     private static Option<int> DivideBy(int a, int b) => b != 0 ? Option<int>.Some(a / b) : Option<int>.None;
     private static Option<int> Substract(int a, int b) => Option<int>.Return(a - b);
-    private static Option<int> Sqrt(int a) => a > 0 ? Option<int>.Some((int)Math.Sqrt((double)a)) : Option<int>.None;
+    private static Option<int> Sqrt(int a) => a > 0 ? Option<int>.Some((int)System.Math.Sqrt(a)) : Option<int>.None;
 }
 
 /*

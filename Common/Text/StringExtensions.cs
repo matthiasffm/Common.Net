@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Text;
 
-namespace matthiasffm.Common;
+namespace matthiasffm.Common.Text;
 
 public static class StringExtensions
 {
@@ -10,6 +10,8 @@ public static class StringExtensions
     /// </summary>
     public static string RemoveAccents(this string s)
     {
+        ArgumentNullException.ThrowIfNull(s);
+
         var result = new StringBuilder();
 
         foreach(var c in s.Normalize(NormalizationForm.FormD))
@@ -22,6 +24,18 @@ public static class StringExtensions
 
         return result.ToString()
                      .Normalize(NormalizationForm.FormC);
+    }
+
+    /// <summary>
+    /// Entfernt Punkte und weitere überflüssige Zeichen aus Namen.
+    /// </summary>
+    public static string RemovePunctuation(this string s)
+    {
+        ArgumentNullException.ThrowIfNull(s);
+
+        return s.Replace("'", string.Empty, StringComparison.OrdinalIgnoreCase)
+                .Replace(",", string.Empty, StringComparison.OrdinalIgnoreCase)
+                .Replace(".", string.Empty, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -48,9 +62,12 @@ public static class StringExtensions
     /// </remarks>
     public static int Levenshtein(this string left, string right)
     {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+
         if(left.Length == 0 || right.Length == 0)
         {
-            return Math.Max(left.Length, right.Length);
+            return System.Math.Max(left.Length, right.Length);
         }
 
         if(left[0] == right[0])
@@ -66,8 +83,17 @@ public static class StringExtensions
     }
 
 
+    /// <summary>
+    /// Ermittelt die Distanz zwischen 2 Zeichenketten.
+    /// </summary>
+    /// <remarks>
+    /// siehe https://en.wikipedia.org/wiki/Levenshtein_distance
+    /// </remarks>
     public static int OptimalStringAlignemnt(this string left, string right)
     {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+
         return OsaDistance(left, right, left.Length, right.Length);
     }
 
@@ -82,12 +108,12 @@ public static class StringExtensions
 
         if(i > 0 && j > 0)
         {
-            min = Math.Min(min, OsaDistance(left, right, i - 1, j - 1) + (left[i - 1] != right[j - 1] ? 1 : 0));
+            min = System.Math.Min(min, OsaDistance(left, right, i - 1, j - 1) + (left[i - 1] != right[j - 1] ? 1 : 0));
         }
 
         if(i > 1 && j > 1 && left[i - 1] == right[j - 2] && left[i - 2] == right[j - 1])
         {
-            min = Math.Min(min, OsaDistance(left, right, i - 2, j - 2) + 1);
+            min = System.Math.Min(min, OsaDistance(left, right, i - 2, j - 2) + 1);
         }
 
         return min;
@@ -95,6 +121,6 @@ public static class StringExtensions
 
     private static int Min(int a, int b, int c)
     {
-        return Math.Min(a, Math.Min(b, c));
+        return System.Math.Min(a, System.Math.Min(b, c));
     }
 }

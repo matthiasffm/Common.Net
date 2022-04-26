@@ -1,4 +1,4 @@
-﻿//namespace matthiasffm.Common;
+﻿//namespace matthiasffm.Common.Error;
 
 ///// <summary>
 ///// Klasse für Fehlerbehandlung per Optionen

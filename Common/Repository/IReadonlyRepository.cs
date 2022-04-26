@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Common.Repository;
+namespace matthiasffm.Common.Repository;
 
 public interface IReadonlyRepository
 {

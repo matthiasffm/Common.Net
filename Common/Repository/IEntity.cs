@@ -1,4 +1,4 @@
-﻿namespace Common.Repository;
+﻿namespace matthiasffm.Common.Repository;
 
 /// <summary>
 /// Wird wahrscheinlich nicht benötigt

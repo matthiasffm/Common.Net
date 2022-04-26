@@ -1,8 +1,9 @@
 ﻿using System.Collections;
 
-namespace matthiasffm.Common;
+namespace matthiasffm.Common.Functional;
 
-// TODO: notnull für T und R?
+#pragma warning disable CA1715 // single char identifiers sind OK
+#pragma warning disable CA1000 // statische Member werden hier benötigt für Some und None
 
 /// <summary>
 /// 
@@ -17,7 +18,6 @@ public abstract class Option<T> : IEquatable<Option<T>>, IStructuralEquatable
 
     public static Option<T> None { get; } = new Options.None();
 
-
     public abstract R Match<R>(Func<T, R> someFunc, Func<R> noneFunc);
 
     public abstract void Act(Action<T> someAction, Action noneAction);
@@ -30,12 +30,15 @@ public abstract class Option<T> : IEquatable<Option<T>>, IStructuralEquatable
 
     public Option<R> Bind<R>(Func<T, Option<R>> binder) where R : notnull => Match(t => binder(t).Match(r => Option<R>.Some(r), () => Option<R>.None), () => Option<R>.None);
 
-
     #region operator overloads
 
-    public static bool operator == (Option<T> left, Option<T> right) => left.Equals(right);
+    public static bool operator ==(Option<T> left, Option<T> right)
+    {
+        ArgumentNullException.ThrowIfNull(left);
+        return left.Equals(right);
+    }
 
-    public static bool operator != (Option<T> left, Option<T> right) => !(left == right);
+    public static bool operator !=(Option<T> left, Option<T> right) => !(left == right);
 
     #endregion
 
@@ -72,7 +75,7 @@ public abstract class Option<T> : IEquatable<Option<T>>, IStructuralEquatable
 
             public override bool Equals(object? other, IEqualityComparer comparer) => Equals(other);
 
-            public override int GetHashCode() => "None".GetHashCode();
+            public override int GetHashCode() => "None".GetHashCode(StringComparison.Ordinal);
 
             public override int GetHashCode(IEqualityComparer comparer) => GetHashCode();
 
@@ -87,7 +90,7 @@ public abstract class Option<T> : IEquatable<Option<T>>, IStructuralEquatable
 
             public Some(T value)
             {
-                this.Value = value;
+                Value = value;
             }
 
             public override R Match<R>(Func<T, R> someFunc, Func<R> noneFunc) => someFunc(Value);

@@ -48,6 +48,7 @@ public static class LoggerExtension
     /// </summary>
     public static void Log(this ILogger logger, string message)
     {
+        ArgumentNullException.ThrowIfNull(logger);
         logger.Log(new LogEntry(Severity.Information, message, null));
     }
 
@@ -56,6 +57,7 @@ public static class LoggerExtension
     /// </summary>
     public static void Log(this ILogger logger, Severity severity, string message)
     {
+        ArgumentNullException.ThrowIfNull(logger);
         logger.Log(new LogEntry(severity, message, null));
     }
 
@@ -64,6 +66,8 @@ public static class LoggerExtension
     /// </summary>
     public static void Log(this ILogger logger, Exception exception)
     {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(exception);
         logger.Log(new LogEntry(Severity.Error, exception.Message, exception));
     }
 
@@ -72,6 +76,7 @@ public static class LoggerExtension
     /// </summary>
     public static void Log(this ILogger logger, string message, Exception exception)
     {
+        ArgumentNullException.ThrowIfNull(logger);
         logger.Log(new LogEntry(Severity.Error, message, exception));
     }
 }
