@@ -28,4 +28,4 @@ jobs:
     - name: Build package
       run: dotnet pack --configuration Release
     - name: Publish nuget package
-      run: dotnet nuget push "Common/bin/Release/**/*.nupkg" -k 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 -s "https://nuget.pkg.github.com/matthiasffm"
+      run: dotnet nuget push "Common/bin/Release/**/*.nupkg" -k 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 -s "https://nuget.pkg.github.com/matthiasffm"
