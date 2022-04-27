@@ -11,10 +11,10 @@
 
   <PropertyGroup>
     <PackageId>matthiasffm.Common</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
     <Authors>matthiasffm</Authors>
     <Company>matthiasffm</Company>
-    <PackageDescription>common code for all my .Net projects</PackageDescription>
+    <PackageDescription>common code for all my .net projects</PackageDescription>
     <RepositoryUrl>https://github.com/matthiasffm/Common.Net</RepositoryUrl>
   </PropertyGroup>
 
