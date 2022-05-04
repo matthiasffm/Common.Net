@@ -72,10 +72,7 @@ public static class Euclid
     {
         ArgumentNullException.ThrowIfNull(numbers);
 
-        var a = numbers.First();
-        var rest = numbers.Skip(1);
-
-        return rest.Any() ? Gcd(a, Gcd(rest)) : a;
+        return numbers.Skip(1).Aggregate(numbers.First(), (gcd, next) => Gcd(gcd, next));
     }
 
     /// <summary>
@@ -85,10 +82,7 @@ public static class Euclid
     {
         ArgumentNullException.ThrowIfNull(numbers);
 
-        var a = numbers.First();
-        var rest = numbers.Skip(1);
-
-        return rest.Any() ? Gcd(a, Gcd(rest)) : a;
+        return numbers.Skip(1).Aggregate(numbers.First(), (gcd, next) => Gcd(gcd, next));
     }
 
     /// <summary>
