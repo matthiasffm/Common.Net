@@ -3,30 +3,62 @@ namespace matthiasffm.Common.Algorithms;
 public static class Search
 {
     /// <summary>
-    /// Führt eine Umgebungssuche innerhalb von <i>searchMap</i> ausgehend von <i>startPos</i> anhand
-    /// der Kriterien in <i>surroundings</i> aus, wobei letzteres die 
+    /// Sucht den Pfad von <i>start</i> zu <i>goal</i> innerhalb von <i>searchMap</i>. Dabei verwendet die Methode eine
+    /// Breitensuchstrategie, wobei zuerst alle direkten Folgeknoten des Ausgangsknotens besucht und dann die weiteren.
+    /// 
+    /// Die von einem Knoten erreichbaren weiteren Knoten gibt der Functor <i>surroundings</i> vor.
     /// </summary>
+    /// <param name="searchMap"></param>
+    /// <param name="start"></param>
+    /// <param name="goal"></param>
+    /// <param name="surroundings"></param>
+    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goal</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
     /// <remarks>Läuft in O(n * logn)?</remarks>
-    public static IEnumerable<TElem> BreadthFirstSearch<TMap, TElem>(this TMap searchMap, TElem startPos, Func<TMap, TElem, IEnumerable<TElem>> surroundings)
+    public static IEnumerable<TElem> BreadthFirstSearch<TMap, TElem>(this TMap searchMap,
+                                                                     TElem start,
+                                                                     TElem goal,
+                                                                     Func<TMap, TElem, IEnumerable<TElem>> surroundings)
     {
-        var visited = new HashSet<TElem>
-        {
-            startPos
-        };
+        ArgumentNullException.ThrowIfNull(start);
+        ArgumentNullException.ThrowIfNull(goal);
+        ArgumentNullException.ThrowIfNull(surroundings);
+
+        var nodes = new Queue<TElem>(); // TODO: viel schnelleren Fibonacci Heap verwenden
+        nodes.Enqueue(start);
+
+        var visited = new HashSet<TElem>();
+
+        // für Merken des Pfades
+        var parents = new Dictionary<TElem, TElem>();
 
         do
         {
-            var newNodes = visited.SelectMany(pos => surroundings(searchMap, pos))
-                                  .Except(visited)
-                                  .ToArray();
-            if(newNodes.Length == 0)
+            var nextNode = nodes.Dequeue();
+            visited.Add(nextNode);
+
+            if(goal.Equals(nextNode))
             {
-                return visited;
+                IList<TElem> path = new List<TElem>();
+                var parent = goal;
+                while(!start.Equals(parent))
+                {
+                    parent = parents[parent];
+                    path.Add(parent);
+                }
+                path.Add(goal);
+                return path.Reverse();
             }
 
-            visited.AddRange(newNodes);
+            foreach(var neighbor in surroundings(searchMap, nextNode).Except(visited).Except(nodes))
+            {
+                nodes.Enqueue(neighbor);
+                parents[neighbor] = nextNode;
+            }
         }
-        while(true);
+        while(nodes.Any());
+
+        // keinen Pfad von start nach goal gefunden
+        return Array.Empty<TElem>();
     }
 
     /// <summary>
@@ -75,7 +107,7 @@ public static class Search
         // besten Knoten aus openSet auswählen und mit dessen Kosten
         // minPathCosts und finishedPathCosts aktualisieren
 
-        while (openSet.Any())
+        while(openSet.Any())
         {
             // TODO: Fibonacci-Heap für openSet verwenden
             var current = openSet.MinBy(o => estimatedCostToFinish[o])!;
