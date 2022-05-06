@@ -241,16 +241,19 @@ public static class Search
     /// <returns>Liste der Knoten im (besten) Pfad von <i>start</i> zu <i>goal</i> inkl. dieser beiden Knoten.</returns>
     private static IEnumerable<TElem> BuildPath<TElem>(IDictionary<TElem, TElem> parents, TElem start, TElem goal) where TElem : notnull
     {
-        IList<TElem> path = new List<TElem> { goal };
-        var parent = goal;
+        List<TElem> path = new() { goal };
 
-        while(!start.Equals(parent))
+        while(!start.Equals(path[^1]))
         {
-            parent = parents[parent];
-            path.Add(parent);
+            path.Add(parents[path[^1]]);
         }
 
-        return path.Reverse();
+        return Enumerable.Reverse(path);
+
+        // hier als LINQ-Query
+        // return Enumerable.Range(1, parents.Count)
+        //                  .Aggregate((IEnumerable<TElem>)(new[] { goal }), (path, _) => start.Equals(path.Last()) ? path : path.Append(parents[path.Last()]))
+        //                  .Reverse();
     }
 
     /// <summary>
