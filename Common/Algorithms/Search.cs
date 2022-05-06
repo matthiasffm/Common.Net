@@ -3,13 +3,13 @@ namespace matthiasffm.Common.Algorithms;
 public static class Search
 {
     /// <summary>
-    /// Iteriert durch einen Graphen per Breitensuchstrategie, wobei zuerst _alle_ direkten Folgeknoten eines Knotens besucht werden und
-    /// dann erst die weiteren Knoten.
+    /// Iteriert die Knoten eines Graphen per Breitensuchstrategie, wobei zuerst _alle_ Knotens auf gleicher Tiefe besucht werden und
+    /// erst dann die weiteren Kindknoten.
     /// </summary>
     /// <param name="start">Startknoten</param>
     /// <param name="stopEnumeration">optionale Abbruchbedingung der Iteration. Darf null sein, dann wird der komplette Graph durchlaufen.</param>
-    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Knoten zurück</param>
-    /// <returns>Alle Knoten von <i>start</i> ausgehend, dann die direkten Folgeknoten von <i>start</i>, dann deren direkte Folgeknoten usw.</returns>
+    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
+    /// <returns>Alle Knoten im Graph von <i>start</i> ausgehend, dabei immer zuerst alle Knoten auf gleicher Tiefe, dann deren Kindknoten.</returns>
     /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
     public static IEnumerable<TElem> BreadthFirstEnumerate<TElem>(TElem start,
                                                                   Func<TElem, bool> stopEnumeration,
@@ -18,7 +18,7 @@ public static class Search
         ArgumentNullException.ThrowIfNull(start);
         ArgumentNullException.ThrowIfNull(adjacentNodes);
 
-        // Die direkten Folgeknoten werden in eine Queue eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
+        // Die direkten Nachbarknoten werden in eine Queue eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
         // in der Breite gesucht wird. Vergleiche dazu Tiefensuche, wo ein Stack verwendet wird.
 
         var nextToVisit = new Queue<TElem>();
@@ -48,12 +48,12 @@ public static class Search
     }
 
     /// <summary>
-    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goal</i> innerhalb von <i>searchMap</i>. Dabei verwendet die Methode eine
-    /// Breitensuchstrategie, wobei zuerst _alle_ direkten Folgeknoten eines Knotens besucht werden und dann erst die weiteren.
+    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goal</i>. Dabei verwendet die Suche eine
+    /// Breitensuchstrategie, wobei zuerst _alle_ Knoten einer Tiefe und dann erst deren Kindknoten besucht werden.
     /// </summary>
     /// <param name="start">Startknoten</param>
     /// <param name="goal">Zielknoten</param>
-    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Knoten zurück</param>
+    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
     /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goal</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
     /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
     public static IEnumerable<TElem> BreadthFirstSearch<TElem>(TElem start,
@@ -62,13 +62,13 @@ public static class Search
         => BreadthFirstSearch(start, node => goal.Equals(node), adjacentNodes);
 
     /// <summary>
-    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goalReached()</i> innerhalb von <i>searchMap</i>. Dabei verwendet die Methode eine
-    /// Breitensuchstrategie, wobei zuerst _alle_ direkten Folgeknoten eines Knotens besucht werden und dann erst die weiteren.
+    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goalReached()</i>. Dabei verwendet die Suche eine
+    /// Breitensuchstrategie, wobei zuerst _alle_ Knoten einer Tiefe und dann erst deren Kindknoten besucht werden.
     /// </summary>
     /// <param name="start">Startknoten</param>
     /// <param name="goalReached">Bedingung für Erreichen des Zielknotens</param>
-    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Knoten zurück</param>
-    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goal</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
+    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
+    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goalReached()</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
     /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
     public static IEnumerable<TElem> BreadthFirstSearch<TElem>(TElem start,
                                                                Func<TElem, bool> goalReached,
@@ -78,7 +78,7 @@ public static class Search
         ArgumentNullException.ThrowIfNull(goalReached);
         ArgumentNullException.ThrowIfNull(adjacentNodes);
 
-        // Die direkten Folgeknoten werden in eine Queue eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
+        // Die direkten Nachbarknoten werden in eine Queue eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
         // in der Breite gesucht wird. Vergleiche dazu Tiefensuche, wo ein Stack verwendet wird.
 
         var nextToVisit = new Queue<TElem>();
@@ -105,6 +105,122 @@ public static class Search
             {
                 visited.Add(adjacent);
                 nextToVisit.Enqueue(adjacent);
+
+                parents[adjacent] = nextNode;
+            }
+        }
+        while(nextToVisit.Any());
+
+        // keinen Pfad gefunden
+
+        return Array.Empty<TElem>();
+    }
+
+    // TODO: optionales Abbruchkriterium für max. Tiefe bei Tiefensuche
+    // TODO: damit iterative Tiefensuche implementieren
+
+    /// <summary>
+    /// Iteriert die Knoten eines Graphen per Tiefensuchstrategie, wobei Kindknoten vor den anderen Knoten auf gleicher Tiefe besucht werden.
+    /// </summary>
+    /// <param name="start">Startknoten</param>
+    /// <param name="stopEnumeration">optionale Abbruchbedingung der Iteration. Darf null sein, dann wird der komplette Graph durchlaufen.</param>
+    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
+    /// <returns>Von <i>start</i> ausgehend werden Kindknoten ausgegeben, dann erst Knoten auf gleicher Tiefe.</returns>
+    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    public static IEnumerable<TElem> DepthFirstEnumerate<TElem>(TElem start,
+                                                                Func<TElem, bool> stopEnumeration,
+                                                                Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
+    {
+        ArgumentNullException.ThrowIfNull(start);
+        ArgumentNullException.ThrowIfNull(adjacentNodes);
+
+        // Die direkten Nachbarknoten werden in einen Stack eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
+        // in der Tiefe gesucht wird. Vergleiche dazu Breitensuche, wo eine Queue verwendet wird.
+
+        var nextToVisit = new Stack<TElem>();
+        nextToVisit.Push(start);
+
+        var visited = new HashSet<TElem> { start };
+
+        // für Algorithmus siehe Corman oder https://de.wikipedia.org/wiki/Tiefensuche
+
+        do
+        {
+            var nextNode = nextToVisit.Pop();
+            yield return nextNode;
+
+            if(stopEnumeration != null && stopEnumeration(nextNode))
+            {
+                break;
+            }
+
+            foreach(var adjacent in adjacentNodes(nextNode).Except(visited))
+            {
+                visited.Add(adjacent);
+                nextToVisit.Push(adjacent);
+            }
+        }
+        while(nextToVisit.Any());
+    }
+
+    /// <summary>
+    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goal</i>. Dabei verwendet die Suche eine
+    /// Tiefensuchstrategie, wobei zuerst Kindknoten und dann erst andere Knoten auf gleicher Tiefe besucht werden.
+    /// </summary>
+    /// <param name="start">Startknoten</param>
+    /// <param name="goal">Zielknoten</param>
+    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
+    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goal</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
+    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    public static IEnumerable<TElem> DepthFirstSearch<TElem>(TElem start,
+                                                             TElem goal,
+                                                             Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
+        => DepthFirstSearch(start, node => goal.Equals(node), adjacentNodes);
+
+    /// <summary>
+    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goalReached()</i>. Dabei verwendet die Suche eine
+    /// Tiefensuchstrategie, wobei zuerst Kindknoten und dann erst andere Knoten auf gleicher Tiefe besucht werden.
+    /// </summary>
+    /// <param name="start">Startknoten</param>
+    /// <param name="goalReached">Bedingung für Erreichen des Zielknotens</param>
+    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
+    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goalReached()</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
+    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    public static IEnumerable<TElem> DepthFirstSearch<TElem>(TElem start,
+                                                             Func<TElem, bool> goalReached,
+                                                             Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
+    {
+        ArgumentNullException.ThrowIfNull(start);
+        ArgumentNullException.ThrowIfNull(goalReached);
+        ArgumentNullException.ThrowIfNull(adjacentNodes);
+
+        // Die direkten Nachbarknoten werden in einen Stack eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
+        // in der Tiefe gesucht wird. Vergleiche dazu Breitensuche, wo eine Queue verwendet wird.
+
+        var nextToVisit = new Stack<TElem>();
+        nextToVisit.Push(start);
+
+        var visited = new HashSet<TElem> { start };
+
+        // für Merken des Pfades (siehe BuildPath)
+
+        var parents = new Dictionary<TElem, TElem>();
+
+        // für Algorithmus siehe Corman oder https://de.wikipedia.org/wiki/Tiefensuche
+
+        do
+        {
+            var nextNode = nextToVisit.Pop();
+
+            if(goalReached(nextNode))
+            {
+                return BuildPath(parents, start, nextNode);
+            }
+
+            foreach(var adjacent in adjacentNodes(nextNode).Except(visited))
+            {
+                visited.Add(adjacent);
+                nextToVisit.Push(adjacent);
 
                 parents[adjacent] = nextNode;
             }
