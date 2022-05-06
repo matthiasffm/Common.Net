@@ -3,62 +3,138 @@ namespace matthiasffm.Common.Algorithms;
 public static class Search
 {
     /// <summary>
-    /// Sucht den Pfad von <i>start</i> zu <i>goal</i> innerhalb von <i>searchMap</i>. Dabei verwendet die Methode eine
-    /// Breitensuchstrategie, wobei zuerst alle direkten Folgeknoten des Ausgangsknotens besucht und dann die weiteren.
-    /// 
-    /// Die von einem Knoten erreichbaren weiteren Knoten gibt der Functor <i>surroundings</i> vor.
+    /// Iteriert durch einen Graphen per Breitensuchstrategie, wobei zuerst _alle_ direkten Folgeknoten eines Knotens besucht werden und
+    /// dann erst die weiteren Knoten.
     /// </summary>
-    /// <param name="searchMap"></param>
-    /// <param name="start"></param>
-    /// <param name="goal"></param>
-    /// <param name="surroundings"></param>
-    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goal</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
-    /// <remarks>Läuft in O(n * logn)?</remarks>
-    public static IEnumerable<TElem> BreadthFirstSearch<TMap, TElem>(this TMap searchMap,
-                                                                     TElem start,
-                                                                     TElem goal,
-                                                                     Func<TMap, TElem, IEnumerable<TElem>> surroundings)
+    /// <param name="start">Startknoten</param>
+    /// <param name="stopEnumeration">optionale Abbruchbedingung der Iteration. Darf null sein, dann wird der komplette Graph durchlaufen.</param>
+    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Knoten zurück</param>
+    /// <returns>Alle Knoten von <i>start</i> ausgehend, dann die direkten Folgeknoten von <i>start</i>, dann deren direkte Folgeknoten usw.</returns>
+    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    public static IEnumerable<TElem> BreadthFirstEnumerate<TElem>(TElem start,
+                                                                  Func<TElem, bool> stopEnumeration,
+                                                                  Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
     {
         ArgumentNullException.ThrowIfNull(start);
-        ArgumentNullException.ThrowIfNull(goal);
-        ArgumentNullException.ThrowIfNull(surroundings);
+        ArgumentNullException.ThrowIfNull(adjacentNodes);
 
-        var nodes = new Queue<TElem>(); // TODO: viel schnelleren Fibonacci Heap verwenden
-        nodes.Enqueue(start);
+        // Die direkten Folgeknoten werden in eine Queue eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
+        // in der Breite gesucht wird. Vergleiche dazu Tiefensuche, wo ein Stack verwendet wird.
 
-        var visited = new HashSet<TElem>();
+        var nextToVisit = new Queue<TElem>();
+        nextToVisit.Enqueue(start);
 
-        // für Merken des Pfades
-        var parents = new Dictionary<TElem, TElem>();
+        var visited = new HashSet<TElem> { start };
+
+        // für Algorithmus siehe Corman oder https://de.wikipedia.org/wiki/Breitensuche
 
         do
         {
-            var nextNode = nodes.Dequeue();
-            visited.Add(nextNode);
+            var nextNode = nextToVisit.Dequeue();
+            yield return nextNode;
 
-            if(goal.Equals(nextNode))
+            if(stopEnumeration != null && stopEnumeration(nextNode))
             {
-                IList<TElem> path = new List<TElem>();
-                var parent = goal;
-                while(!start.Equals(parent))
-                {
-                    parent = parents[parent];
-                    path.Add(parent);
-                }
-                path.Add(goal);
-                return path.Reverse();
+                break;
             }
 
-            foreach(var neighbor in surroundings(searchMap, nextNode).Except(visited).Except(nodes))
+            foreach(var adjacent in adjacentNodes(nextNode).Except(visited))
             {
-                nodes.Enqueue(neighbor);
-                parents[neighbor] = nextNode;
+                visited.Add(adjacent);
+                nextToVisit.Enqueue(adjacent);
             }
         }
-        while(nodes.Any());
+        while(nextToVisit.Any());
+    }
 
-        // keinen Pfad von start nach goal gefunden
+    /// <summary>
+    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goal</i> innerhalb von <i>searchMap</i>. Dabei verwendet die Methode eine
+    /// Breitensuchstrategie, wobei zuerst _alle_ direkten Folgeknoten eines Knotens besucht werden und dann erst die weiteren.
+    /// </summary>
+    /// <param name="start">Startknoten</param>
+    /// <param name="goal">Zielknoten</param>
+    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Knoten zurück</param>
+    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goal</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
+    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    public static IEnumerable<TElem> BreadthFirstSearch<TElem>(TElem start,
+                                                               TElem goal,
+                                                               Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
+        => BreadthFirstSearch(start, node => goal.Equals(node), adjacentNodes);
+
+    /// <summary>
+    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goalReached()</i> innerhalb von <i>searchMap</i>. Dabei verwendet die Methode eine
+    /// Breitensuchstrategie, wobei zuerst _alle_ direkten Folgeknoten eines Knotens besucht werden und dann erst die weiteren.
+    /// </summary>
+    /// <param name="start">Startknoten</param>
+    /// <param name="goalReached">Bedingung für Erreichen des Zielknotens</param>
+    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Knoten zurück</param>
+    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goal</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
+    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    public static IEnumerable<TElem> BreadthFirstSearch<TElem>(TElem start,
+                                                               Func<TElem, bool> goalReached,
+                                                               Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
+    {
+        ArgumentNullException.ThrowIfNull(start);
+        ArgumentNullException.ThrowIfNull(goalReached);
+        ArgumentNullException.ThrowIfNull(adjacentNodes);
+
+        // Die direkten Folgeknoten werden in eine Queue eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
+        // in der Breite gesucht wird. Vergleiche dazu Tiefensuche, wo ein Stack verwendet wird.
+
+        var nextToVisit = new Queue<TElem>();
+        nextToVisit.Enqueue(start);
+
+        var visited = new HashSet<TElem> { start };
+
+        // für Merken des Pfades (siehe BuildPath)
+
+        var parents = new Dictionary<TElem, TElem>();
+
+        // für Algorithmus siehe Corman oder https://de.wikipedia.org/wiki/Breitensuche
+
+        do
+        {
+            var nextNode = nextToVisit.Dequeue();
+
+            if(goalReached(nextNode))
+            {
+                return BuildPath(parents, start, nextNode);
+            }
+
+            foreach(var adjacent in adjacentNodes(nextNode).Except(visited))
+            {
+                visited.Add(adjacent);
+                nextToVisit.Enqueue(adjacent);
+
+                parents[adjacent] = nextNode;
+            }
+        }
+        while(nextToVisit.Any());
+
+        // keinen Pfad gefunden
+
         return Array.Empty<TElem>();
+    }
+
+    /// <summary>
+    /// Erstellt aus den in <i>parents</i> gemerkten Eltern-Beziehungen den Pfad als Liste von Knoten von <i>start</i> zu <i>goal</i>.
+    /// </summary>
+    /// <param name="parents">Abbildung von Kind => Elternknoten im (besten) Pfad</param>
+    /// <param name="start">Startknoten</param>
+    /// <param name="goal">Zielknoten</param>
+    /// <returns>Liste der Knoten im (besten) Pfad von <i>start</i> zu <i>goal</i> inkl. dieser beiden Knoten.</returns>
+    private static IEnumerable<TElem> BuildPath<TElem>(IDictionary<TElem, TElem> parents, TElem start, TElem goal) where TElem : notnull
+    {
+        IList<TElem> path = new List<TElem> { goal };
+        var parent = goal;
+
+        while(!start.Equals(parent))
+        {
+            parent = parents[parent];
+            path.Add(parent);
+        }
+
+        return path.Reverse();
     }
 
     /// <summary>
