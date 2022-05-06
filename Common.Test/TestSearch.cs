@@ -32,15 +32,15 @@ internal class TestSearch
 
         var edgesFromKoeln      = Search.BreadthFirstEnumerate("Köln", null, city => SurroundingCities(city));
         var edgesFromHanau      = Search.BreadthFirstEnumerate("Hanau", null, city => SurroundingCities(city));
-        var edgesFromNidda      = Search.BreadthFirstEnumerate("Nidda", null, city => SurroundingCities(city));
+        var edgesFromIlbenstadt = Search.BreadthFirstEnumerate("Ilbenstadt", null, city => SurroundingCities(city));
         var edgesFromFrankfurt  = Search.BreadthFirstEnumerate("Frankfurt", null, city => SurroundingCities(city));
 
         // assert
 
         edgesFromKoeln.Should().Equal("Köln", "Bonn");
-        edgesFromHanau.Should().Equal("Hanau", "Offenbach", "Frankfurt", "Erlensee", "Bad Vilbel", "Nidda", "Florstadt", "Friedberg");
-        edgesFromNidda.Should().Equal("Nidda", "Bad Vilbel", "Florstadt", "Friedberg", "Frankfurt", "Hanau", "Offenbach", "Erlensee");
-        edgesFromFrankfurt.Should().Equal("Frankfurt", "Bad Vilbel", "Hanau", "Offenbach", "Nidda", "Erlensee", "Florstadt", "Friedberg");
+        edgesFromHanau.Should().Equal("Hanau", "Offenbach", "Frankfurt", "Erlensee", "Bad Vilbel", "Ilbenstadt", "Florstadt", "Friedberg");
+        edgesFromIlbenstadt.Should().Equal("Ilbenstadt", "Bad Vilbel", "Florstadt", "Friedberg", "Frankfurt", "Hanau", "Offenbach", "Erlensee");
+        edgesFromFrankfurt.Should().Equal("Frankfurt", "Bad Vilbel", "Hanau", "Offenbach", "Ilbenstadt", "Erlensee", "Florstadt", "Friedberg");
     }
 
     [Test]
@@ -72,7 +72,7 @@ internal class TestSearch
         // assert
 
         pathFromKoelnToBonn.Should().Equal("Köln", "Bonn");
-        pathFromHanauToFriedberg.Should().Equal("Hanau", "Frankfurt", "Bad Vilbel", "Nidda", "Friedberg");
+        pathFromHanauToFriedberg.Should().Equal("Hanau", "Frankfurt", "Bad Vilbel", "Ilbenstadt", "Friedberg");
         pathFromErlenseeToOffenbach.Should().Equal("Erlensee", "Hanau", "Offenbach");
         pathFromFrankfurtToFrankfurt.Should().Equal("Frankfurt");
     }
@@ -104,15 +104,15 @@ internal class TestSearch
 
         var edgesFromKoeln      = Search.DepthFirstEnumerate("Köln", null, city => SurroundingCities(city));
         var edgesFromHanau      = Search.DepthFirstEnumerate("Hanau", null, city => SurroundingCities(city));
-        var edgesFromNidda      = Search.DepthFirstEnumerate("Nidda", null, city => SurroundingCities(city));
+        var edgesFromIlbenstadt = Search.DepthFirstEnumerate("Ilbenstadt", null, city => SurroundingCities(city));
         var edgesFromFrankfurt  = Search.DepthFirstEnumerate("Frankfurt", null, city => SurroundingCities(city));
 
         // assert
 
         edgesFromKoeln.Should().Equal("Köln", "Bonn");
-        edgesFromHanau.Should().Equal("Hanau", "Erlensee", "Frankfurt", "Bad Vilbel", "Nidda", "Friedberg", "Florstadt", "Offenbach");
-        edgesFromNidda.Should().Equal("Nidda", "Friedberg", "Florstadt", "Bad Vilbel", "Frankfurt", "Offenbach", "Hanau", "Erlensee");
-        edgesFromFrankfurt.Should().Equal("Frankfurt", "Offenbach", "Hanau", "Erlensee", "Bad Vilbel", "Nidda", "Friedberg", "Florstadt");
+        edgesFromHanau.Should().Equal("Hanau", "Erlensee", "Frankfurt", "Bad Vilbel", "Ilbenstadt", "Friedberg", "Florstadt", "Offenbach");
+        edgesFromIlbenstadt.Should().Equal("Ilbenstadt", "Friedberg", "Florstadt", "Bad Vilbel", "Frankfurt", "Offenbach", "Hanau", "Erlensee");
+        edgesFromFrankfurt.Should().Equal("Frankfurt", "Offenbach", "Hanau", "Erlensee", "Bad Vilbel", "Ilbenstadt", "Friedberg", "Florstadt");
     }
 
     [Test]
@@ -144,7 +144,7 @@ internal class TestSearch
         // assert
 
         pathFromKoelnToBonn.Should().Equal("Köln", "Bonn");
-        pathFromHanauToFriedberg.Should().Equal("Hanau", "Frankfurt", "Bad Vilbel", "Nidda", "Friedberg");
+        pathFromHanauToFriedberg.Should().Equal("Hanau", "Frankfurt", "Bad Vilbel", "Ilbenstadt", "Friedberg");
         pathFromErlenseeToOffenbach.Should().Equal("Erlensee", "Hanau", "Offenbach");
         pathFromFrankfurtToFrankfurt.Should().Equal("Frankfurt");
     }
@@ -160,7 +160,18 @@ internal class TestSearch
 
         // act
 
+        var goalNotFound = Search.AStar(Array.Empty<string>(),
+                                        "Start",
+                                        "Ziel",
+                                        (city) => Array.Empty<string>(),
+                                        (a, b) => 10L,
+                                        (city) => 10L,
+                                        1000L,
+                                        (a, b) => a + b);
+
         // assert
+
+        goalNotFound.Should().BeEmpty();
     }
 
     [Test]
@@ -168,9 +179,32 @@ internal class TestSearch
     {
         // arrange
 
+        var cities = new[] { "Frankfurt", "Bad Vilbel", "Hanau", "Offenbach", "Erlensee", "Ilbenstadt", "Florstadt", "Friedberg", "Köln", "Bonn" };
+
         // act
 
+        var pathFromKoelnToBonn = Search.AStar(cities,
+                                               "Köln",
+                                               "Bonn",
+                                               (city) => SurroundingCities(city),
+                                               (a, b) => DistanceByStreet(a, b),
+                                               (city) => DistanceByAir(city, "Bonn"),
+                                               1000L,
+                                               (a, b) => a + b);
+
+        var pathFromErlenseeToFlorstadt = Search.AStar(cities,
+                                                       "Erlensee",
+                                                       "Florstadt",
+                                                       (city) => SurroundingCities(city),
+                                                       (a, b) => DistanceByStreet(a, b),
+                                                       (city) => DistanceByAir(city, "Florstadt"),
+                                                       1000L,
+                                                       (a, b) => a + b);
+
         // assert
+
+        pathFromKoelnToBonn.Should().Equal("Köln", "Bonn");
+        pathFromErlenseeToFlorstadt.Should().Equal("Erlensee", "Hanau", "Frankfurt", "Bad Vilbel", "Ilbenstadt", "Florstadt");
     }
 
     #endregion
@@ -179,15 +213,64 @@ internal class TestSearch
 
     private static IEnumerable<string> SurroundingCities(string city) => city switch {
         "Frankfurt"   => new[] { "Bad Vilbel", "Hanau", "Offenbach" },
-        "Bad Vilbel"  => new[] { "Frankfurt", "Nidda" },
+        "Bad Vilbel"  => new[] { "Frankfurt", "Ilbenstadt" },
         "Hanau"       => new[] { "Offenbach", "Frankfurt", "Erlensee" },
         "Erlensee"    => new[] { "Hanau" },
         "Offenbach"   => new[] { "Hanau", "Frankfurt" },
-        "Nidda"       => new[] { "Bad Vilbel", "Florstadt", "Friedberg" },
-        "Florstadt"   => new[] { "Nidda" },
-        "Friedberg"   => new[] { "Nidda" },
+        "Ilbenstadt"  => new[] { "Bad Vilbel", "Florstadt", "Friedberg" },
+        "Florstadt"   => new[] { "Ilbenstadt" },
+        "Friedberg"   => new[] { "Ilbenstadt" },
         "Köln"        => new[] { "Bonn" },
         "Bonn"        => new[] { "Köln" },
         _             => throw new InvalidOperationException(),
+    };
+
+    private static long DistanceByAir(string city, string finish) => (city, finish) switch
+    {
+        ("Köln", "Bonn")            => 25,
+        ("Bonn", "Köln")            => 25,
+        ("Köln", "Köln")            => 0,
+        ("Bonn", "Bonn")            => 0,
+
+        ("Florstadt", "Florstadt")  => 0,
+        ("Friedberg", "Florstadt")  => 7,
+        ("Ilbenstadt", "Florstadt") => 6,
+        ("Bad Vilbel", "Florstadt") => 18,
+        ("Erlensee", "Erlensee")    => 0,
+        ("Erlensee", "Florstadt")   => 19,
+        ("Hanau", "Florstadt")      => 21,
+        ("Frankfurt", "Florstadt")  => 25,
+        ("Offenbach", "Florstadt")  => 25,
+
+        _                           => throw new InvalidOperationException("Aufruf der Testdaten mit unerwarteter Kombinaten der Städte"),
+    };
+
+    private static long DistanceByStreet(string a, string b) => (a, b) switch
+    {
+        ("Köln", "Köln")                => 0,
+        ("Bonn", "Bonn")                => 0,
+        ("Köln", "Bonn")                => 30,
+        ("Bonn", "Köln")                => 30,
+
+        ("Florstadt", "Florstadt")      => 0,
+        ("Ilbenstadt", "Florstadt")     => 10,
+        ("Florstadt", "Ilbenstadt")     => 10,
+        ("Friedberg", "Ilbenstadt")     => 9,
+        ("Ilbenstadt", "Friedberg")     => 9,
+        ("Bad Vilbel", "Ilbenstadt")    => 15,
+        ("Ilbenstadt", "Bad Vilbel")    => 15,
+        ("Offenbach", "Hanau")          => 14,
+        ("Offenbach", "Frankfurt")      => 8,
+        ("Hanau", "Offenbach")          => 14,
+        ("Frankfurt", "Offenbach")      => 8,
+        ("Hanau", "Erlensee")           => 7,
+        ("Erlensee", "Hanau")           => 7,
+        ("Erlensee", "Erlensee")        => 0,
+        ("Hanau", "Frankfurt")          => 22,
+        ("Frankfurt", "Hanau")          => 22,
+        ("Bad Vilbel", "Frankfurt")     => 9,
+        ("Frankfurt", "Bad Vilbel")     => 9,
+
+        _                               => throw new InvalidOperationException("Aufruf der Testdaten mit unerwarteter Kombinaten der Städte"),
     };
 }
