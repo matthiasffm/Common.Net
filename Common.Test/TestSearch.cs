@@ -7,6 +7,8 @@ namespace matthiasffm.Common.Test;
 
 internal class TestSearch
 {
+    #region breadth first
+
     [Test]
     public void TestBreadthFirstEnumerateEmpty()
     {
@@ -75,6 +77,82 @@ internal class TestSearch
         pathFromFrankfurtToFrankfurt.Should().Equal("Frankfurt");
     }
 
+    #endregion
+
+    #region depth first
+
+    [Test]
+    public void TestDepthFirstEnumerateEmpty()
+    {
+        // arrange
+
+        // act
+
+        var edgesNotFound = Search.DepthFirstEnumerate("start", null, city => new List<string> { });
+
+        // assert
+
+        edgesNotFound.Should().Equal("start");
+    }
+
+    [Test]
+    public void TestDepthFirstEnumerate()
+    {
+        // arrange
+
+        // act
+
+        var edgesFromKoeln      = Search.DepthFirstEnumerate("Köln", null, city => SurroundingCities(city));
+        var edgesFromHanau      = Search.DepthFirstEnumerate("Hanau", null, city => SurroundingCities(city));
+        var edgesFromNidda      = Search.DepthFirstEnumerate("Nidda", null, city => SurroundingCities(city));
+        var edgesFromFrankfurt  = Search.DepthFirstEnumerate("Frankfurt", null, city => SurroundingCities(city));
+
+        // assert
+
+        edgesFromKoeln.Should().Equal("Köln", "Bonn");
+        edgesFromHanau.Should().Equal("Hanau", "Erlensee", "Frankfurt", "Bad Vilbel", "Nidda", "Friedberg", "Florstadt", "Offenbach");
+        edgesFromNidda.Should().Equal("Nidda", "Friedberg", "Florstadt", "Bad Vilbel", "Frankfurt", "Offenbach", "Hanau", "Erlensee");
+        edgesFromFrankfurt.Should().Equal("Frankfurt", "Offenbach", "Hanau", "Erlensee", "Bad Vilbel", "Nidda", "Friedberg", "Florstadt");
+    }
+
+    [Test]
+    public void TestDepthFirstSearchEmpty()
+    {
+        // arrange
+
+        // act
+
+        var pathNotFound = Search.DepthFirstSearch("Hanau", "Bonn", city => SurroundingCities(city));
+
+        // assert
+
+        pathNotFound.Should().BeEmpty();
+    }
+
+    [Test]
+    public void TestDepthFirstSearch()
+    {
+        // arrange
+
+        // act
+
+        var pathFromKoelnToBonn             = Search.DepthFirstSearch("Köln", "Bonn", city => SurroundingCities(city));
+        var pathFromHanauToFriedberg        = Search.DepthFirstSearch("Hanau", "Friedberg", city => SurroundingCities(city));
+        var pathFromErlenseeToOffenbach     = Search.DepthFirstSearch("Erlensee", "Offenbach", city => SurroundingCities(city));
+        var pathFromFrankfurtToFrankfurt    = Search.DepthFirstSearch("Frankfurt", "Frankfurt", city => SurroundingCities(city));
+
+        // assert
+
+        pathFromKoelnToBonn.Should().Equal("Köln", "Bonn");
+        pathFromHanauToFriedberg.Should().Equal("Hanau", "Frankfurt", "Bad Vilbel", "Nidda", "Friedberg");
+        pathFromErlenseeToOffenbach.Should().Equal("Erlensee", "Hanau", "Offenbach");
+        pathFromFrankfurtToFrankfurt.Should().Equal("Frankfurt");
+    }
+
+    #endregion
+
+    #region A star
+
     [Test]
     public void TestAStarEmpty()
     {
@@ -94,6 +172,8 @@ internal class TestSearch
 
         // assert
     }
+
+    #endregion
 
     // Testdaten
 
