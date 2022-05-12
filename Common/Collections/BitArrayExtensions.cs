@@ -6,6 +6,13 @@ namespace matthiasffm.Common.Collections;
 public static class BitArrayExtensions
 {
     /// <summary>
+    /// Vergleicht die Inhalte zweiter Bitarrays auf Gleichheit.
+    /// </summary>
+    public static bool EqualsAll(this BitArray left, BitArray right)
+        => left?.Length == right?.Length && 
+           ((left == null && right == null) || ((BitArray)left!.Clone()).Xor(right!).OfType<bool>().All(b => b == false));
+
+    /// <summary>
     /// Schneidet eine Teilmenge des Bitarrays von length Bits ab start aus und
     /// gibt sie als neues BitArray zurück.
     /// </summary>
