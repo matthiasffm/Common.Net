@@ -21,10 +21,6 @@ public static class EnumerableExtensions
     {
         return items.Contains(subject);
     }
-    //public static bool In<T>(this T value, params T[] args) where T : IComparable
-    //{
-    //    return args.Any(arg => arg.CompareTo(value) == 0);
-    //}
 
     /// <summary>
     /// Stellt die AddRange-Methode aus List auch für andere Collections bereit.
