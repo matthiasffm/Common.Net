@@ -17,7 +17,7 @@ public static class MatrixExtensions
         ArgumentNullException.ThrowIfNull(matrix);
         ArgumentNullException.ThrowIfNull(selector);
 
-        for (int i = 0; i < matrix.GetLength(0); i++)
+        for(int i = 0; i < matrix.GetLength(0); i++)
         {
             for(int j = 0; j < matrix.GetLength(1); j++)
             {
@@ -37,7 +37,7 @@ public static class MatrixExtensions
         ArgumentNullException.ThrowIfNull(matrix);
         ArgumentNullException.ThrowIfNull(action);
 
-        for (int i = 0; i < matrix.GetLength(0); i++)
+        for(int i = 0; i < matrix.GetLength(0); i++)
         {
             for(int j = 0; j < matrix.GetLength(1); j++)
             {
@@ -57,7 +57,7 @@ public static class MatrixExtensions
         ArgumentNullException.ThrowIfNull(matrix);
         ArgumentNullException.ThrowIfNull(func);
 
-        for (int i = 0; i < matrix.GetLength(0); i++)
+        for(int i = 0; i < matrix.GetLength(0); i++)
         {
             for(int j = 0; j < matrix.GetLength(1); j++)
             {
@@ -104,7 +104,7 @@ public static class MatrixExtensions
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        var res = new TSource[input.Length, input[0].Length];
+        var res = new TSource[input.Length, input.Length > 0 ? input[0].Length : 0];
 
         for(int i = 0; i < res.GetLength(0); i++)
         {
