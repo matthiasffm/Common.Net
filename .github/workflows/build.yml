@@ -4,6 +4,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
+    types: [closed]
     branches: [ main ]
   workflow_dispatch:
 
@@ -14,18 +15,27 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '6.0'
         include-prerelease: True
+        source-url: "https://nuget.pkg.github.com/matthiasffm"
+      env:
+        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
     - name: Restore dependencies
       run: dotnet restore
+
     - name: Build
       run: dotnet build --no-restore --configuration Release
+
     - name: Test
       run: dotnet test --no-build --verbosity normal --configuration Release
+
     - name: Build package
       run: dotnet pack --configuration Release
+
     - name: Publish nuget package
-      run: dotnet nuget push "Common/bin/Release/**/*.nupkg" -k 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 -s "https://nuget.pkg.github.com/matthiasffm"
+      run: dotnet nuget push "Common/bin/Release/**/*.nupkg" -s "https://nuget.pkg.github.com/matthiasffm" --skip-duplicate --no-symbols true
