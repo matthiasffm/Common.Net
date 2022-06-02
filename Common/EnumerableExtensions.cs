@@ -90,6 +90,18 @@ public static class EnumerableExtensions
     /// </remarks>
     public static IEnumerable<T> RotateLeft<T>(this IEnumerable<T> coll, int count = 1)
     {
+        if(count < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(count));
+        }
+
+        var size = coll.Count();
+        if(size == 0)
+        {
+            return coll;
+        }
+
+        count %= size;
         return coll.Skip(count).Concat(coll.Take(count));
     }
 
@@ -101,6 +113,18 @@ public static class EnumerableExtensions
     /// </remarks>
     public static IEnumerable<T> RotateRight<T>(this IEnumerable<T> coll, int count = 1)
     {
+        if(count < 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(count));
+        }
+
+        var size = coll.Count();
+        if(size == 0)
+        {
+            return coll;
+        }
+
+        count %= size;
         return coll.TakeLast(count).Concat(coll.SkipLast(count));
     }
 
