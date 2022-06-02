@@ -6,7 +6,6 @@ on:
   pull_request:
     types: [closed]
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
   build:
@@ -21,9 +20,6 @@ jobs:
       with:
         dotnet-version: '6.0'
         include-prerelease: True
-        source-url: "https://nuget.pkg.github.com/matthiasffm"
-      env:
-        NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
     - name: Restore dependencies
       run: dotnet restore
@@ -33,12 +29,3 @@ jobs:
 
     - name: Test
       run: dotnet test --no-build --verbosity normal --configuration Release
-
-    - name: Build package
-      run: dotnet pack --configuration Release
-
-    - name: Setting nuget source
-      run: dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/matthiasffm/index.json"
-
-    - name: Publish nuget package
-      run: dotnet nuget push "Common/bin/Release/**/*.nupkg" --skip-duplicate --no-symbols true
