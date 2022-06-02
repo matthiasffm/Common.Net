@@ -18,7 +18,7 @@ jobs:
         include-prerelease: True
 
     - name: Build package
-      run: dotnet pack Common/Common.csproj -c Release --no-restore -v d
+      run: dotnet pack Common/Common.csproj -c Release -v d
 
     - name: Adding GitHub nuget source
       run: dotnet nuget add source --username matthiasffm --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/matthiasffm/index.json"
