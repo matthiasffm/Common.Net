@@ -1,10 +1,14 @@
-﻿namespace matthiasffm.Common.Math;
+﻿using System.Numerics;
+
+namespace matthiasffm.Common.Math;
 
 /// <summary>
 /// Methoden zur Bestimmung des größten gemeinsamen Teilers zweier oder mehrere ganzer Zahlen nach Euklid.
 /// </summary>
 public static class Euclid
 {
+    // TODO: alle Methoden zu einer einzigen generischen zusammenfassen, sobald BigInteger INumber implementiert
+
     /// <summary>
     /// Berechnet den größten gemeinsamen Teiler der ganzen Zahlen a und b
     /// </summary>
@@ -117,6 +121,25 @@ public static class Euclid
         if(b == 0)
         {
             return (System.Math.Abs(a), 1, 0);
+        }
+
+        var (ggt, x, y) = GcdExt(b, a % b);
+        return (ggt, y, x - (a / b) * y);
+    }
+
+    /// <summary>
+    /// Berechnet den größten gemeinsamen Teiler zweier sehr großer ganzer Zahlen a und b sowie die Koeffizienten x und y nach dem
+    /// Lemma von Bezout, so dass a * x + b * y = GGT(a, b). Hierbei sind x und y ebenfalls ganzzahlig.
+    /// </summary>
+    public static (BigInteger gcd, BigInteger x, BigInteger y) GcdExt(BigInteger a, BigInteger b)
+    {
+        if(a == 0)
+        {
+            return (BigInteger.Abs(b), 0, 1);
+        }
+        if(b == 0)
+        {
+            return (BigInteger.Abs(a), 1, 0);
         }
 
         var (ggt, x, y) = GcdExt(b, a % b);
