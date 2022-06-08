@@ -8,7 +8,7 @@ public class BinaryTreeNode<T>
     public BinaryTreeNode<T>? Left { get; internal set; }
     public BinaryTreeNode<T>? Right { get; internal set; }
 
-    public T Item { get; internal set; }
+    public T Item { get; set; }
 
     public bool IsLeaf { get => Left == null && Right == null; }
 
@@ -77,6 +77,30 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
 
         var clonedSubtree = parent.Right = CloneNode(newRightChild);
         clonedSubtree.Parent = parent;
+    }
+
+    public void DeleteLeftChild(BinaryTreeNode<T> parent)
+    {
+        ArgumentNullException.ThrowIfNull(parent);
+
+        if(parent.Left != null)
+        {
+            parent.Left.Parent = null;
+        }
+
+        parent.Left = null;
+    }
+
+    public void DeleteRightChild(BinaryTreeNode<T> parent)
+    {
+        ArgumentNullException.ThrowIfNull(parent);
+
+        if (parent.Right != null)
+        {
+            parent.Right.Parent = null;
+        }
+
+        parent.Right = null;
     }
 
     public int Depth(BinaryTreeNode<T>? node)
