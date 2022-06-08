@@ -201,6 +201,22 @@ internal class TestBinaryTree
         rightOfRoot.Item.Should().Be(7);
     }
 
+    [Test]
+    public void TestDeleteNodes()
+    {
+        // arrange
+        var testTree = CreateTreeForIteratorTests();
+
+        // act
+        testTree.DeleteLeftChild(testTree.Root.Left);
+        testTree.DeleteLeftChild(testTree.Root.Right.Right);
+        testTree.DeleteRightChild(testTree.Root.Right.Left);
+
+        // assert
+        testTree.Root.Left.Left.Should().BeNull();
+        testTree.Root.Right.Right.Left.Should().BeNull();
+        testTree.Root.Right.Left.Right.Should().BeNull();
+    }
 
     /// <summary>
     /// Erstellt einen Testbaum für die Iteratoren-Tests

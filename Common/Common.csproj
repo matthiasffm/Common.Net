@@ -10,7 +10,7 @@
 
   <PropertyGroup>
     <PackageId>matthiasffm.Common</PackageId>
-    <Version>1.3.1</Version>
+    <Version>1.3.2</Version>
     <Authors>matthiasffm</Authors>
     <Company>matthiasffm</Company>
     <PackageDescription>common code for all my .net projects</PackageDescription>
