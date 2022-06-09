@@ -1,3 +1,5 @@
+using System.Numerics;
+
 namespace matthiasffm.Common.Algorithms;
 
 public static class Search
@@ -266,7 +268,6 @@ public static class Search
     /// <param name="CalcCosts">diese Funktion liefert die tatsächlichen Kosten von einem Knoten zu einem Nachbarknoten</param>
     /// <param name="EstimateToFinish">diese Funktion liefert die geschätzten Kosten von einem Knoten zum Ziel-Knoten</param>
     /// <param name="maxCost">der Maximalwert von TCost zB int.MaxValue</param>
-    /// <param name="Add">diese Funktion addiert zwei TCost-Werte</param>
     /// <typeparam name="TCost">Typ der Distanz</typeparam>
     /// <typeparam name="TPos">Elementetyp von <paramref name="nodes"/></typeparam>
     /// <returns>die Knoten bilden den besten Pfad von <paramref name="start"/> zum <paramref name="finish"/></returns>
@@ -276,22 +277,20 @@ public static class Search
                                                        Func<TPos, IEnumerable<TPos>> Neighbors,
                                                        Func<TPos, TPos, TCost> CalcCosts,
                                                        Func<TPos, TCost> EstimateToFinish,
-                                                       TCost maxCost,
-                                                       Func<TCost, TCost, TCost> Add)
-                                                       where TPos  : notnull
-                                                       where TCost : notnull, IComparable
+                                                       TCost maxCost)
+        where TPos  : notnull
+        where TCost : notnull, INumber<TCost>
     {
         ArgumentNullException.ThrowIfNull(Neighbors);
         ArgumentNullException.ThrowIfNull(CalcCosts);
         ArgumentNullException.ThrowIfNull(EstimateToFinish);
-        ArgumentNullException.ThrowIfNull(Add);
 
         // init Maps für Pfade und Kosten mit dem Startknoten
 
         var openSet  = new HashSet<TPos>(new [] { start });
         var cameFrom = new Dictionary<TPos, TPos>();
 
-        var minPathCosts = nodes.ToDictionary(coord => coord, coord => maxCost);
+        var minPathCosts = nodes.ToDictionary(coord => coord, _ => maxCost);
         minPathCosts[start] = default!;
 
         var estimatedCostToFinish = new Dictionary<TPos, TCost>(minPathCosts)
@@ -323,7 +322,7 @@ public static class Search
 
                 foreach(var neighbor in Neighbors(current))
                 {
-                    var costToNeighbor = Add(minPathCosts[current], CalcCosts(current, neighbor));
+                    var costToNeighbor = minPathCosts[current] + CalcCosts(current, neighbor);
 
                     if(costToNeighbor.CompareTo(minPathCosts[neighbor]) < 0)
                     {
@@ -331,7 +330,7 @@ public static class Search
 
                         cameFrom[neighbor] = current;
                         minPathCosts[neighbor] = costToNeighbor;
-                        estimatedCostToFinish[neighbor] = Add(costToNeighbor, EstimateToFinish(neighbor));
+                        estimatedCostToFinish[neighbor] = costToNeighbor + EstimateToFinish(neighbor);
 
                         if(!openSet.Contains(neighbor))
                         {
