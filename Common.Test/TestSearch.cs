@@ -166,8 +166,7 @@ internal class TestSearch
                                         (city) => Array.Empty<string>(),
                                         (a, b) => 10L,
                                         (city) => 10L,
-                                        1000L,
-                                        (a, b) => a + b);
+                                        1000L);
 
         // assert
 
@@ -189,8 +188,7 @@ internal class TestSearch
                                                (city) => SurroundingCities(city),
                                                (a, b) => DistanceByStreet(a, b),
                                                (city) => DistanceByAir(city, "Bonn"),
-                                               1000L,
-                                               (a, b) => a + b);
+                                               1000L);
 
         var pathFromErlenseeToFlorstadt = Search.AStar(cities,
                                                        "Erlensee",
@@ -198,8 +196,7 @@ internal class TestSearch
                                                        (city) => SurroundingCities(city),
                                                        (a, b) => DistanceByStreet(a, b),
                                                        (city) => DistanceByAir(city, "Florstadt"),
-                                                       1000L,
-                                                       (a, b) => a + b);
+                                                       1000L);
 
         // assert
 
