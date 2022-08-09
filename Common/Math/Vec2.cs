@@ -80,12 +80,41 @@ public record Vec2<T>(T X, T Y) :
 
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
-        throw new NotImplementedException();
+        charsWritten = 0;
+
+        if(destination.Length <= 6)
+        {
+            return false;
+        }
+
+        destination[charsWritten++] = '(';
+
+        var xWritten = X.TryFormat(destination.Slice(charsWritten), out int xCharsWritten, null, null);
+        charsWritten += xCharsWritten; 
+
+        if(!xWritten || destination.Length < charsWritten + 2)
+        {
+            return false;
+        }
+
+        destination[charsWritten++] = ',';
+        destination[charsWritten++] = ' ';
+
+        var yWritten = Y.TryFormat(destination.Slice(charsWritten), out int yCharsWritten, null, null);
+        charsWritten += yCharsWritten;
+
+        if(!yWritten || destination.Length < charsWritten + 1)
+        {
+            return false;
+        }
+
+        destination[charsWritten++] = ')';
+        return true;
     }
 
     public string ToString(string? format, IFormatProvider? formatProvider)
     {
-        throw new NotImplementedException();
+        return this.ToString();
     }
 
     public static Vec2<T> operator +(Vec2<T> left, Vec2<T> right)
@@ -225,7 +254,7 @@ public record Vec2<T>(T X, T Y) :
     {
         ArgumentNullException.ThrowIfNull(vec);
 
-        return new Vec2<T>(vec.X * scalar, vec.Y * scalar);
+        return new Vec2<T>(scalar * vec.X, scalar * vec.Y);
     }
 
     public static Vec2<T> operator /(Vec2<T> vec, T scalar)
@@ -264,3 +293,4 @@ public record Vec2<T>(T X, T Y) :
 }
 
 #pragma warning restore CA1000 // Do not declare static members on generic types
+#pragma warning restore CA2225 // Provide friendly name for numeric operator

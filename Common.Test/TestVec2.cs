@@ -2,6 +2,7 @@
 using NUnit.Framework;
 
 using matthiasffm.Common.Math;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace matthiasffm.Common.Test;
 
@@ -344,7 +345,6 @@ internal class TestVec2
         length3.Should().Be(0);
     }
 
-
     [Test]
     public void TestLerp()
     {
@@ -366,5 +366,72 @@ internal class TestVec2
         lerp3.Should().Be(new Vec2<float>(1, -1));
         lerp4.Should().Throw<ArgumentNullException>();
         lerp5.Should().Throw<ArgumentNullException>();
+    }
+
+    [Test]
+    public void TestTryFormat()
+    {
+        // arrange
+
+        var vec = new Vec2<float>(1234567, -7654321);
+        var mem = new char[40];
+        Span<char> span = mem;
+
+        // act
+
+        var spanLonger = span.Slice(0, 30);
+        var successLonger = vec.TryFormat(spanLonger, out int writtenLonger, null, null);
+
+        var spanExact = span.Slice(0, 19);
+        var successExact = vec.TryFormat(spanExact, out int writtenExact, null, null);
+
+        var spanShort1 = span.Slice(0, 18);
+        var successShort1 = vec.TryFormat(spanShort1, out int writtenShort1, null, null);
+        var spanShort2 = span.Slice(0, 12);
+        var successShort2 = vec.TryFormat(spanShort2, out int writtenShort2, null, null);
+        var spanShort3 = span.Slice(0, 11);
+        var successShort3 = vec.TryFormat(spanShort3, out int writtenShort3, null, null);
+        var spanShort4 = span.Slice(0, 10);
+        var successShort4 = vec.TryFormat(spanShort4, out int writtenShort4, null, null);
+        var spanShort5 = span.Slice(0, 9);
+        var successShort5 = vec.TryFormat(spanShort5, out int writtenShort5, null, null);
+        var spanShort6 = span.Slice(0, 1);
+        var successShort6 = vec.TryFormat(spanShort6, out int writtenShort6, null, null);
+
+        var spanEmpty = span.Slice(0, 0);
+        var successEmpty = vec.TryFormat(spanEmpty, out int writtenEmpty, null, null);
+
+        // assert
+
+        successLonger.Should().BeTrue();
+        writtenLonger.Should().Be(19);
+        spanLonger.Slice(0, writtenLonger).ToString().Should().Be("(1234567, -7654321)");
+
+        successExact.Should().BeTrue();
+        writtenExact.Should().Be(19);
+        spanExact.Slice(0, writtenExact).ToString().Should().Be("(1234567, -7654321)");
+
+        successShort1.Should().BeFalse();
+        writtenShort1.Should().Be(18);
+        spanShort1.Slice(0, writtenShort1).ToString().Should().Be("(1234567, -7654321");
+        successShort2.Should().BeFalse();
+        writtenShort2.Should().Be(10);
+        spanShort2.Slice(0, writtenShort2).ToString().Should().Be("(1234567, ");
+        successShort3.Should().BeFalse();
+        writtenShort3.Should().Be(10);
+        spanShort3.Slice(0, writtenShort3).ToString().Should().Be("(1234567, ");
+        successShort4.Should().BeFalse();
+        writtenShort4.Should().Be(10);
+        spanShort4.Slice(0, writtenShort4).ToString().Should().Be("(1234567, ");
+        successShort5.Should().BeFalse();
+        writtenShort5.Should().Be(8);
+        spanShort5.Slice(0, writtenShort5).ToString().Should().Be("(1234567");
+        successShort6.Should().BeFalse();
+        writtenShort6.Should().Be(0);
+        spanShort6.Slice(0, writtenShort6).ToString().Should().BeEmpty();
+
+        successEmpty.Should().BeFalse();
+        writtenEmpty.Should().Be(0);
+        spanEmpty.Slice(0, writtenEmpty).ToString().Should().BeEmpty();
     }
 }
