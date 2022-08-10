@@ -82,7 +82,7 @@ public record Vec2<T>(T X, T Y) :
     {
         charsWritten = 0;
 
-        if(destination.Length <= 6)
+        if(destination.Length < 6)
         {
             return false;
         }
@@ -271,13 +271,13 @@ public record Vec2<T>(T X, T Y) :
         return X * right.X + Y * right.Y;
     }
 
-    public bool In(Vec2<T> topLeft, Vec2<T> bottomRight)
+    public bool In(Vec2<T> bottomLeft, Vec2<T> topRight)
     {
-        ArgumentNullException.ThrowIfNull(topLeft);
-        ArgumentNullException.ThrowIfNull(bottomRight);
+        ArgumentNullException.ThrowIfNull(bottomLeft);
+        ArgumentNullException.ThrowIfNull(topRight);
 
-        return X >= topLeft.X && X <= bottomRight.X &&
-               Y <= topLeft.Y && Y >= bottomRight.Y;
+        return X >= bottomLeft.X && X <= topRight.X &&
+               Y >= bottomLeft.Y && Y <= topRight.Y;
     }
 
     public static Vec2<T> Lerp(Vec2<T> min, Vec2<T> max, T amount)

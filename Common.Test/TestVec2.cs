@@ -303,18 +303,18 @@ internal class TestVec2
     public void TestIn()
     {
         // arrange
-        var topLeft     = new Vec2<int>(-4, 9);
-        var bottomRight = new Vec2<int>(7, -3);
+        var bottomLeft = new Vec2<int>(-4, -3);
+        var topRight   = new Vec2<int>(7, 9);
         Vec2<int> vecN = null;
 
         // act
-        var in1 = new Vec2<int>(-3, -3).In(topLeft, bottomRight);
-        var in2 = new Vec2<int>(-5, -3).In(topLeft, bottomRight);
-        var in3 = new Vec2<int>(-4, -4).In(topLeft, bottomRight);
-        var in4 = new Vec2<int>(2, 7).In(topLeft, bottomRight);
-        var in5 = new Vec2<int>(2, 7).In(bottomRight, topLeft);
-        var inN1 = () => new Vec2<int>(-3, -3).In(topLeft, vecN);
-        var inN2 = () => new Vec2<int>(-3, -3).In(vecN, bottomRight);
+        var in1 = new Vec2<int>(-3, -3).In(bottomLeft, topRight);
+        var in2 = new Vec2<int>(-5, -3).In(bottomLeft, topRight);
+        var in3 = new Vec2<int>(-4, -4).In(bottomLeft, topRight);
+        var in4 = new Vec2<int>(2, 7).In(bottomLeft, topRight);
+        var in5 = new Vec2<int>(2, 7).In(topRight, bottomLeft);
+        var inN1 = () => new Vec2<int>(-3, -3).In(bottomLeft, vecN);
+        var inN2 = () => new Vec2<int>(-3, -3).In(vecN, topRight);
 
         // assert
         in1.Should().BeTrue();
