@@ -302,6 +302,38 @@ public record Vec3<T>(T X, T Y, T Z) :
                            min.Z + amount * (max.Z - min.Z));
     }
 
+    /// <summary>
+    /// Berechnet die Entfernung² zwischen dem durch diesen Vektor bestimmten 3D-Punkt und dem durch <i>right</i>
+    /// festgelegten 3D-Punkt.
+    /// </summary>
+    public T SquaredDistance(Vec3<T> right)
+    {
+        ArgumentNullException.ThrowIfNull(right);
+
+        var dx = X - right.X;
+        var dy = Y - right.Y;
+        var dz = Z - right.Z;
+
+        return dx * dx + dy * dy + dz * dz;
+    }
+
+    /// <summary>
+    /// Berechnet die Manhattan-Entfernung zwischen dem durch diesen Vektor bestimmten 3D-Punkt und dem durch <i>right</i>
+    /// festgelegten 3D-Punkt.
+    /// </summary>
+    public T ManhattanDistance(Vec3<T> right)
+    {
+        ArgumentNullException.ThrowIfNull(right);
+
+        var dx = X - right.X;
+        var dy = Y - right.Y;
+        var dz = Z - right.Z;
+
+        return (dx > T.Zero ? dx : -dx) +
+               (dy > T.Zero ? dy : -dy) +
+               (dz > T.Zero ? dz : -dz);
+    }
+
     public override string ToString() => $"({X}, {Y}, {Z})";
 }
 

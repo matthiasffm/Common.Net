@@ -289,6 +289,35 @@ public record Vec2<T>(T X, T Y) :
                            min.Y + amount * (max.Y - min.Y));
     }
 
+    /// <summary>
+    /// Berechnet die Entfernung² zwischen dem durch diesen Vektor bestimmten 2D-Punkt und dem durch <i>right</i>
+    /// festgelegten 2D-Punkt.
+    /// </summary>
+    public T SquaredDistance(Vec2<T> right)
+    {
+        ArgumentNullException.ThrowIfNull(right);
+
+        var dx = X - right.X;
+        var dy = Y - right.Y;
+
+        return dx * dx + dy * dy;
+    }
+
+    /// <summary>
+    /// Berechnet die Manhattan-Entfernung zwischen dem durch diesen Vektor bestimmten 2D-Punkt und dem durch <i>right</i>
+    /// festgelegten 2D-Punkt.
+    /// </summary>
+    public T ManhattanDistance(Vec2<T> right)
+    {
+        ArgumentNullException.ThrowIfNull(right);
+
+        var dx = X - right.X;
+        var dy = Y - right.Y;
+
+        return (dx > T.Zero ? dx : -dx) +
+               (dy > T.Zero ? dy : -dy);
+    }
+
     public override string ToString() => $"({X}, {Y})";
 }
 

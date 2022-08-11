@@ -434,4 +434,46 @@ internal class TestVec2
         writtenEmpty.Should().Be(0);
         spanEmpty.Slice(0, writtenEmpty).ToString().Should().BeEmpty();
     }
+
+    [Test]
+    public void TestSquaredDistance()
+    {
+        // arrange
+        var vec1 = new Vec2<float>(-1, -7);
+        var vec2 = new Vec2<float>(4, 8);
+        Vec2<float> vecN = null;
+
+        // act
+        var distSquared12 = vec1.SquaredDistance(vec2);
+        var distSquared21 = vec2.SquaredDistance(vec1);
+        var distSquared11 = vec1.SquaredDistance(vec1);
+        var distSquared1N = () => vec1.SquaredDistance(vecN);
+
+        // assert
+        distSquared12.Should().Be(distSquared21);
+        distSquared12.Should().Be(5 * 5 + 15 * 15);
+        distSquared11.Should().Be(0);
+        distSquared1N.Should().Throw<ArgumentNullException>();
+    }
+
+    [Test]
+    public void TestManhattanDistance()
+    {
+        // arrange
+        var vec1 = new Vec2<float>(-1, -7);
+        var vec2 = new Vec2<float>(4, 8);
+        Vec2<float> vecN = null;
+
+        // act
+        var distManhattan12 = vec1.ManhattanDistance(vec2);
+        var distManhattan21 = vec2.ManhattanDistance(vec1);
+        var distManhattan11 = vec1.ManhattanDistance(vec1);
+        var distManhattan1N = () => vec1.ManhattanDistance(vecN);
+
+        // assert
+        distManhattan12.Should().Be(distManhattan21);
+        distManhattan12.Should().Be(5 + 15);
+        distManhattan11.Should().Be(0);
+        distManhattan1N.Should().Throw<ArgumentNullException>();
+    }
 }
