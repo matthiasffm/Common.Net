@@ -9,55 +9,6 @@ namespace matthiasffm.Common.Test;
 internal class TestVec3
 {
     [Test]
-    public void TestCompareToObj()
-    {
-        // arrange
-        var vec1 = new Vec3<int>(1, 2, 3);
-        string compare1 = null;
-        string compare2 = "test";
-        Vec3<int> compare3 = null;
-        Vec3<float> compare4 = null;
-
-        // act
-        int compRes1 = vec1.CompareTo(compare1);
-        int compRes2 = vec1.CompareTo(compare2);
-        int compRes3 = vec1.CompareTo(compare3);
-        int compRes4 = vec1.CompareTo(compare4);
-
-        // assert
-        compRes1.Should().Be(1);
-        compRes2.Should().Be(1);
-        compRes3.Should().Be(1);
-        compRes4.Should().Be(1);
-    }
-
-    [Test]
-    public void TestCompareToVec3()
-    {
-        // arrange
-        var vec1 = new Vec3<int>(1, 2, 3);
-        var vec2 = new Vec3<int>(0, 2, 3);
-        var vec3 = new Vec3<int>(1, 2, 3);
-        var vec4 = new Vec3<int>(2, 2, 5);
-        var vec5 = new Vec3<int>(4, 3, 7);
-        var vec6 = new Vec3<int>(0, 0, 0);
-
-        // act
-        int comp1 = vec1.CompareTo(vec2);
-        int comp2 = vec1.CompareTo(vec3);
-        int comp3 = vec1.CompareTo(vec4);
-        int comp4 = vec1.CompareTo(vec5);
-        int comp5 = vec1.CompareTo(vec6);
-
-        // assert
-        comp1.Should().Be(1);
-        comp2.Should().Be(0);
-        comp3.Should().Be(-1);
-        comp4.Should().Be(-1);
-        comp5.Should().Be(1);
-    }
-
-    [Test]
     public void TestAdd()
     {
         // arrange
@@ -83,29 +34,6 @@ internal class TestVec3
     }
 
     [Test]
-    public void TestIncrement()
-    {
-        // arrange
-        var vec1 = new Vec3<int>(1, 2, 3);
-        Vec3<int> vec2 = null;
-
-        // act
-        var inc1 = vec1++;
-        var inc2 = vec1++;
-        var inc3 = ++vec1;
-        var inc4 = ++vec1;
-        var inc5 = () => vec2++;
-
-        // assert
-        vec1.Should().Be(new Vec3<int>(1 + 4, 2 + 4, 3 + 4));
-        inc1.Should().Be(new Vec3<int>(1, 2, 3));
-        inc2.Should().Be(new Vec3<int>(2, 3, 4));
-        inc3.Should().Be(new Vec3<int>(4, 5, 6));
-        inc4.Should().Be(new Vec3<int>(5, 6, 7));
-        inc5.Should().Throw<ArgumentNullException>();
-    }
-
-    [Test]
     public void TestSubtract()
     {
         // arrange
@@ -128,29 +56,6 @@ internal class TestVec3
         sub3.Should().Be(new Vec3<int>(-5, -9, -5));
         sub4.Should().Be(new Vec3<int>(1, 2, 3));
         sub5.Should().Throw<ArgumentNullException>();
-    }
-
-    [Test]
-    public void TestDecrement()
-    {
-        // arrange
-        var vec1 = new Vec3<int>(1, 2, 3);
-        Vec3<int> vec2 = null;
-
-        // act
-        var dec1 = vec1--;
-        var dec2 = vec1--;
-        var dec3 = --vec1;
-        var dec4 = --vec1;
-        var dec5 = () => vec2--;
-
-        // assert
-        vec1.Should().Be(new Vec3<int>(1 - 4, 2 - 4, 3 - 4));
-        dec1.Should().Be(new Vec3<int>(1, 2, 3));
-        dec2.Should().Be(new Vec3<int>(0, 1, 2));
-        dec3.Should().Be(new Vec3<int>(-2, -1, 0));
-        dec4.Should().Be(new Vec3<int>(-3, -2, -1));
-        dec5.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
@@ -303,18 +208,18 @@ internal class TestVec3
     public void TestIn()
     {
         // arrange
-        var topLeft = new Vec3<int>(-4, -3, 2);
-        var bottomRight = new Vec3<int>(7, 9, 5);
+        var bottomLeft = new Vec3<int>(-4, -3, 2);
+        var topRight   = new Vec3<int>(7, 9, 5);
         Vec3<int> vecN = null;
 
         // act
-        var in1 = new Vec3<int>(-3, -3, 3).In(topLeft, bottomRight);
-        var in2 = new Vec3<int>(-5, -3, 3).In(topLeft, bottomRight);
-        var in3 = new Vec3<int>(-4, -4, 1).In(topLeft, bottomRight);
-        var in4 = new Vec3<int>(2, 7, 4).In(topLeft, bottomRight);
-        var in5 = new Vec3<int>(2, 7, 3).In(bottomRight, topLeft);
-        var inN1 = () => new Vec3<int>(-3, -3, -3).In(topLeft, vecN);
-        var inN2 = () => new Vec3<int>(-3, -3, -3).In(vecN, bottomRight);
+        var in1 = new Vec3<int>(-3, -3, 3).In(bottomLeft, topRight);
+        var in2 = new Vec3<int>(-5, -3, 3).In(bottomLeft, topRight);
+        var in3 = new Vec3<int>(-4, -4, 1).In(bottomLeft, topRight);
+        var in4 = new Vec3<int>(2, 7, 4).In(bottomLeft, topRight);
+        var in5 = new Vec3<int>(2, 7, 3).In(topRight, bottomLeft);
+        var inN1 = () => new Vec3<int>(-3, -3, -3).In(bottomLeft, vecN);
+        var inN2 = () => new Vec3<int>(-3, -3, -3).In(vecN, topRight);
 
         // assert
         in1.Should().BeTrue();
@@ -379,60 +284,60 @@ internal class TestVec3
 
         // act
 
-        var spanLonger = span.Slice(0, 40);
+        var spanLonger = span[..40];
         var successLonger = vec.TryFormat(spanLonger, out int writtenLonger, null, null);
 
-        var spanExact = span.Slice(0, 28);
+        var spanExact = span[..28];
         var successExact = vec.TryFormat(spanExact, out int writtenExact, null, null);
 
-        var spanShort1 = span.Slice(0, 27);
+        var spanShort1 = span[..27];
         var successShort1 = vec.TryFormat(spanShort1, out int writtenShort1, null, null);
-        var spanShort2 = span.Slice(0, 26);
+        var spanShort2 = span[..26];
         var successShort2 = vec.TryFormat(spanShort2, out int writtenShort2, null, null);
-        var spanShort3 = span.Slice(0, 19);
+        var spanShort3 = span[..19];
         var successShort3 = vec.TryFormat(spanShort3, out int writtenShort3, null, null);
-        var spanShort4 = span.Slice(0, 18);
+        var spanShort4 = span[..18];
         var successShort4 = vec.TryFormat(spanShort4, out int writtenShort4, null, null);
-        var spanShort5 = span.Slice(0, 9);
+        var spanShort5 = span[..9];
         var successShort5 = vec.TryFormat(spanShort5, out int writtenShort5, null, null);
-        var spanShort6 = span.Slice(0, 1);
+        var spanShort6 = span[..1];
         var successShort6 = vec.TryFormat(spanShort6, out int writtenShort6, null, null);
 
-        var spanEmpty = span.Slice(0, 0);
+        var spanEmpty = span[..0];
         var successEmpty = vec.TryFormat(spanEmpty, out int writtenEmpty, null, null);
 
         // assert
 
         successLonger.Should().BeTrue();
         writtenLonger.Should().Be(28);
-        spanLonger.Slice(0, writtenLonger).ToString().Should().Be("(1234567, -7654321, 1122233)");
+        spanLonger[..writtenLonger].ToString().Should().Be("(1234567, -7654321, 1122233)");
 
         successExact.Should().BeTrue();
         writtenExact.Should().Be(28);
-        spanExact.Slice(0, writtenExact).ToString().Should().Be("(1234567, -7654321, 1122233)");
+        spanExact[..writtenExact].ToString().Should().Be("(1234567, -7654321, 1122233)");
 
         successShort1.Should().BeFalse();
         writtenShort1.Should().Be(27);
-        spanShort1.Slice(0, writtenShort1).ToString().Should().Be("(1234567, -7654321, 1122233");
+        spanShort1[..writtenShort1].ToString().Should().Be("(1234567, -7654321, 1122233");
         successShort2.Should().BeFalse();
         writtenShort2.Should().Be(20);
-        spanShort2.Slice(0, writtenShort2).ToString().Should().Be("(1234567, -7654321, ");
+        spanShort2[..writtenShort2].ToString().Should().Be("(1234567, -7654321, ");
         successShort3.Should().BeFalse();
         writtenShort3.Should().Be(18);
-        spanShort3.Slice(0, writtenShort3).ToString().Should().Be("(1234567, -7654321");
+        spanShort3[..writtenShort3].ToString().Should().Be("(1234567, -7654321");
         successShort4.Should().BeFalse();
         writtenShort4.Should().Be(18);
-        spanShort4.Slice(0, writtenShort4).ToString().Should().Be("(1234567, -7654321");
+        spanShort4[..writtenShort4].ToString().Should().Be("(1234567, -7654321");
         successShort5.Should().BeFalse();
         writtenShort5.Should().Be(8);
-        spanShort5.Slice(0, writtenShort5).ToString().Should().Be("(1234567");
+        spanShort5[..writtenShort5].ToString().Should().Be("(1234567");
         successShort6.Should().BeFalse();
         writtenShort6.Should().Be(0);
-        spanShort6.Slice(0, writtenShort6).ToString().Should().BeEmpty();
+        spanShort6[..writtenShort6].ToString().Should().BeEmpty();
 
         successEmpty.Should().BeFalse();
         writtenEmpty.Should().Be(0);
-        spanEmpty.Slice(0, writtenEmpty).ToString().Should().BeEmpty();
+        spanEmpty[..writtenEmpty].ToString().Should().BeEmpty();
     }
 
     [Test]

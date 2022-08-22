@@ -2,82 +2,62 @@
 
 namespace matthiasffm.Common.Math;
 
-// disable stupid rule
+// unpassende Regeln abstellen
 #pragma warning disable CA1000 // Do not declare static members on generic types
 #pragma warning disable CA2225 // Provide friendly name for numeric operator
 
-
+/// <summary>
+/// 3D-Vektor mit immutable Charakteristik
+/// </summary>
+/// <typeparam name="T">Typ der Koordinaten, muss INumber implementieren</typeparam>
 public record Vec3<T>(T X, T Y, T Z) :
-    IComparable, IComparable<Vec3<T>>, IComparisonOperators<Vec3<T>, Vec3<T>>,
-    INumberBase<Vec3<T>>
-    where T : IComparable, IComparable<T>, IComparisonOperators<T, T>,
-              INumberBase<T>
+    IAdditiveIdentity<Vec3<T>, Vec3<T>>, IMultiplicativeIdentity<Vec3<T>, Vec3<T>>,
+    IEquatable<Vec3<T>>, IEqualityOperators<Vec3<T>, Vec3<T>>,
+    IFormattable, ISpanFormattable,
+    IAdditionOperators<Vec3<T>, Vec3<T>, Vec3<T>>,
+    ISubtractionOperators<Vec3<T>, Vec3<T>, Vec3<T>>,
+    IMultiplyOperators<Vec3<T>, Vec3<T>, Vec3<T>>,
+    IDivisionOperators<Vec3<T>, Vec3<T>, Vec3<T>>,
+    IUnaryNegationOperators<Vec3<T>, Vec3<T>>, IUnaryPlusOperators<Vec3<T>, Vec3<T>>
+    where T : INumber<T>
 {
-    #region INumberBase<T> Properties
+    #region IAdditiveIdentity, IMultiplicativeIdentity Properties
 
+    /// <summary>
+    /// Einheitsvektor, d.h. alle Koordinaten sind vom Wert One des Typs T
+    /// </summary>
     public static Vec3<T> One => new(T.One, T.One, T.One);
 
+    /// <summary>
+    /// Null-Vektor, d.h. alle Koordinaten sind vom Wert Zero des Typs T
+    /// </summary>
     public static Vec3<T> Zero => new(T.Zero, T.Zero, T.Zero);
 
-    public static Vec3<T> AdditiveIdentity => Zero;
+    /// <summary>
+    /// v1 + AdditiveIdentity == v1
+    /// </summary>
+    public static Vec3<T> AdditiveIdentity => new(T.AdditiveIdentity, T.AdditiveIdentity, T.AdditiveIdentity);
 
-    public static Vec3<T> MultiplicativeIdentity => One;
+    /// <summary>
+    /// v1 .* MultiplicativeIdentity == v1
+    /// </summary>
+    public static Vec3<T> MultiplicativeIdentity => new(T.MultiplicativeIdentity, T.MultiplicativeIdentity, T.MultiplicativeIdentity);
 
     #endregion
 
-    /// <summary>Länge des Vektors im Quadrat.</summary>
+    /// <summary>Länge² des Vektors</summary>
     public T LengthSquared => X * X + Y * Y + Z * Z;
 
-    #region IComparable, IComparable<T>, IComparisonOperators<T, T>
+    #region IFormattable, ISpanFormattable
 
-    public int CompareTo(object? obj)
-    {
-        if(obj == null || (obj is not Vec3<T> vec2))
-        {
-            return 1;
-        }
-        else
-        {
-            return LengthSquared.CompareTo(vec2.LengthSquared);
-        }
-    }
-
-    public int CompareTo(Vec3<T>? obj)
-    {
-        if(obj == null)
-        {
-            return 1;
-        }
-        else
-        {
-            return LengthSquared.CompareTo(obj.LengthSquared);
-        }
-    }
-
-    public static bool operator <(Vec3<T> left, Vec3<T> right)
-    {
-        return left is null ? right is not null : left.CompareTo(right) < 0;
-    }
-
-    public static bool operator <=(Vec3<T> left, Vec3<T> right)
-    {
-        return left is null || left.CompareTo(right) <= 0;
-    }
-
-    public static bool operator >(Vec3<T> left, Vec3<T> right)
-    {
-        return left is not null && left.CompareTo(right) > 0;
-    }
-
-    public static bool operator >=(Vec3<T> left, Vec3<T> right)
-    {
-        return left is null ? right is null : left.CompareTo(right) >= 0;
-    }
-
-    #endregion
-
-    #region INUmberBase<T> Operatoren und Methoden
-
+    /// <summary>
+    /// Schreibt die 3 Koordinatenwerte des Vektors formatiert in das durch den Aufrufer bereitgestellte char-Array.
+    /// </summary>
+    /// <param name="destination">hier hinein schreibt die Methode den formatierten Wert des Vektors</param>
+    /// <param name="charsWritten">Anzahl an in destination geschriebene Zeichen</param>
+    /// <param name="format">wird ignoriert</param>
+    /// <param name="provider">wird ignoriert</param>
+    /// <returns><i>true</i>, wenn destination ausreichend Speicher für alle Zeichen der Formatierung bereitstellt, sonst <i>false</i></returns>
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
         charsWritten = 0;
@@ -89,7 +69,7 @@ public record Vec3<T>(T X, T Y, T Z) :
 
         destination[charsWritten++] = '(';
 
-        var xWritten = X.TryFormat(destination.Slice(charsWritten), out int xCharsWritten, null, null);
+        var xWritten = X.TryFormat(destination[charsWritten..], out int xCharsWritten, null, null);
         charsWritten += xCharsWritten;
 
         if(!xWritten || destination.Length < charsWritten + 2)
@@ -100,7 +80,7 @@ public record Vec3<T>(T X, T Y, T Z) :
         destination[charsWritten++] = ',';
         destination[charsWritten++] = ' ';
 
-        var yWritten = Y.TryFormat(destination.Slice(charsWritten), out int yCharsWritten, null, null);
+        var yWritten = Y.TryFormat(destination[charsWritten..], out int yCharsWritten, null, null);
         charsWritten += yCharsWritten;
 
         if(!yWritten || destination.Length < charsWritten + 2)
@@ -111,7 +91,7 @@ public record Vec3<T>(T X, T Y, T Z) :
         destination[charsWritten++] = ',';
         destination[charsWritten++] = ' ';
 
-        var zWritten = Z.TryFormat(destination.Slice(charsWritten), out int zCharsWritten, null, null);
+        var zWritten = Z.TryFormat(destination[charsWritten..], out int zCharsWritten, null, null);
         charsWritten += zCharsWritten;
 
         if(!zWritten || destination.Length < charsWritten + 1)
@@ -123,11 +103,32 @@ public record Vec3<T>(T X, T Y, T Z) :
         return true;
     }
 
+    /// <summary>
+    /// Gibt die 3 Koordinatenwerte des Vektors als Zeichenkette aus.
+    /// </summary>
+    /// <param name="format">wird ignoriert</param>
+    /// <param name="provider">wird ignoriert</param>
     public string ToString(string? format, IFormatProvider? formatProvider)
     {
         return this.ToString();
     }
 
+    #endregion
+
+    #region object Overrides
+
+    /// <summary>
+    /// Gibt die 3 Koordinatenwerte des Vektors als Zeichenkette aus.
+    /// </summary>
+    public override string ToString() => $"({X}, {Y}, {Z})";
+
+    #endregion
+
+    #region IAdditionOperators
+
+    /// <summary>
+    /// Addiert die 2 Vektoren koordinatenweise.
+    /// </summary>
     public static Vec3<T> operator +(Vec3<T> left, Vec3<T> right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -136,6 +137,9 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
     }
 
+    /// <summary>
+    /// Addiert die 2 Vektoren koordinatenweise.
+    /// </summary>
     public static Vec3<T> operator checked +(Vec3<T> left, Vec3<T> right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -151,20 +155,13 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(value.X, value.Y, value.Z);
     }
 
-    public static Vec3<T> operator ++(Vec3<T> value)
-    {
-        ArgumentNullException.ThrowIfNull(value);
+    #endregion
 
-        return value + One;
-    }
+    #region ISubtractionOperators
 
-    public static Vec3<T> operator checked ++(Vec3<T> value)
-    {
-        ArgumentNullException.ThrowIfNull(value);
-
-        return value + One;
-    }
-
+    /// <summary>
+    /// Subtrahiert die 2 Vektoren koordinatenweise.
+    /// </summary>
     public static Vec3<T> operator -(Vec3<T> left, Vec3<T> right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -173,6 +170,9 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
     }
 
+    /// <summary>
+    /// Addiert die 2 Vektoren koordinatenweise.
+    /// </summary>
     public static Vec3<T> operator checked -(Vec3<T> left, Vec3<T> right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -181,6 +181,9 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(left.X - right.X, left.Y - right.Y, left.Z - right.Z);
     }
 
+    /// <summary>
+    /// Ändert das Vorzeichen aller Koordinaten des Vektors.
+    /// </summary>
     public static Vec3<T> operator -(Vec3<T> value)
     {
         ArgumentNullException.ThrowIfNull(value);
@@ -188,6 +191,9 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(-value.X, -value.Y, -value.Z);
     }
 
+    /// <summary>
+    /// Ändert das Vorzeichen aller Koordinaten des Vektors.
+    /// </summary>
     public static Vec3<T> operator checked -(Vec3<T> value)
     {
         ArgumentNullException.ThrowIfNull(value);
@@ -195,22 +201,12 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(-value.X, -value.Y, -value.Z);
     }
 
-    public static Vec3<T> operator --(Vec3<T> value)
-    {
-        ArgumentNullException.ThrowIfNull(value);
+    #endregion
 
-        return value - One;
-    }
-
-    public static Vec3<T> operator checked --(Vec3<T> value)
-    {
-        ArgumentNullException.ThrowIfNull(value);
-
-        return value - One;
-    }
+    #region IMultiplyOperators
 
     /// <summary>
-    /// Hadamard product
+    /// Multipliziert 2 Vektoren koordinatenweise und bildet damit das Hadamard-Produkt.
     /// </summary>
     public static Vec3<T> operator *(Vec3<T> left, Vec3<T> right)
     {
@@ -220,6 +216,9 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(left.X * right.X, left.Y * right.Y, left.Z * right.Z);
     }
 
+    /// <summary>
+    /// Multipliziert 2 Vektoren koordinatenweise und bildet damit das Hadamard-Produkt.
+    /// </summary>
     public static Vec3<T> operator checked *(Vec3<T> left, Vec3<T> right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -228,8 +227,12 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(left.X * right.X, left.Y * right.Y, left.Z * right.Z);
     }
 
+    #endregion
+
+    #region IDivisionOperators
+
     /// <summary>
-    /// Hadamard quotient
+    /// Dividiert 2 Vektoren koordinatenweise und bildet damit den Hadamard-Quotienten.
     /// </summary>
     public static Vec3<T> operator /(Vec3<T> left, Vec3<T> right)
     {
@@ -239,6 +242,9 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(left.X / right.X, left.Y / right.Y, left.Z / right.Z);
     }
 
+    /// <summary>
+    /// Dividiert 2 Vektoren koordinatenweise und bildet damit den Hadamard-Quotienten.
+    /// </summary>
     public static Vec3<T> operator checked /(Vec3<T> left, Vec3<T> right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -249,11 +255,23 @@ public record Vec3<T>(T X, T Y, T Z) :
 
     #endregion
 
+    /// <summary>
+    /// Bildet den absoluten Wert dieses Vektoren durch koordinatenweise absoluten Betrag.
+    /// </summary>
     public Vec3<T> Abs()
     {
-        return new Vec3<T>(X < T.Zero ? -X : X, Y < T.Zero ? -Y : Y, Z < T.Zero ? -Z : Z);
+
+        return new Vec3<T>(Abs(X), Abs(Y), Abs(Z));
     }
 
+    /// <summary>
+    /// Hack, weil es kein Interface a la T.IAbsOperation gibt und IComparable für T nicht vorausgesetzt wird
+    /// </summary>
+    private static T Abs(T number) => number >= T.Zero ? number : -number;
+
+    /// <summary>
+    /// Multipliziert die Koordinaten des Vektors jeweils mit dem Skalarwert.
+    /// </summary>
     public static Vec3<T> operator *(Vec3<T> vec, T scalar)
     {
         ArgumentNullException.ThrowIfNull(vec);
@@ -261,6 +279,9 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(vec.X * scalar, vec.Y * scalar, vec.Z * scalar);
     }
 
+    /// <summary>
+    /// Multipliziert die Koordinaten des Vektors jeweils mit dem Skalarwert.
+    /// </summary>
     public static Vec3<T> operator *(T scalar, Vec3<T> vec)
     {
         ArgumentNullException.ThrowIfNull(vec);
@@ -268,6 +289,9 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(scalar * vec.X, scalar * vec.Y, scalar * vec.Z);
     }
 
+    /// <summary>
+    /// Dividiert die Koordinaten des Vektors jeweils durch den Skalarwert.
+    /// </summary>
     public static Vec3<T> operator /(Vec3<T> vec, T scalar)
     {
         ArgumentNullException.ThrowIfNull(vec);
@@ -275,6 +299,9 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(vec.X / scalar, vec.Y / scalar, vec.Z / scalar);
     }
 
+    /// <summary>
+    /// Bildet das Kreuzprodukt des Vektors mit X²+Y²+Z²
+    /// </summary>
     public T Dot(Vec3<T> right)
     {
         ArgumentNullException.ThrowIfNull(right);
@@ -282,6 +309,10 @@ public record Vec3<T>(T X, T Y, T Z) :
         return X * right.X + Y * right.Y + Z * right.Z;
     }
 
+    /// <summary>
+    /// Prüft ob der durch den Vektor festgelegte 3D-Punkt innerhalb des Raumes liegt, der
+    /// durch bottomLeft und topRight aufgespannt wird.
+    /// </summary>
     public bool In(Vec3<T> bottomLeft, Vec3<T> topRight)
     {
         ArgumentNullException.ThrowIfNull(bottomLeft);
@@ -292,6 +323,10 @@ public record Vec3<T>(T X, T Y, T Z) :
                Z >= bottomLeft.Z && Z <= topRight.Z;
     }
 
+
+    /// <summary>
+    /// Erstellt einen neuen Vektor genau zwischen min und max nach min + (max - min) * amount
+    /// </summary>
     public static Vec3<T> Lerp(Vec3<T> min, Vec3<T> max, T amount)
     {
         ArgumentNullException.ThrowIfNull(min);
@@ -329,12 +364,8 @@ public record Vec3<T>(T X, T Y, T Z) :
         var dy = Y - right.Y;
         var dz = Z - right.Z;
 
-        return (dx > T.Zero ? dx : -dx) +
-               (dy > T.Zero ? dy : -dy) +
-               (dz > T.Zero ? dz : -dz);
+        return Abs(dx) + Abs(dy) + Abs(dz);
     }
-
-    public override string ToString() => $"({X}, {Y}, {Z})";
 }
 
 #pragma warning restore CA1000 // Do not declare static members on generic types
