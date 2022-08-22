@@ -12,7 +12,7 @@ namespace matthiasffm.Common.Math;
 /// <typeparam name="T">Typ der Koordinaten, muss INumber implementieren</typeparam>
 public record Vec2<T>(T X, T Y) :
     IAdditiveIdentity<Vec2<T>, Vec2<T>>, IMultiplicativeIdentity<Vec2<T>, Vec2<T>>,
-    IEquatable<Vec2<T>>, IEqualityOperators<Vec2<T>, Vec2<T>>,
+    IEquatable<Vec2<T>>, IEqualityOperators<Vec2<T>, Vec2<T>, bool>,
     IFormattable, ISpanFormattable,
     IAdditionOperators<Vec2<T>, Vec2<T>, Vec2<T>>,
     ISubtractionOperators<Vec2<T>, Vec2<T>, Vec2<T>>,
@@ -69,7 +69,7 @@ public record Vec2<T>(T X, T Y) :
 
         destination[charsWritten++] = '(';
 
-        var xWritten = X.TryFormat(destination.Slice(charsWritten), out int xCharsWritten, null, null);
+        var xWritten = X.TryFormat(destination[charsWritten..], out int xCharsWritten, null, null);
         charsWritten += xCharsWritten; 
 
         if(!xWritten || destination.Length < charsWritten + 2)
@@ -80,7 +80,7 @@ public record Vec2<T>(T X, T Y) :
         destination[charsWritten++] = ',';
         destination[charsWritten++] = ' ';
 
-        var yWritten = Y.TryFormat(destination.Slice(charsWritten), out int yCharsWritten, null, null);
+        var yWritten = Y.TryFormat(destination[charsWritten..], out int yCharsWritten, null, null);
         charsWritten += yCharsWritten;
 
         if(!yWritten || destination.Length < charsWritten + 1)

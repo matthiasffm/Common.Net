@@ -4,7 +4,6 @@ namespace matthiasffm.Common.Math;
 
 // unpassende Regeln abstellen
 #pragma warning disable CA1000 // Do not declare static members on generic types
-#pragma warning disable CA2225 // Provide friendly name for numeric operator
 
 /// <summary>
 /// 3D-Vektor mit immutable Charakteristik
@@ -12,7 +11,7 @@ namespace matthiasffm.Common.Math;
 /// <typeparam name="T">Typ der Koordinaten, muss INumber implementieren</typeparam>
 public record Vec3<T>(T X, T Y, T Z) :
     IAdditiveIdentity<Vec3<T>, Vec3<T>>, IMultiplicativeIdentity<Vec3<T>, Vec3<T>>,
-    IEquatable<Vec3<T>>, IEqualityOperators<Vec3<T>, Vec3<T>>,
+    IEquatable<Vec3<T>>, IEqualityOperators<Vec3<T>, Vec3<T>, bool>,
     IFormattable, ISpanFormattable,
     IAdditionOperators<Vec3<T>, Vec3<T>, Vec3<T>>,
     ISubtractionOperators<Vec3<T>, Vec3<T>, Vec3<T>>,
@@ -368,4 +367,3 @@ public record Vec3<T>(T X, T Y, T Z) :
 }
 
 #pragma warning restore CA1000 // Do not declare static members on generic types
-#pragma warning restore CA2225 // Provide friendly name for numeric operator
