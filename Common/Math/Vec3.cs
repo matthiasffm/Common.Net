@@ -171,7 +171,7 @@ public record Vec3<T>(T X, T Y, T Z) :
     }
 
     /// <summary>
-    /// Addiert die 2 Vektoren koordinatenweise.
+    /// Subtrahiert die 2 Vektoren koordinatenweise.
     /// </summary>
     public static Vec3<T> operator checked -(Vec3<T> left, Vec3<T> right)
     {
@@ -260,7 +260,6 @@ public record Vec3<T>(T X, T Y, T Z) :
     /// </summary>
     public Vec3<T> Abs()
     {
-
         return new Vec3<T>(Abs(X), Abs(Y), Abs(Z));
     }
 
@@ -300,7 +299,7 @@ public record Vec3<T>(T X, T Y, T Z) :
     }
 
     /// <summary>
-    /// Bildet das Kreuzprodukt des Vektors mit X²+Y²+Z²
+    /// Bildet das Kreuzprodukt des Vektors mit X² + Y² + Z²
     /// </summary>
     public T Dot(Vec3<T> right)
     {

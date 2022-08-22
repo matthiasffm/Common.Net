@@ -9,55 +9,6 @@ namespace matthiasffm.Common.Test;
 internal class TestVec2
 {
     [Test]
-    public void TestCompareToObj()
-    {
-        // arrange
-        var vec1 = new Vec2<int>(1, 2);
-        string compare1 = null;
-        string compare2 = "test";
-        Vec2<int> compare3 = null;
-        Vec2<float> compare4 = null;
-
-        // act
-        int compRes1 = vec1.CompareTo(compare1);
-        int compRes2 = vec1.CompareTo(compare2);
-        int compRes3 = vec1.CompareTo(compare3);
-        int compRes4 = vec1.CompareTo(compare4);
-
-        // assert
-        compRes1.Should().Be(1);
-        compRes2.Should().Be(1);
-        compRes3.Should().Be(1);
-        compRes4.Should().Be(1);
-    }
-
-    [Test]
-    public void TestCompareToVec2()
-    {
-        // arrange
-        var vec1 = new Vec2<int>(1, 2);
-        var vec2 = new Vec2<int>(0, 2);
-        var vec3 = new Vec2<int>(1, 2);
-        var vec4 = new Vec2<int>(2, 2);
-        var vec5 = new Vec2<int>(4, 3);
-        var vec6 = new Vec2<int>(0, 0);
-
-        // act
-        int comp1 = vec1.CompareTo(vec2);
-        int comp2 = vec1.CompareTo(vec3);
-        int comp3 = vec1.CompareTo(vec4);
-        int comp4 = vec1.CompareTo(vec5);
-        int comp5 = vec1.CompareTo(vec6);
-
-        // assert
-        comp1.Should().Be(1);
-        comp2.Should().Be(0);
-        comp3.Should().Be(-1);
-        comp4.Should().Be(-1);
-        comp5.Should().Be(1);
-    }
-
-    [Test]
     public void TestAdd()
     {
         // arrange
@@ -83,29 +34,6 @@ internal class TestVec2
     }
 
     [Test]
-    public void TestIncrement()
-    {
-        // arrange
-        var vec1 = new Vec2<int>(1, 2);
-        Vec2<int> vec2 = null;
-
-        // act
-        var inc1 = vec1++;
-        var inc2 = vec1++;
-        var inc3 = ++vec1;
-        var inc4 = ++vec1;
-        var inc5 = () => vec2++;
-
-        // assert
-        vec1.Should().Be(new Vec2<int>(1 + 4, 2 + 4));
-        inc1.Should().Be(new Vec2<int>(1, 2));
-        inc2.Should().Be(new Vec2<int>(2, 3));
-        inc3.Should().Be(new Vec2<int>(4, 5));
-        inc4.Should().Be(new Vec2<int>(5, 6));
-        inc5.Should().Throw<ArgumentNullException>();
-    }
-
-    [Test]
     public void TestSubtract()
     {
         // arrange
@@ -128,29 +56,6 @@ internal class TestVec2
         sub3.Should().Be(new Vec2<int>(-5, -9));
         sub4.Should().Be(new Vec2<int>(1, 2));
         sub5.Should().Throw<ArgumentNullException>();
-    }
-
-    [Test]
-    public void TestDecrement()
-    {
-        // arrange
-        var vec1 = new Vec2<int>(1, 2);
-        Vec2<int> vec2 = null;
-
-        // act
-        var dec1 = vec1--;
-        var dec2 = vec1--;
-        var dec3 = --vec1;
-        var dec4 = --vec1;
-        var dec5 = () => vec2--;
-
-        // assert
-        vec1.Should().Be(new Vec2<int>(1 - 4, 2 - 4));
-        dec1.Should().Be(new Vec2<int>(1, 2));
-        dec2.Should().Be(new Vec2<int>(0, 1));
-        dec3.Should().Be(new Vec2<int>(-2, -1));
-        dec4.Should().Be(new Vec2<int>(-3, -2));
-        dec5.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
