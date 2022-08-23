@@ -3,76 +3,46 @@
 namespace matthiasffm.Common.Math;
 
 /// <summary>
-/// Methoden zur Bestimmung des größten gemeinsamen Teilers zweier oder mehrere ganzer Zahlen nach Euklid.
+/// Methoden zur Bestimmung des größten gemeinsamen Teilers zweier oder mehrere Zahlen nach Euklid.
 /// </summary>
 public static class Euclid
 {
-    // TODO: alle Methoden zu einer einzigen generischen zusammenfassen, sobald BigInteger INumber implementiert
-
     /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler der ganzen Zahlen a und b
+    /// Berechnet den größten gemeinsamen Teiler der Zahlen a und b
     /// </summary>
-    public static long Gcd(long a, long b)
+    public static T Gcd<T>(T a, T b) where T : INumber<T>
     {
-        if(a == 0)
+        if(a == T.Zero)
         {
-            return System.Math.Abs(b);
+            return Abs(b);
         }
 
-        while(b != 0)
+        while(b != T.Zero)
         {
             var h = a % b;
             a = b;
             b = h;
         }
 
-        return System.Math.Abs(a);
+        return Abs(a);
     }
 
-    /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler der ganzen Zahlen a und b
-    /// </summary>
-    public static int Gcd(int a, int b)
-    {
-        if(a == 0)
-        {
-            return System.Math.Abs(b);
-        }
-
-        while(b != 0)
-        {
-            var h = a % b;
-            a = b;
-            b = h;
-        }
-
-        return System.Math.Abs(a);
-    }
+    private static T Abs<T>(T number) where T : INumber<T> => number >= T.Zero ? number : -number;
 
     /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler aller ganzen Zahlen in <paramref name="numbers"/>.
+    /// Berechnet den größten gemeinsamen Teiler aller Zahlen in <paramref name="numbers"/>.
     /// </summary>
-    public static long Gcd(params long[] numbers)
+    public static T Gcd<T>(params T[] numbers) where T : INumber<T>
     {
         ArgumentNullException.ThrowIfNull(numbers);
 
-        return ((IEnumerable<long>)numbers).Gcd();
+        return ((IEnumerable<T>)numbers).Gcd();
     }
 
     /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler aller ganzen Zahlen in <paramref name="numbers"/>.
+    /// Berechnet den größten gemeinsamen Teiler aller Zahlen in <paramref name="numbers"/>.
     /// </summary>
-    public static int Gcd(params int[] numbers)
-    {
-        ArgumentNullException.ThrowIfNull(numbers);
-
-        return ((IEnumerable<int>)numbers).Gcd();
-    }
-
-    /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler aller ganzen Zahlen in <paramref name="numbers"/>.
-    /// </summary>
-    public static long Gcd(this IEnumerable<long> numbers)
+    public static T Gcd<T>(this IEnumerable<T> numbers) where T : INumber<T>
     {
         ArgumentNullException.ThrowIfNull(numbers);
 
@@ -80,66 +50,18 @@ public static class Euclid
     }
 
     /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler aller ganzen Zahlen in <paramref name="numbers"/>.
+    /// Berechnet den größten gemeinsamen Teiler zweier Zahlen a und b sowie die Koeffizienten x und y nach dem
+    /// Lemma von Bezout, so dass a * x + b * y = GGT(a, b).
     /// </summary>
-    public static int Gcd(this IEnumerable<int> numbers)
+    public static (T gcd, T x, T y) GcdExt<T>(T a, T b) where T : INumber<T>
     {
-        ArgumentNullException.ThrowIfNull(numbers);
-
-        return numbers.Skip(1).Aggregate(numbers.First(), (gcd, next) => Gcd(gcd, next));
-    }
-
-    /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler zweier ganzer Zahlen a und b sowie die Koeffizienten x und y nach dem
-    /// Lemma von Bezout, so dass a * x + b * y = GGT(a, b). Hierbei sind x und y ebenfalls ganzzahlig.
-    /// </summary>
-    public static (long gcd, long x, long y) GcdExt(long a, long b)
-    {
-        if(a == 0)
+        if(a == T.Zero)
         {
-            return (System.Math.Abs(b), 0, 1);
+            return (Abs(b), T.Zero, T.One);
         }
-        if(b == 0)
+        if(b == T.Zero)
         {
-            return (System.Math.Abs(a), 1, 0);
-        }
-
-        var (ggt, x, y) = GcdExt(b, a % b);
-        return (ggt, y, x - (a / b) * y);
-    }
-
-    /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler zweier ganzer Zahlen a und b sowie die Koeffizienten x und y nach dem
-    /// Lemma von Bezout, so dass a * x + b * y = GGT(a, b). Hierbei sind x und y ebenfalls ganzzahlig.
-    /// </summary>
-    public static (int gcd, int x, int y) GcdExt(int a, int b)
-    {
-        if(a == 0)
-        {
-            return (System.Math.Abs(b), 0, 1);
-        }
-        if(b == 0)
-        {
-            return (System.Math.Abs(a), 1, 0);
-        }
-
-        var (ggt, x, y) = GcdExt(b, a % b);
-        return (ggt, y, x - (a / b) * y);
-    }
-
-    /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler zweier sehr großer ganzer Zahlen a und b sowie die Koeffizienten x und y nach dem
-    /// Lemma von Bezout, so dass a * x + b * y = GGT(a, b). Hierbei sind x und y ebenfalls ganzzahlig.
-    /// </summary>
-    public static (BigInteger gcd, BigInteger x, BigInteger y) GcdExt(BigInteger a, BigInteger b)
-    {
-        if(a == 0)
-        {
-            return (BigInteger.Abs(b), 0, 1);
-        }
-        if(b == 0)
-        {
-            return (BigInteger.Abs(a), 1, 0);
+            return (Abs(a), T.One, T.Zero);
         }
 
         var (ggt, x, y) = GcdExt(b, a % b);
