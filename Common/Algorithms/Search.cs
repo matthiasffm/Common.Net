@@ -2,6 +2,11 @@ using System.Numerics;
 
 namespace matthiasffm.Common.Algorithms;
 
+/// <summary>
+/// Stellt generische Suchalgorithmen in Graphen wie A* oder Breitensuche zur Verfügung.
+/// Dabei erwarten die Algorithmen die Spezifikation des jeweiligen Graphen über die Angabe von Start-Knoten und Lambdas zur
+/// Iteration über die Umgebung eines Knotens.
+/// </summary>
 public static class Search
 {
     /// <summary>
@@ -279,7 +284,7 @@ public static class Search
                                                        Func<TPos, TCost> EstimateToFinish,
                                                        TCost maxCost)
         where TPos  : notnull
-        where TCost : notnull, INumber<TCost>
+        where TCost : notnull, IComparisonOperators<TCost, TCost, bool>, IAdditionOperators<TCost, TCost, TCost>
     {
         ArgumentNullException.ThrowIfNull(Neighbors);
         ArgumentNullException.ThrowIfNull(CalcCosts);
@@ -324,7 +329,7 @@ public static class Search
                 {
                     var costToNeighbor = minPathCosts[current] + CalcCosts(current, neighbor);
 
-                    if(costToNeighbor.CompareTo(minPathCosts[neighbor]) < 0)
+                    if(costToNeighbor < minPathCosts[neighbor])
                     {
                         // dieser Pfad zu neighbor ist besser als alle bisherigen => merken
 
