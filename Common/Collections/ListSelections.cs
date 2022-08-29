@@ -2,6 +2,9 @@ namespace matthiasffm.Common.Collections;
 
 using matthiasffm.Common.Algorithms;
 
+/// <summary>
+/// Stellt Erweiterungsmethoden für generische Listen zur Verfügung.
+/// </summary>
 public static class ListSelections
 {
     /// <summary>

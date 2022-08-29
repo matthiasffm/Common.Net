@@ -3,6 +3,9 @@ using System.Text;
 
 namespace matthiasffm.Common.Text;
 
+/// <summary>
+/// Stellt Erweiterungsmethoden für Zeichenketten bereit.
+/// </summary>
 public static class StringExtensions
 {
     /// <summary>

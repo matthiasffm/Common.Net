@@ -1,5 +1,8 @@
 namespace matthiasffm.Common.Algorithms;
 
+/// <summary>
+/// Fasst generische Standardfunktionen zusammen, die sonst kontextuell zu keinem Thema gehören.
+/// </summary>
 public static class Basics
 {
     /// <summary>Tauscht die Inhalte von a und b</summary>
