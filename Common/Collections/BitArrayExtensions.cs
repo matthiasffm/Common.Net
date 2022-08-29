@@ -1,8 +1,13 @@
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace matthiasffm.Common.Collections;
 
+/// <summary>
+/// Stellt nützliche Erweiterungsmethoden für BitArrays bereit, zB Umwandlungen in Ints, für Vergleiche oder
+/// um Slices daraus zu erstellen.
+/// </summary>
 public static class BitArrayExtensions
 {
     /// <summary>
@@ -17,14 +22,19 @@ public static class BitArrayExtensions
     /// gibt sie als neues BitArray zurück.
     /// </summary>
     /// <param name="bits">Das Quell-Array, aus dem die Methode eine Teilmenge ausschneidet (dessen Inhalt wird dabei nicht geändert)</param>
+    /// <param name="start">Startindex ab dem das Slice erstellt werden soll</param>
+    /// <param name="length">Länge des Slice (muss positiv und kleiner oder gleich bits.Length - start sein)</param>
     public static BitArray Slice(this BitArray bits, int start, int length)
     {
         ArgumentNullException.ThrowIfNull(bits);
-        Debug.Assert(bits.Length >= start + length);
+        if(bits.Length < start + length || length < 0)
+        {
+            throw new IndexOutOfRangeException("Das angeforderte Slice liegt ausserhalb des BitArrays");
+        }
 
         var slice = new BitArray(length);
 
-        for (int i = 0; i < length; i++)
+        for(int i = 0; i < length; i++)
         {
             slice[i] = bits[i + start];
         }
@@ -42,7 +52,10 @@ public static class BitArrayExtensions
     public static int ConvertToInt(this BitArray bits)
     {
         ArgumentNullException.ThrowIfNull(bits);
-        Debug.Assert(bits.Length <= 32);
+        if(bits.Length > 32)
+        {
+            throw new ArgumentException("Es werden nur BitArrays mit Länge <= 32 Bits unterstützt.");
+        }
 
         var result = new int[1];
         bits.CopyTo(result, 0);
@@ -54,11 +67,20 @@ public static class BitArrayExtensions
     /// ist bits[0] das Bit mit dem höherstelligsten Wert 2^bits.Length.
     /// </summary>
     /// <param name="bits">Das Array mit den in einen 32 bit-Wert zu konvertierenden Bits (dessen Inhalt wird dabei nicht geändert)</param>
+    /// <param name="start">Startindex ab dem Bits in Integer umgerechnet werden sollen</param>
+    /// <param name="length">Anzahl der Bits im Array, die in Integer umgerechnet werden sollen (muss positiv und kleiner oder gleich bits.Length - start sein)</param>
     /// <remarks>Es werden nur BitArrays mit einer max. Länge von 32 Bit unterstützt.</remarks>
     public static int ConvertToInt(this BitArray bits, int start, int length)
     {
         ArgumentNullException.ThrowIfNull(bits);
-        Debug.Assert(length <= 32);
+        if(length > 32)
+        {
+            throw new ArgumentException("Es sind nur Aufrufe mit Länge <= 32 Bits erlaubt", nameof(length));
+        }
+        if(bits.Length < start + length || length < 0)
+        {
+            throw new IndexOutOfRangeException("Der zu konvertierende Bereich liegt ausserhalb des BitArrays");
+        }
 
         var slice = bits.Slice(start, length);
 
@@ -77,11 +99,51 @@ public static class BitArrayExtensions
         ArgumentNullException.ThrowIfNull(bits);
         var reverse = new BitArray(bits.Length);
 
-        for (int i = 0; i < bits.Length; i++)
+        for(int i = 0; i < bits.Length; i++)
         {
             reverse[i] = bits[bits.Length - i - 1];
         }
 
         return reverse;
+    }
+
+    /// <summary>
+    /// Zählt die Anzahl an gesetzten Bits im Array.
+    /// </summary>
+    public static long CountOnes(this BitArray bits)
+    {
+        ArgumentNullException.ThrowIfNull(bits);
+
+        long setBits = 0L;
+
+        for(int i = 0; i < bits.Length; i++)
+        {
+            if(bits[i])
+            {
+                setBits++;
+            }
+        }
+
+        return setBits;
+    }
+
+    /// <summary>
+    /// Zählt die Anzahl an ungesetzten Bits im Array.
+    /// </summary>
+    public static long CountZeroes(this BitArray bits)
+    {
+        ArgumentNullException.ThrowIfNull(bits);
+
+        long zeroBits = 0L;
+
+        for(int i = 0; i < bits.Length; i++)
+        {
+            if(!bits[i])
+            {
+                zeroBits++;
+            }
+        }
+
+        return zeroBits;
     }
 }

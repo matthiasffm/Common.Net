@@ -83,7 +83,8 @@ internal class TestBitArrayExtensions
 
         // act
 
-        var intEmpty  = bitsEmpty.ConvertToInt();
+        var intEmpty1  = bitsEmpty.ConvertToInt();
+        var intEmpty2 = bitsEmpty.ConvertToInt(0, 0);
 
         var intBits15 = bits15.ConvertToInt();
         var intBits29 = bits29.ConvertToInt();
@@ -93,7 +94,8 @@ internal class TestBitArrayExtensions
 
         // assert
 
-        intEmpty.Should().Be(0);
+        intEmpty1.Should().Be(0);
+        intEmpty2.Should().Be(0);
 
         intBits15.Should().Be(24857);
         intBits29.Should().Be(282943769);
@@ -122,6 +124,56 @@ internal class TestBitArrayExtensions
         emptyReverse.EqualsAll(CreateBitArray()).Should().BeTrue();
         singleReverse.EqualsAll(CreateBitArray(1)).Should().BeTrue();
         bitsReverse.EqualsAll(CreateBitArray(1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1)).Should().BeTrue();
+    }
+
+    [Test]
+    public void TestCountOnes()
+    {
+        // arrange
+
+        var bitsEmpty  = CreateBitArray();
+        var bitsSingle = CreateBitArray(1);
+        var bits       = CreateBitArray(1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1);
+        BitArray nullbits = null;
+
+        // act
+
+        var countEmpty    = bitsEmpty.CountOnes();
+        var countSingle   = bitsSingle.CountOnes();
+        var countBits     = bits.CountOnes();
+        var countNull     = () => nullbits.CountOnes();
+
+        // assert
+
+        countEmpty.Should().Be(0);
+        countSingle.Should().Be(1);
+        countBits.Should().Be(6);
+        countNull.Should().Throw<ArgumentNullException>();
+    }
+
+    [Test]
+    public void TestCountZeroes()
+    {
+        // arrange
+
+        var bitsEmpty  = CreateBitArray();
+        var bitsSingle = CreateBitArray(1);
+        var bits       = CreateBitArray(1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1);
+        BitArray nullbits = null;
+
+        // act
+
+        var countEmpty  = bitsEmpty.CountZeroes();
+        var countSingle = bitsSingle.CountZeroes();
+        var countBits   = bits.CountZeroes();
+        var countNull   = () => nullbits.CountZeroes();
+
+        // assert
+
+        countEmpty.Should().Be(0);
+        countSingle.Should().Be(0);
+        countBits.Should().Be(9);
+        countNull.Should().Throw<ArgumentNullException>();
     }
 
     private static BitArray CreateBitArray(params byte[] bits) => new(bits.Select(b => b == 1).ToArray());
