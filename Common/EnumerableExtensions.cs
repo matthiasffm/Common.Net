@@ -1,5 +1,8 @@
 namespace matthiasffm.Common;
 
+/// <summary>
+/// Stellt Erweiterungsmethoden für IEnumerable und ICollection bereit.
+/// </summary>
 public static class EnumerableExtensions
 {
     /// <summary>

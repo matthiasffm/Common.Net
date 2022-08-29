@@ -3,7 +3,23 @@
 /// <summary>
 /// Loglevel
 /// </summary>
-public enum Severity { Debug, Information, Warning, Error, Fatal }
+public enum Severity
+{
+    /// <summary>Loglevel Debug</summary>
+    Debug,
+
+    /// <summary>Loglevel Information</summary>
+    Information,
+
+    /// <summary>Loglevel Warning</summary>
+    Warning,
+
+    /// <summary>Loglevel Error</summary>
+    Error,
+
+    /// <summary>Loglevel Fatal</summary>
+    Fatal
+}
 
 /// <summary>
 /// Eintrag im Logger
@@ -16,7 +32,7 @@ public record LogEntry(Severity Severity, string Message, Exception? Exception);
 /// <remarks>
 /// einfache Abbildung auf NLog z.B. im DI Setup per
 /// container.RegisterConditional(typeof(ILogger),
-///     c => typeof(NlogAdapter<>).MakeGenericType(c.Consumer.ImplementationType),
+///     c => typeof(NlogAdapter).MakeGenericType(c.Consumer.ImplementationType),
 ///     Lifestyle.Singleton,
 ///     c => true);
 /// </remarks>
@@ -33,6 +49,9 @@ public interface ILogger
 /// </summary>
 public class NoLogger : ILogger
 {
+    /// <summary>
+    /// Macht nichts mit <paramref name="entry"/>, da leere Logging-Implementierung.
+    /// </summary>
     public void Log(LogEntry entry) { }
 }
 

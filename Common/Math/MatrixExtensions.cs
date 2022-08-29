@@ -1,7 +1,8 @@
 namespace matthiasffm.Common.Math;
 
-#pragma warning disable CA1814 // Matrizen sind geeignet und korrekt als multidimensionales Array
-
+/// <summary>
+/// Stellt Erweiterungsmethoden für zweidimensionale .net Arrays bzw. Matrizen der Form [,] bereit.
+/// </summary>
 public static class MatrixExtensions
 {
     /// <summary>
@@ -31,7 +32,7 @@ public static class MatrixExtensions
     /// </summary>
     /// <typeparam name="TSource">Elementtyp der Matrix</typeparam>
     /// <param name="matrix">Matrix deren Elemente spalten- und dann zeilenweise iteriert werden.</param>
-    /// <param name="selector">die Methode wird für jeden Elementtyp mit dem Element, der Zeile und dann der Spalte aufgerufen.</param>
+    /// <param name="action">die Methode wird für jeden Elementtyp mit dem Element, der Zeile und dann der Spalte aufgerufen.</param>
     public static void ForEach<TSource>(this TSource[,] matrix, Action<TSource, int, int> action)
     {
         ArgumentNullException.ThrowIfNull(matrix);
@@ -51,7 +52,7 @@ public static class MatrixExtensions
     /// </summary>
     /// <typeparam name="TSource">Elementtyp der Matrix</typeparam>
     /// <param name="matrix">Matrix deren Elemente spalten- und dann zeilenweise iteriert werden.</param>
-    /// <param name="selector">der Functor erzeugt den Wert für eine Zeile und Spalte</param>
+    /// <param name="func">der Functor erzeugt den Wert für eine Zeile und Spalte</param>
     public static void Populate<TSource>(this TSource[,] matrix, Func<int, int, TSource> func)
     {
         ArgumentNullException.ThrowIfNull(matrix);

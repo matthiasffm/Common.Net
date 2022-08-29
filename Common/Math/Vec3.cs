@@ -106,7 +106,7 @@ public record Vec3<T>(T X, T Y, T Z) :
     /// Gibt die 3 Koordinatenwerte des Vektors als Zeichenkette aus.
     /// </summary>
     /// <param name="format">wird ignoriert</param>
-    /// <param name="provider">wird ignoriert</param>
+    /// <param name="formatProvider">wird ignoriert</param>
     public string ToString(string? format, IFormatProvider? formatProvider)
     {
         return this.ToString();
@@ -147,6 +147,9 @@ public record Vec3<T>(T X, T Y, T Z) :
         return new Vec3<T>(left.X + right.X, left.Y + right.Y, left.Z + right.Z);
     }
 
+    /// <summary>
+    /// Addiert den Wert von <i>value</i> koordinatenweise zum Vektor dazu.
+    /// </summary>
     public static Vec3<T> operator +(Vec3<T> value)
     {
         ArgumentNullException.ThrowIfNull(value);

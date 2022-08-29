@@ -4,7 +4,6 @@ namespace matthiasffm.Common.Math;
 
 // unpassende Regeln abstellen
 #pragma warning disable CA1000 // Do not declare static members on generic types
-#pragma warning disable CA2225 // Provide friendly name for numeric operator
 
 /// <summary>
 /// 2D-Vektor mit immutable Charakteristik
@@ -96,7 +95,7 @@ public record Vec2<T>(T X, T Y) :
     /// Gibt die 2 Koordinatenwerte des Vektors als Zeichenkette aus.
     /// </summary>
     /// <param name="format">wird ignoriert</param>
-    /// <param name="provider">wird ignoriert</param>
+    /// <param name="formatProvider">wird ignoriert</param>
     public string ToString(string? format, IFormatProvider? formatProvider)
     {
         return this.ToString();
@@ -137,6 +136,9 @@ public record Vec2<T>(T X, T Y) :
         return new Vec2<T>(left.X + right.X, left.Y + right.Y);
     }
 
+    /// <summary>
+    /// Addiert den Wert von <i>value</i> koordinatenweise zum Vektor dazu.
+    /// </summary>
     public static Vec2<T> operator +(Vec2<T> value)
     {
         ArgumentNullException.ThrowIfNull(value);
@@ -353,4 +355,3 @@ public record Vec2<T>(T X, T Y) :
 }
 
 #pragma warning restore CA1000 // Do not declare static members on generic types
-#pragma warning restore CA2225 // Provide friendly name for numeric operator
