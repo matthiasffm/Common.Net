@@ -6,6 +6,8 @@
     <EnablePreviewFeatures>True</EnablePreviewFeatures>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
+    <AssemblyName>MatthiasFfm.Common.Test</AssemblyName>
+    <RootNamespace>MatthiasFfm.Common.Test</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
