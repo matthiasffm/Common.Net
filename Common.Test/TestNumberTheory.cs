@@ -20,12 +20,12 @@ internal class TestNumberTheory
         var chinRemaindersClassicRest1          = NumberTheory.CalcSimultaneousCongruences((1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (0, 7));
         var chinRemaindersClassicBrahmagupta    = NumberTheory.CalcSimultaneousCongruences((2, 3), (3, 4), (4, 5), (5, 6));
 
-        var chinRemaindersAocSample1 = NumberTheory.CalcSimultaneousCongruences((7, 7), (12, 13), (55, 59), (25, 31), (12, 19));
-        var chinRemaindersAocSample2 = NumberTheory.CalcSimultaneousCongruences((17, 17), (11, 13), (16, 19));
-        var chinRemaindersAocSample3 = NumberTheory.CalcSimultaneousCongruences((67, 67), (6, 7), (57, 59), (58, 61));
-        var chinRemaindersAocSample4 = NumberTheory.CalcSimultaneousCongruences((67, 67), (5, 7), (56, 59), (57, 61));
-        var chinRemaindersAocSample5 = NumberTheory.CalcSimultaneousCongruences((67, 67), (6, 7), (56, 59), (57, 61));
-        var chinRemaindersAocSample6 = NumberTheory.CalcSimultaneousCongruences((1789, 1789), (36, 37), (45, 47), (1886, 1889));
+        var chinRemaindersAocSample1 = NumberTheory.CalcSimultaneousCongruences((7L, 7L), (12L, 13L), (55L, 59L), (25L, 31L), (12L, 19L));
+        var chinRemaindersAocSample2 = NumberTheory.CalcSimultaneousCongruences((17L, 17L), (11L, 13L), (16L, 19L));
+        var chinRemaindersAocSample3 = NumberTheory.CalcSimultaneousCongruences((67L, 67L), (6L, 7L), (57L, 59L), (58L, 61L));
+        var chinRemaindersAocSample4 = NumberTheory.CalcSimultaneousCongruences((67L, 67L), (5L, 7L), (56L, 59L), (57L, 61L));
+        var chinRemaindersAocSample5 = NumberTheory.CalcSimultaneousCongruences((67L, 67L), (6L, 7L), (56L, 59L), (57L, 61L));
+        var chinRemaindersAocSample6 = NumberTheory.CalcSimultaneousCongruences((1789L, 1789L), (36L, 37L), (45L, 47L), (1886L, 1889L));
 
         // assert
 
