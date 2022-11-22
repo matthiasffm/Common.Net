@@ -15,17 +15,8 @@ public static class StringExtensions
     {
         ArgumentNullException.ThrowIfNull(s);
 
-        var result = new StringBuilder();
-
-        foreach(var c in s.Normalize(NormalizationForm.FormD))
-        {
-            if(CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-            {
-                result.Append(c);
-            }
-        }
-
-        return result.ToString()
+        return string.Concat(s.Normalize(NormalizationForm.FormD)
+                              .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark))
                      .Normalize(NormalizationForm.FormC);
     }
 
@@ -57,17 +48,24 @@ public static class StringExtensions
         return val;
     }
 
+    // TODO: optimalere Implementierung bereitstellen, die nicht alle Varianten jedesmal komplett
+    //       rekursiv in O(3^length) durchrechnet, sondern per dynamischer Programmierung einmal berechnete Distancen
+    //       abspeichert und wiederverwendet.
+
     /// <summary>
-    /// Ermittelt die Levenshtein-Distanz zwischen 2 Zeichenketten.
+    /// Ermittelt die Levenshtein-Distanz zwischen 2 Zeichenketten, also die kleinste Anzahl an gelöschten, eingefügten oder vertauschten
+    /// einzelnen Buchstaben, damit die zwei Zeichenketten übereinstimmen.
     /// </summary>
     /// <remarks>
     /// siehe https://en.wikipedia.org/wiki/Levenshtein_distance
     /// </remarks>
     public static int Levenshtein(this string left, string right)
     {
-        ArgumentNullException.ThrowIfNull(left);
-        ArgumentNullException.ThrowIfNull(right);
+        return LevenshteinSpan(left, right);
+    }
 
+    private static int LevenshteinSpan(ReadOnlySpan<char> left, ReadOnlySpan<char> right)
+    {
         if(left.Length == 0 || right.Length == 0)
         {
             return System.Math.Max(left.Length, right.Length);
@@ -75,24 +73,23 @@ public static class StringExtensions
 
         if(left[0] == right[0])
         {
-            return Levenshtein(left[1..], right[1..]);
+            return LevenshteinSpan(left[1..], right[1..]);
         }
         else
         {
-            return 1 + Min(Levenshtein(left[1..], right),
-                           Levenshtein(left, right[1..]),
-                           Levenshtein(left[1..], right[1..]));
+            return 1 + Min(LevenshteinSpan(left[1..], right),          // Entfernung für erster char in left gelöscht
+                           LevenshteinSpan(left, right[1..]),          // Entfernung für erster char in right gelöscht
+                           LevenshteinSpan(left[1..], right[1..]));    // Entfernung für erster char in left und right vertauscht
         }
     }
 
-
     /// <summary>
-    /// Ermittelt die Distanz zwischen 2 Zeichenketten.
+    /// Ermittelt die Distanz zwischen 2 Zeichenketten per optimal-string-alignment-Algorithms, der .
     /// </summary>
     /// <remarks>
     /// siehe https://en.wikipedia.org/wiki/Levenshtein_distance
     /// </remarks>
-    public static int OptimalStringAlignemnt(this string left, string right)
+    public static int OptimalStringAlignment(this string left, string right)
     {
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
