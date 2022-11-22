@@ -2,6 +2,10 @@ namespace matthiasffm.Common.Collections;
 
 using matthiasffm.Common.Algorithms;
 
+// TODO: Methoden ergänzen, die Listen nicht verändern, also mit ReadOnylSpan arbeiten
+//       verbraucht dann mehr Speicher und ist nicht mehr inplace, dafür allerdings immutable
+
+
 /// <summary>
 /// Stellt Erweiterungsmethoden für generische Listen zur Verfügung.
 /// </summary>
@@ -63,7 +67,6 @@ public static class ListSelections
         }
 
         return list.NthSmallest((list.Count & 1) == 1 ? (list.Count + 1) / 2 : list.Count / 2);
-        // return list.NthSmallest((list.Count & 1) == 1 ? list.Count / 2 : list.Count / 2 - 1);
     }
 
     /// <summary>Ermittelt das n-kleinste Element einer Liste</summary>
