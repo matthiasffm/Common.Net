@@ -15,6 +15,8 @@ public class TestStringExtensions
     {
         "dé".RemoveAccents().Should().Be("de");
         "Dončić".RemoveAccents().Should().Be("Doncic");
+        "test".RemoveAccents().Should().Be("test");
+        "".RemoveAccents().Should().Be("");
     }
 
     /// <summary>
@@ -44,8 +46,8 @@ public class TestStringExtensions
     [Test]
     public void TestOsa()
     {
-        "CA".OptimalStringAlignemnt("ABC").Should().Be(3);
-        "".OptimalStringAlignemnt("ABC").Should().Be(3);
-        "CA".OptimalStringAlignemnt("").Should().Be(2);
+        "CA".OptimalStringAlignment("ABC").Should().Be(3);
+        "".OptimalStringAlignment("ABC").Should().Be(3);
+        "CA".OptimalStringAlignment("").Should().Be(2);
     }
 }
