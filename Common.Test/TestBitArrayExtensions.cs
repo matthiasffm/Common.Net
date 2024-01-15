@@ -46,6 +46,50 @@ internal class TestBitArrayExtensions
     }
 
     [Test]
+    public void TestSliceWrongIndexOrLength()
+    {
+        // arrange
+
+        var bits = CreateBitArray(1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1);
+        var bitsEmpty = CreateBitArray();
+
+        // act
+
+        var sliceLengthTooBig1 = () => bits.Slice(0, bits.Length + 1);
+        var sliceLengthTooBig2 = () => bitsEmpty.Slice(0, bits.Length + 1);
+
+        var sliceNegStart1 = () => bits.Slice(-2, bits.Length + 5);
+        var sliceNegStart2 = () => bitsEmpty.Slice(-3, bits.Length + 3);
+
+        // assert
+
+        sliceLengthTooBig1.Should().Throw<ArgumentOutOfRangeException>();
+        sliceLengthTooBig2.Should().Throw<ArgumentOutOfRangeException>();
+
+        sliceNegStart1.Should().Throw<ArgumentOutOfRangeException>();
+        sliceNegStart2.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
+    public void TestSliceOverflow()
+    {
+        // arrange
+
+        var bits = CreateBitArray(1, 0, 0, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1);
+        var bitsEmpty = CreateBitArray();
+
+        // act
+
+        var sliceOverflow1 = () => bits.Slice(int.MaxValue, 2);
+        var sliceOverflow2 = () => bitsEmpty.Slice(int.MaxValue, 0);
+
+        // assert
+
+        sliceOverflow1.Should().Throw<ArgumentOutOfRangeException>();
+        sliceOverflow2.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
+    [Test]
     public void TestSlice()
     {
         // arrange

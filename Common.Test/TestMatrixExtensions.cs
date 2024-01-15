@@ -151,6 +151,7 @@ internal class TestMatrixExtensions
         var horArray       = new int[][] { new int[] { 11, 12, 13 } };
         var vertArray      = new int[][] { new int[] { 11 }, new int[] { 21 }, new int[] { 31 } };
         var simpleArray    = new int[][] { new int[] { 11, 12, 13 }, new int[] { 21, 22, 23 }, new int[] { 31, 32, 33 } };
+        var irregularArray = new int[][] { new int[] { 11, 12, 13 }, new int[] { 21, 22 }, new int[] { 31, 32, 33 } };
 
         // act
 
@@ -160,6 +161,7 @@ internal class TestMatrixExtensions
         var horMatrix       = horArray.ConvertToMatrix();
         var vertMatrix      = vertArray.ConvertToMatrix();
         var simpleMatrix    = simpleArray.ConvertToMatrix();
+        var irregularMatrix = () => irregularArray.ConvertToMatrix();
 
         // assert
 
@@ -169,6 +171,8 @@ internal class TestMatrixExtensions
         horMatrix.Should().BeEquivalentTo(CreateHorizontalMatix());
         vertMatrix.Should().BeEquivalentTo(CreateVerticalMatix());
         simpleMatrix.Should().BeEquivalentTo(CreateSimpleMatix());
+        irregularMatrix.Should().Throw<ArgumentOutOfRangeException>("input");
+
     }
 
     [Test]

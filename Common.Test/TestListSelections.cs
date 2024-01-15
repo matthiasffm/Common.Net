@@ -24,10 +24,6 @@ internal class TestListSelections
         partitionIdx.Should().Be(0);
     }
 
-    /// <summary>
-    /// Prüft die in-place Partitionierung von Listen anhand deren letzten Elements n.
-    /// Partition liefert den Index x zurück und partitioniert list, so dass list[..x] <= n und n <= list[x..].
-    /// </summary>
     [Test]
     public void TestPartition()
     {
@@ -49,20 +45,40 @@ internal class TestListSelections
         listWithOneEntry.Should().Equal(2);
 
         partitionIdx1.Should().Be(4);
-        listToPartition1.GetRange(0, partitionIdx1).Should().OnlyContain(x => x <= 5);
-        listToPartition1.GetRange(partitionIdx1, 4).Should().OnlyContain(x => x >= 5);
+        listToPartition1[partitionIdx1].Should().Be(5);
+        listToPartition1.GetRange(0, partitionIdx1).Should().OnlyContain(x => x <= listToPartition1[partitionIdx1]);
+        listToPartition1.GetRange(partitionIdx1, listToPartition1.Count - partitionIdx1).Should().OnlyContain(x => x >= listToPartition1[partitionIdx1]);
         listToPartition1.Should().HaveCount(8).And.BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 7, 8, 10 });
 
         partitionIdx2.Should().Be(7);
+        listToPartition2[partitionIdx2].Should().Be(10);
         listToPartition2.GetRange(0, partitionIdx2).Should().OnlyContain(x => x <= 10);
-        listToPartition2.GetRange(partitionIdx2, 1).Should().OnlyContain(x => x >= 10);
+        listToPartition2.GetRange(partitionIdx2, listToPartition2.Count - partitionIdx2).Should().OnlyContain(x => x >= 10);
         listToPartition2.Should().HaveCount(8).And.BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 7, 8, 10 });
     }
 
-    /// <summary>
-    /// Prüft die in-place Partitionierung innerhalb einer Teilliste anhand des letzten Elements n der Teilliste.
-    /// Partition liefert den Index x zurück und partitioniert list, so dass list[p..x] <= n und n <= list[x..r].
-    /// </summary>
+    [Test]
+    public void TestPartitionSublistErrors()
+    {
+        // arrange
+
+        var listToPartition = new List<int> { 2, 1, 7, 8, 4, 3, 10, 5 };
+
+        // act
+
+        var negativeIndexPart = () => listToPartition.Partition(-4, 3);
+        var negativeSlicePart = () => listToPartition.Partition(4, 3);
+        var pTooBigPart = () => listToPartition.Partition(20, 21);
+        var rTooBigPart = () => listToPartition.Partition(4, 30);
+
+        // assert
+
+        negativeIndexPart.Should().Throw<ArgumentOutOfRangeException>();
+        negativeSlicePart.Should().Throw<ArgumentOutOfRangeException>();
+        pTooBigPart.Should().Throw<ArgumentOutOfRangeException>();
+        rTooBigPart.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
     [Test]
     public void TestPartitionSublist()
     {
@@ -83,14 +99,16 @@ internal class TestListSelections
         idxForOneEntryList.Should().Be(0);
         listWithOneEntry.Should().Equal(2);
 
-        partition2To4Idx.Should().Be(2); // nach Partition der Teilliste 7, 8, 4: { 2, 1, <=4, >=4, >=4, 3, 10, 5)
+        // after partition of sublist { 7, 8, 4 }, full list looks like = { 2, 1, <=4, >=4, >=4, 3, 10, 5)
+        partition2To4Idx.Should().Be(2);
         listToPartition1.GetRange(0, 2).Should().Equal(2, 1);
         listToPartition1.GetRange(5, 3).Should().Equal(3, 10, 5);
         listToPartition1.GetRange(2, partition2To4Idx - 1).Should().OnlyContain(x => x <= 4);
         listToPartition1.GetRange(partition2To4Idx, 3).Should().OnlyContain(x => x >= 4);
         listToPartition1.Should().HaveCount(8).And.BeEquivalentTo(new[] { 2, 1, 4, 7, 8, 3, 10, 5 });
 
-        partition1To5Idx.Should().Be(2); // nach Partition der Teilliste 1, 7, 8, 4, 3: { 2, <=3, <=3, >=3, >=3, =>3, 10, 5)
+        // after partition of sublist { 1, 7, 8, 4, 3 }, full list looks like = { 2, <=3, <=3, >=3, >=3, =>3, 10, 5)
+        partition1To5Idx.Should().Be(2);
         listToPartition1.GetRange(0, 1).Should().Equal(2);
         listToPartition1.GetRange(6, 2).Should().Equal(10, 5);
         listToPartition2.GetRange(1, partition1To5Idx).Should().OnlyContain(x => x <= 3);

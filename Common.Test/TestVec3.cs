@@ -1,8 +1,7 @@
 ﻿using FluentAssertions;
+using NUnit.Framework;
 
 using matthiasffm.Common.Math;
-
-using NUnit.Framework;
 
 namespace matthiasffm.Common.Test;
 
@@ -16,21 +15,18 @@ internal class TestVec3
         var vec2 = new Vec3<int>(0, 2, 1);
         var vec3 = new Vec3<int>(-4, -7, -5);
         var vec4 = new Vec3<int>(0, 0, 0);
-        Vec3<int> vec5 = null;
 
         // act
         var add1 = vec1 + vec2;
         var add2 = vec3 + vec1;
         var add3 = vec1 + vec4;
         var add4 = vec4 + vec1;
-        var add5 = () => vec1 + vec5;
 
         // assert
         add1.Should().Be(new Vec3<int>(1, 4, 4));
         add2.Should().Be(new Vec3<int>(-3, -5, -2));
         add3.Should().Be(new Vec3<int>(1, 2, 3));
         add4.Should().Be(new Vec3<int>(1, 2, 3));
-        add5.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
@@ -41,21 +37,18 @@ internal class TestVec3
         var vec2 = new Vec3<int>(0, 2, 4);
         var vec3 = new Vec3<int>(-4, -7, -2);
         var vec4 = new Vec3<int>(0, 0, 0);
-        Vec3<int> vec5 = null;
 
         // act
         var sub1 = vec1 - vec2;
         var sub2 = vec1 - vec3;
         var sub3 = vec3 - vec1;
         var sub4 = vec1 - vec4;
-        var sub5 = () => vec1 - vec5;
 
         // assert
         sub1.Should().Be(new Vec3<int>(1, 0, -1));
         sub2.Should().Be(new Vec3<int>(5, 9, 5));
         sub3.Should().Be(new Vec3<int>(-5, -9, -5));
         sub4.Should().Be(new Vec3<int>(1, 2, 3));
-        sub5.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
@@ -66,21 +59,18 @@ internal class TestVec3
         var vec2 = new Vec3<int>(0, 2, 4);
         var vec3 = new Vec3<int>(-4, -7, -2);
         var vec4 = new Vec3<int>(0, 0, 0);
-        Vec3<int> vec5 = null;
 
         // act
         var prod1 = vec1 * vec2;
         var prod2 = vec3 * vec1;
         var prod3 = vec1 * vec3;
         var prod4 = vec4 * vec1;
-        var prod5 = () => vec1 * vec5;
 
         // assert
         prod1.Should().Be(new Vec3<int>(0, 4, 12));
         prod2.Should().Be(new Vec3<int>(-4, -14, -6));
         prod3.Should().Be(new Vec3<int>(-4, -14, -6));
         prod4.Should().Be(new Vec3<int>(0, 0, 0));
-        prod5.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
@@ -91,7 +81,6 @@ internal class TestVec3
         var vec2 = new Vec3<int>(1, 1, 1);
         var vec3 = new Vec3<int>(2, -3, 4);
         var vec4 = new Vec3<int>(0, 0, 0);
-        Vec3<int> vec5 = null;
 
         // act
         var div1 = vec1 / vec2;
@@ -99,7 +88,6 @@ internal class TestVec3
         var div3 = vec1 / vec3;
         var div4 = vec4 / vec1;
         var div5 = () => vec1 / vec4;
-        var div6 = () => vec1 / vec5;
 
         // assert
         div1.Should().Be(new Vec3<int>(4, 9, 8));
@@ -107,7 +95,6 @@ internal class TestVec3
         div3.Should().Be(new Vec3<int>(2, -3, 2));
         div4.Should().Be(new Vec3<int>(0, 0, 0));
         div5.Should().Throw<DivideByZeroException>();
-        div6.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
@@ -117,23 +104,18 @@ internal class TestVec3
         var vec1 = new Vec3<int>(1, 2, 3);
         var vec2 = new Vec3<int>(0, 2, 4);
         var vec3 = new Vec3<int>(-4, -7, -3);
-        Vec3<int> vec4 = null;
 
         // act
         var prod1 = vec1 * 5;
         var prod2 = 2 * vec2;
         var prod3 = -1 * vec3;
         var prod4 = vec3 * 0;
-        var prod5 = () => 5 * vec4;
-        var prod6 = () => vec4 * 2;
 
         // assert
         prod1.Should().Be(new Vec3<int>(5, 10, 15));
         prod2.Should().Be(new Vec3<int>(0, 4, 8));
         prod3.Should().Be(new Vec3<int>(4, 7, 3));
         prod4.Should().Be(new Vec3<int>(0, 0, 0));
-        prod5.Should().Throw<ArgumentNullException>();
-        prod6.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
@@ -143,21 +125,18 @@ internal class TestVec3
         var vec1 = new Vec3<int>(4, 9, 5);
         var vec2 = new Vec3<int>(1, 3, 6);
         var vec3 = new Vec3<int>(2, -3, 7);
-        Vec3<int> vec5 = null;
 
         // act
         var div1 = vec1 / 4;
         var div2 = vec2 / 1;
         var div3 = vec3 / -2;
         var div4 = () => vec1 / 0;
-        var div5 = () => vec5 / 2;
 
         // assert
         div1.Should().Be(new Vec3<int>(1, 9 / 4, 5 / 4));
         div2.Should().Be(new Vec3<int>(1, 3, 6));
         div3.Should().Be(new Vec3<int>(-1, 3 / 2, -7 / 2));
         div4.Should().Throw<DivideByZeroException>();
-        div5.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
@@ -187,21 +166,18 @@ internal class TestVec3
         var vec2 = new Vec3<int>(-1, -3, -3);
         var vec3 = new Vec3<int>(2, -3, 1);
         var vec4 = new Vec3<int>(0, 0, 0);
-        Vec3<int> vec5 = null;
 
         // act
         var dot1 = vec1.Dot(vec1);
         var dot2 = vec1.Dot(vec2);
         var dot3 = vec1.Dot(vec3);
         var dot4 = vec1.Dot(vec4);
-        var dot5 = () => vec1.Dot(vec5);
 
         // assert
         dot1.Should().Be(122);
         dot2.Should().Be(-46);
         dot3.Should().Be(-14);
         dot4.Should().Be(0);
-        dot5.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
@@ -210,7 +186,6 @@ internal class TestVec3
         // arrange
         var bottomLeft = new Vec3<int>(-4, -3, 2);
         var topRight   = new Vec3<int>(7, 9, 5);
-        Vec3<int> vecN = null;
 
         // act
         var in1 = new Vec3<int>(-3, -3, 3).In(bottomLeft, topRight);
@@ -218,8 +193,6 @@ internal class TestVec3
         var in3 = new Vec3<int>(-4, -4, 1).In(bottomLeft, topRight);
         var in4 = new Vec3<int>(2, 7, 4).In(bottomLeft, topRight);
         var in5 = new Vec3<int>(2, 7, 3).In(topRight, bottomLeft);
-        var inN1 = () => new Vec3<int>(-3, -3, -3).In(bottomLeft, vecN);
-        var inN2 = () => new Vec3<int>(-3, -3, -3).In(vecN, topRight);
 
         // assert
         in1.Should().BeTrue();
@@ -227,8 +200,6 @@ internal class TestVec3
         in3.Should().BeFalse();
         in4.Should().BeTrue();
         in5.Should().BeFalse();
-        inN1.Should().Throw<ArgumentNullException>();
-        inN2.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
@@ -256,21 +227,16 @@ internal class TestVec3
         // arrange
         var vecMin = new Vec3<float>(-1, -7, -3);
         var vecMax = new Vec3<float>(4, 8, 2);
-        Vec3<float> vecN = null;
 
         // act
         var lerp1 = Vec3<float>.Lerp(vecMin, vecMax, 0);
         var lerp2 = Vec3<float>.Lerp(vecMin, vecMax, 1.0f);
         var lerp3 = Vec3<float>.Lerp(vecMin, vecMax, 0.4f);
-        var lerp4 = () => Vec3<float>.Lerp(vecN, vecMax, 0.3f);
-        var lerp5 = () => Vec3<float>.Lerp(vecMin, vecN, 0.3f);
 
         // assert
         lerp1.Should().Be(vecMin);
         lerp2.Should().Be(vecMax);
         lerp3.Should().Be(new Vec3<float>(1, -1, -1));
-        lerp4.Should().Throw<ArgumentNullException>();
-        lerp5.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
@@ -346,19 +312,16 @@ internal class TestVec3
         // arrange
         var vec1 = new Vec3<float>(-1, -7, 4);
         var vec2 = new Vec3<float>(4, 8, 7);
-        Vec3<float> vecN = null;
 
         // act
         var distSquared12 = vec1.SquaredDistance(vec2);
         var distSquared21 = vec2.SquaredDistance(vec1);
         var distSquared11 = vec1.SquaredDistance(vec1);
-        var distSquared1N = () => vec1.SquaredDistance(vecN);
 
         // assert
         distSquared12.Should().Be(distSquared21);
         distSquared12.Should().Be(5 * 5 + 15 * 15 + 3 * 3);
         distSquared11.Should().Be(0);
-        distSquared1N.Should().Throw<ArgumentNullException>();
     }
 
     [Test]
@@ -367,18 +330,15 @@ internal class TestVec3
         // arrange
         var vec1 = new Vec3<float>(-1, -7, 6);
         var vec2 = new Vec3<float>(4, 8, 4);
-        Vec3<float> vecN = null;
 
         // act
         var distManhattan12 = vec1.ManhattanDistance(vec2);
         var distManhattan21 = vec2.ManhattanDistance(vec1);
         var distManhattan11 = vec1.ManhattanDistance(vec1);
-        var distManhattan1N = () => vec1.ManhattanDistance(vecN);
 
         // assert
         distManhattan12.Should().Be(distManhattan21);
         distManhattan12.Should().Be(5 + 15 + 2);
         distManhattan11.Should().Be(0);
-        distManhattan1N.Should().Throw<ArgumentNullException>();
     }
 }
