@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 
-using matthiasffm.Common;
+using matthiasffm.Common.Collections;
 
 namespace matthiasffm.Common.Test;
 
@@ -144,14 +144,14 @@ internal class TestEnumerableExtensions
         // act
 
         var rotateNull = () => ((int[])null).RotateLeft(1);
-        var rotateCollMinus = () => coll.RotateLeft(-2);
+        var rotateCollMinus = () => coll.RotateLeft(-2 % coll.Length);
 
         var rotateEmpty = empty.RotateLeft(1);
         var rotateColl0 = coll.RotateLeft(0);
         var rotateColl1 = coll.RotateLeft(1);
         var rotateColl2 = coll.RotateLeft(2);
-        var rotateColl5 = coll.RotateLeft(5);
-        var rotateColl7 = coll.RotateLeft(7);
+        var rotateColl5 = coll.RotateLeft(5 % coll.Length);
+        var rotateColl7 = coll.RotateLeft(7 % coll.Length);
 
         // assert
 
@@ -177,14 +177,14 @@ internal class TestEnumerableExtensions
         // act
 
         var rotateNull = () => ((int[])null).RotateRight(1);
-        var rotateCollMinus = () => coll.RotateRight(-2);
+        var rotateCollMinus = () => coll.RotateRight(-2 % coll.Length);
 
         var rotateEmpty = empty.RotateRight(1);
         var rotateColl0 = coll.RotateRight(0);
         var rotateColl1 = coll.RotateRight(1);
         var rotateColl2 = coll.RotateRight(2);
-        var rotateColl5 = coll.RotateRight(5);
-        var rotateColl7 = coll.RotateRight(7);
+        var rotateColl5 = coll.RotateRight(5 % coll.Length);
+        var rotateColl7 = coll.RotateRight(7 % coll.Length);
 
         // assert
 

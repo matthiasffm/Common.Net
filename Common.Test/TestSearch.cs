@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using static System.Math;
 
 using matthiasffm.Common.Algorithms;
 
@@ -160,12 +161,11 @@ internal class TestSearch
 
         // act
 
-        var goalNotFound = Search.AStar(Array.Empty<string>(),
-                                        "Start",
-                                        "Ziel",
-                                        (city) => Array.Empty<string>(),
+        var goalNotFound = Search.AStar("start",
+                                        "goal",
+                                        city => Array.Empty<string>(),
                                         (a, b) => 10L,
-                                        (city) => 10L,
+                                        city => 10L,
                                         1000L);
 
         // assert
@@ -174,28 +174,24 @@ internal class TestSearch
     }
 
     [Test]
-    public void TestAStar()
+    public void TestAStarCities()
     {
         // arrange
 
-        var cities = new[] { "Frankfurt", "Bad Vilbel", "Hanau", "Offenbach", "Erlensee", "Ilbenstadt", "Florstadt", "Friedberg", "Köln", "Bonn" };
-
         // act
 
-        var pathFromKoelnToBonn = Search.AStar(cities,
-                                               "Köln",
+        var pathFromKoelnToBonn = Search.AStar("Köln",
                                                "Bonn",
-                                               (city) => SurroundingCities(city),
+                                               city => SurroundingCities(city),
                                                (a, b) => DistanceByStreet(a, b),
-                                               (city) => DistanceByAir(city, "Bonn"),
+                                               city => DistanceByAir(city, "Bonn"),
                                                1000L);
 
-        var pathFromErlenseeToFlorstadt = Search.AStar(cities,
-                                                       "Erlensee",
+        var pathFromErlenseeToFlorstadt = Search.AStar("Erlensee",
                                                        "Florstadt",
-                                                       (city) => SurroundingCities(city),
+                                                       city => SurroundingCities(city),
                                                        (a, b) => DistanceByStreet(a, b),
-                                                       (city) => DistanceByAir(city, "Florstadt"),
+                                                       city => DistanceByAir(city, "Florstadt"),
                                                        1000L);
 
         // assert
@@ -204,9 +200,169 @@ internal class TestSearch
         pathFromErlenseeToFlorstadt.Should().Equal("Erlensee", "Hanau", "Frankfurt", "Bad Vilbel", "Ilbenstadt", "Florstadt");
     }
 
+    [Test]
+    public void TestAStarMazeManhattan()
+    {
+        // arrange
+
+        var maze  = CreateMaze();
+        var start = (x: 1, y: 0);
+        var end   = (x: 7, y: 9);
+
+        // act
+
+        var pathFromTopToBottom = Search.AStar(start,
+                                               pos => pos.x == end.x && pos.y == end.y,
+                                               pos => MazeNeighbors4(maze, pos),
+                                               (pos1, pos2) => 1,
+                                               pos => MazeDistance(pos, end),
+                                               1000);
+        var pathBottomToTop = Search.AStar(end,
+                                           pos => pos.x == start.x && pos.y == start.y,
+                                           pos => MazeNeighbors4(maze, pos),
+                                           (pos1, pos2) => 1,
+                                           pos => MazeDistance(pos, start),
+                                           1000);
+
+        // assert
+
+        var expectedPath = new[]
+        {
+            start,
+            (1, 1),
+            (1, 2),
+            (2, 2),
+            (2, 3),
+            (2, 4),
+            (1, 4),
+            (0, 4),
+            (0, 5),
+            (0, 6),
+            (1, 6),
+            (2, 6),
+            (3, 6),
+            (3, 7),
+            (4, 7),
+            (5, 7),
+            (6, 7),
+            (7, 7),
+            (8, 7),
+            (8, 8),
+            (8, 9),
+            end,
+        };
+
+        pathFromTopToBottom.Should()
+                           .HaveCount(expectedPath.Length).And
+                           .Equal(expectedPath);
+
+        pathBottomToTop.Should()
+                       .HaveCount(expectedPath.Length).And
+                       .Equal(expectedPath.Reverse());
+    }
+
+    [Test]
+    public void TestAStarMazeDiag()
+    {
+        // arrange
+
+        var maze  = CreateMaze();
+        var start = (x: 1, y: 0);
+        var end   = (x: 7, y: 9);
+
+        // act
+
+        var pathFromTopToBottom = Search.AStar(start,
+                                               pos => pos.x == end.x && pos.y == end.y,
+                                               pos => MazeNeighbors8(maze, pos),
+                                               (pos1, pos2) => 1,
+                                               pos => MazeDistanceDiag(pos, end),
+                                               1000);
+        var pathBottomToTop = Search.AStar(end,
+                                           pos => pos.x == start.x && pos.y == start.y,
+                                           pos => MazeNeighbors8(maze, pos),
+                                           (pos1, pos2) => 1,
+                                           pos => MazeDistanceDiag(pos, start),
+                                           1000);
+
+        // assert
+
+        var expectedPath = new[]
+        {
+            start,
+            (1, 1),
+            (2, 2),
+            (3, 2),
+            (4, 2),
+            (5, 3),
+            (6, 3),
+            (7, 3),
+            (8, 4),
+            (9, 5),
+            (9, 6),
+            (8, 7),
+            (8, 8),
+            end,
+        };
+
+        pathFromTopToBottom.Should()
+                           .HaveCount(expectedPath.Length).And
+                           .Equal(expectedPath);
+
+        pathBottomToTop.Should()
+                       .HaveCount(expectedPath.Length).And
+                       .Equal(expectedPath.Reverse());
+    }
+
+    [Test]
+    public void TestAStarMazeManhattanNoPathFound()
+    {
+        // arrange
+
+        var maze  = CreateMaze();
+        var start = (x: 9, y: 0);
+        var end   = (x: 7, y: 9);
+
+        // act
+
+        var pathNotPossible = Search.AStar(start,
+                                           pos => pos.x == end.x && pos.y == end.y,
+                                           pos => MazeNeighbors4(maze, pos),
+                                           (pos1, pos2) => 1,
+                                           pos => MazeDistance(pos, end),
+                                           1000);
+
+        // assert
+
+        pathNotPossible.Should().BeEmpty();
+    }
+
+    [Test]
+    public void TestAStarMazeDiagNoPathFound()
+    {
+        // arrange
+
+        var maze  = CreateMaze();
+        var start = (x: 5, y: 5);
+        var end   = (x: 7, y: 9);
+
+        // act
+
+        var pathNotPossible = Search.AStar(start,
+                                           pos => pos.x == end.x && pos.y == end.y,
+                                           pos => MazeNeighbors8(maze, pos),
+                                           (pos1, pos2) => 1,
+                                           pos => MazeDistanceDiag(pos, end),
+                                           1000);
+
+        // assert
+
+        pathNotPossible.Should().BeEmpty();
+    }
+
     #endregion
 
-    // Testdaten
+    // test data and helper functions
 
     private static IEnumerable<string> SurroundingCities(string city) => city switch {
         "Frankfurt"   => new[] { "Bad Vilbel", "Hanau", "Offenbach" },
@@ -270,4 +426,66 @@ internal class TestSearch
 
         _                               => throw new InvalidOperationException("Aufruf der Testdaten mit unerwarteter Kombinaten der Städte"),
     };
+
+    private static HashSet<(int x, int y)> CreateMaze()
+    {
+        // create a maze where there is a path starting from top left to bottom right
+        // depending if a 4-neighbor setup or a setup with 8 diagonal neighbors is used the paths differ
+        //
+        // for a negative test the bottom right position is not accessible from the spot at top right with
+        // a 4-neighbor setup
+        return new[] {
+            "* ******  ",
+            "* ** *   *",
+            "*    **  *",
+            "** **   **",
+            "   ***** *",
+            " ****  ** ",
+            "    ***** ",
+            "* *      *",
+            "*   **** *",
+            "******   *",
+        }.SelectMany((l, y) => l.Select((c, x) => (c, x, y)))
+         .Where(cxy => cxy.c == ' ')
+         .Select(cxy => (cxy.x, cxy.y))
+         .ToHashSet();
+    }
+
+    private static IEnumerable<(int x, int y)> MazeNeighbors4(HashSet<(int x, int y)> maze, (int x, int y) pos)
+    {
+        if(maze.Contains((pos.x - 1, pos.y)))
+            yield return (pos.x - 1, pos.y);
+        if(maze.Contains((pos.x + 1, pos.y)))
+            yield return (pos.x + 1, pos.y);
+        if(maze.Contains((pos.x, pos.y - 1)))
+            yield return (pos.x, pos.y - 1);
+        if(maze.Contains((pos.x, pos.y + 1)))
+            yield return (pos.x, pos.y + 1);
+    }
+
+    private static IEnumerable<(int x, int y)> MazeNeighbors8(HashSet<(int x, int y)> maze, (int x, int y) pos)
+    {
+        if(maze.Contains((pos.x - 1, pos.y - 1)))
+            yield return (pos.x - 1, pos.y - 1);
+        if(maze.Contains((pos.x, pos.y - 1)))
+            yield return (pos.x, pos.y - 1);
+        if(maze.Contains((pos.x + 1, pos.y - 1)))
+            yield return (pos.x + 1, pos.y - 1);
+
+        if(maze.Contains((pos.x - 1, pos.y)))
+            yield return (pos.x - 1, pos.y);
+        if(maze.Contains((pos.x + 1, pos.y)))
+            yield return (pos.x + 1, pos.y);
+
+        if(maze.Contains((pos.x - 1, pos.y + 1)))
+            yield return (pos.x - 1, pos.y + 1);
+        if(maze.Contains((pos.x, pos.y + 1)))
+            yield return (pos.x, pos.y + 1);
+        if(maze.Contains((pos.x + 1, pos.y + 1)))
+            yield return (pos.x + 1, pos.y + 1);
+    }
+
+    private static int MazeDistance((int x, int y) p1, (int x, int y) p2) => Abs(p1.x - p2.x) + Abs(p1.y - p2.y);
+
+    private static int MazeDistanceDiag((int x, int y) p1, (int x, int y) p2) => Max(Abs(p1.x - p2.x), Abs(p1.y - p2.y));
 }
