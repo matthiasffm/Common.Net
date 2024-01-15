@@ -3,18 +3,18 @@
 namespace matthiasffm.Common.Math;
 
 /// <summary>
-/// Methoden zur Bestimmung des größten gemeinsamen Teilers zweier oder mehrere Zahlen nach Euklid.
+/// Uses Euclids algorithm to calculate the greatest common divisor (GCD) or other ratios of two or more numbers.
 /// </summary>
 public static class Euclid
 {
     /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler der Zahlen a und b
+    /// Calculates the greatest common divisor (GCD) of two numbers.
     /// </summary>
     public static T Gcd<T>(T a, T b) where T : INumber<T>
     {
         if(a == T.Zero)
         {
-            return Abs(b);
+            return b.Abs();
         }
 
         while(b != T.Zero)
@@ -24,47 +24,81 @@ public static class Euclid
             b = h;
         }
 
-        return Abs(a);
+        return a.Abs();
     }
 
-    private static T Abs<T>(T number) where T : INumber<T> => number >= T.Zero ? number : -number;
-
     /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler aller Zahlen in <paramref name="numbers"/>.
+    /// Calculates the greatest common divisor (GCD) of all <paramref name="numbers"/>.
     /// </summary>
     public static T Gcd<T>(params T[] numbers) where T : INumber<T>
     {
         ArgumentNullException.ThrowIfNull(numbers);
 
-        return ((IEnumerable<T>)numbers).Gcd();
+        return numbers.Gcd();
     }
 
     /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler aller Zahlen in <paramref name="numbers"/>.
+    /// Calculates the greatest common divisor (GCD) of all <paramref name="numbers"/>.
     /// </summary>
     public static T Gcd<T>(this IEnumerable<T> numbers) where T : INumber<T>
     {
         ArgumentNullException.ThrowIfNull(numbers);
 
-        return numbers.Skip(1).Aggregate(numbers.First(), (gcd, next) => Gcd(gcd, next));
+        var iter = numbers.GetEnumerator();
+
+        iter.MoveNext();
+        var gcd = iter.Current;
+
+        while(iter.MoveNext()) 
+        {
+            gcd = Gcd(gcd, iter.Current);
+        }
+
+        return gcd;
     }
 
     /// <summary>
-    /// Berechnet den größten gemeinsamen Teiler zweier Zahlen a und b sowie die Koeffizienten x und y nach dem
-    /// Lemma von Bezout, so dass a * x + b * y = GGT(a, b).
+    /// Calculates the greatest common divisor (GCD) of two numbers a and b and returns
+    /// the coefficients x und y so that they fulfill Bézout's identity with ax + by = Gcd(a, b).
     /// </summary>
     public static (T gcd, T x, T y) GcdExt<T>(T a, T b) where T : INumber<T>
     {
         if(a == T.Zero)
         {
-            return (Abs(b), T.Zero, T.One);
+            return (b.Abs(), T.Zero, T.One);
         }
         if(b == T.Zero)
         {
-            return (Abs(a), T.One, T.Zero);
+            return (a.Abs(), T.One, T.Zero);
         }
 
         var (ggt, x, y) = GcdExt(b, a % b);
         return (ggt, y, x - (a / b) * y);
+    }
+
+    /// <summary>
+    /// Calculates the least common multiple (LCM) of two numbers.
+    /// </summary>
+    public static T Lcm<T>(T a, T b) where T : INumber<T>
+        => a * b / Gcd(a, b);
+
+    /// <summary>
+    /// Calculates the least common multiple (LCM) of all <paramref name="numbers"/>.
+    /// </summary>
+    public static T Lcm<T>(params T[] numbers) where T : INumber<T>
+    {
+        ArgumentNullException.ThrowIfNull(numbers);
+
+        return numbers.Lcm();
+    }
+
+    /// <summary>
+    /// Calculates the least common multiple (LCM) of all <paramref name="numbers"/>.
+    /// </summary>
+    public static T Lcm<T>(this IEnumerable<T> numbers) where T : INumber<T>
+    {
+        ArgumentNullException.ThrowIfNull(numbers);
+
+        return numbers.Aggregate(T.One, (lcm, number) => Lcm(lcm, number));
     }
 }
