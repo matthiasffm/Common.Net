@@ -218,19 +218,16 @@ internal class TestBinaryTree
         testTree.Root.Right.Left.Right.Should().BeNull();
     }
 
-    /// <summary>
-    /// Erstellt einen Testbaum für die Iteratoren-Tests
-    /// </summary>
-    /// <remarks>
-    ///      1
-    ///     / \
-    ///    2   3
-    ///   /   / \
-    ///  4   5   6
-    ///       \
-    ///        7
-    ///
-    ///</remarks>
+    // create tree for iterator tests
+    // 
+    //      1
+    //     / \
+    //    2   3
+    //   /   / \
+    //  4   5   6
+    //       \
+    //        7
+    //
     private static BinaryTree<int> CreateTreeForIteratorTests()
     {
         var tree = new BinaryTree<int>();

@@ -1,17 +1,17 @@
 namespace matthiasffm.Common.Algorithms;
 
 /// <summary>
-/// Fasst generische Standardfunktionen zusammen, die sonst kontextuell zu keinem Thema gehören.
+/// Contains some basic utility methods.
 /// </summary>
 public static class Basics
 {
-    /// <summary>Tauscht die Inhalte von a und b</summary>
+    /// <summary>Swaps the content of a and b</summary>
     public static void Swap<T>(ref T a, ref T b)
     {
         (a, b) = (b, a);
     }
 
-    /// <summary>Tauscht die zwei Elemente der Liste an Position i und j</summary>
+    /// <summary>Swaps two elements of a list at index i and j.</summary>
     public static void Swap<T>(this IList<T> list, int i, int j)
     {
         ArgumentNullException.ThrowIfNull(list);
