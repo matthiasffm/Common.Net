@@ -1,20 +1,39 @@
+using System.Numerics;
+
 namespace matthiasffm.Common.Math;
 
 /// <summary>
-/// Stellt Erweiterungsmethoen für mathematische Basisfunktionen bereit.
+/// Provides extension methods for basic math functions.
 /// </summary>
 public static class MathExtensions
 {
-    /// <summary>Liefert die Summe aller natürlichen Zahlen von 1 ... n in O(1)</summary>
-    public static int SumNumbers(int n) => n * (n + 1) / 2; // Gaußsche Summenformel
+    /// <summary>
+    /// Returns the sum of all positive numbers from 1 to n.
+    /// </summary>
+    public static T SumNumbers<T>(T n) where T : INumberBase<T>
+        => n * (n + T.One) / (T.One + T.One);
 
     /// <summary>
-    /// Ermittelt ob eine Zahl im Intervall von min bis max liegt.
+    /// Determines if a number is in the interval [min, max].
     /// </summary>
-    public static bool Between(this int val, int min, int max) => min <= val && val <= max;
+    public static bool Between<T>(this T val, T min, T max) where T : IComparisonOperators<T, T, bool>
+        => min <= val && val <= max;
 
     /// <summary>
-    /// Ermittelt ob eine Zahl im Intervall von min bis max liegt.
+    /// there is no INumber interface a la T.IAbsOperation so we need this
     /// </summary>
-    public static bool Between(this long val, long min, long max) => min <= val && val <= max;
+    public static T Abs<T>(this T number) where T : INumberBase<T>, IComparisonOperators<T, T, bool>
+        => number >= T.Zero ? number : -number;
+
+    /// <summary>
+    /// Clamps a specified numerical value to a specified minimum range.
+    /// </summary>
+    public static T Clamp<T>(this T val, T min) where T : IComparable<T>
+        => val.CompareTo(min) < 0 ? min : val;
+
+    /// <summary>
+    /// Clamps a specified numerical value to a specified minimum and maximum range.
+    /// </summary>
+    public static T Clamp<T>(this T val, T min, T max) where T : IComparable<T>
+        => val.CompareTo(min) < 0 ? min : (val.CompareTo(max) > 0 ? max : val);
 }
