@@ -1,35 +1,35 @@
 using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace matthiasffm.Common.Collections;
 
 /// <summary>
-/// Stellt nützliche Erweiterungsmethoden für BitArrays bereit, zB Umwandlungen in Ints, für Vergleiche oder
-/// um Slices daraus zu erstellen.
+/// Provides utility functions for BitArray objects.
 /// </summary>
 public static class BitArrayExtensions
 {
     /// <summary>
-    /// Vergleicht die Inhalte zweiter Bitarrays auf Gleichheit.
+    /// Compares two BitArrays for equality.
     /// </summary>
     public static bool EqualsAll(this BitArray left, BitArray right)
         => left?.Length == right?.Length && 
            ((left == null && right == null) || ((BitArray)left!.Clone()).Xor(right!).OfType<bool>().All(b => b == false));
 
     /// <summary>
-    /// Schneidet eine Teilmenge des Bitarrays von length Bits ab start aus und
-    /// gibt sie als neues BitArray zurück.
+    /// Copies a slice of <i>length</i> of continuous bits starting at <i>start</i> to a new BitArray object.
     /// </summary>
-    /// <param name="bits">Das Quell-Array, aus dem die Methode eine Teilmenge ausschneidet (dessen Inhalt wird dabei nicht geändert)</param>
-    /// <param name="start">Startindex ab dem das Slice erstellt werden soll</param>
-    /// <param name="length">Länge des Slice (muss positiv und kleiner oder gleich bits.Length - start sein)</param>
+    /// <param name="bits">Source data where bits are copied from (stays unchanged).</param>
+    /// <param name="start">Start index where bits are copied from</param>
+    /// <param name="length">Length of continuous slice where bits are copied from</param>
     public static BitArray Slice(this BitArray bits, int start, int length)
     {
         ArgumentNullException.ThrowIfNull(bits);
-        if(bits.Length < start + length || length < 0)
+        if(start < 0)
         {
-            throw new IndexOutOfRangeException("Das angeforderte Slice liegt ausserhalb des BitArrays");
+            throw new ArgumentOutOfRangeException(nameof(start), "Start of slice is outside of the source BitArray.");
+        }
+        if(length < 0 || length > bits.Length - start)
+        {
+            throw new ArgumentOutOfRangeException(nameof(length), "Range of slice is outside of the source BitArray.");
         }
 
         var slice = new BitArray(length);
@@ -43,18 +43,19 @@ public static class BitArrayExtensions
     }
 
     /// <summary>
-    /// Konvertiert die Bits des BitArrays in einen 32-bitigen Integerwert. Dabei
-    /// ist bits[length-1] das Bit mit dem höherstelligsten Wert 2^bits.Length (es
-    /// wird von rechts gelesen == little endian).
+    /// Converts the bits of a BitArray to a 32 bit integer value (the BitArray length should not exceed 32 bits of course).
     /// </summary>
-    /// <param name="bits">Das Array mit den in einen 32 bit-Wert zu konvertierenden Bits (dessen Inhalt wird dabei nicht geändert)</param>
-    /// <remarks>Es werden nur BitArrays mit einer max. Länge von 32 Bit unterstützt.</remarks>
+    /// <remarks>
+    /// The bits are read in little endian format so bits[length - 1] is the bit with the hightest value (2^bits.Length).
+    /// </remarks>
+    /// <param name="bits">The BitArray to convert to a 32 bit integer value (<i>bits</i>/> content stays unchanded)</param>
+    /// <returns>Integer value of the BitArray</returns>
     public static int ConvertToInt(this BitArray bits)
     {
         ArgumentNullException.ThrowIfNull(bits);
         if(bits.Length > 32)
         {
-            throw new ArgumentException("Es werden nur BitArrays mit Länge <= 32 Bits unterstützt.");
+            throw new ArgumentException("Only BitArray objects with a length of <= 32 bits are supported.");
         }
 
         var result = new int[1];
@@ -63,23 +64,21 @@ public static class BitArrayExtensions
     }
 
     /// <summary>
-    /// Konvertiert die length Bits des BitArrays ab start in einen 32-bitigen Integerwert. Dabei
-    /// ist bits[0] das Bit mit dem höherstelligsten Wert 2^bits.Length.
+    /// Converts a slice of a BitArray to a 32 bit integer value (the length of the slice should not exceed 32 bits of course).
     /// </summary>
-    /// <param name="bits">Das Array mit den in einen 32 bit-Wert zu konvertierenden Bits (dessen Inhalt wird dabei nicht geändert)</param>
-    /// <param name="start">Startindex ab dem Bits in Integer umgerechnet werden sollen</param>
-    /// <param name="length">Anzahl der Bits im Array, die in Integer umgerechnet werden sollen (muss positiv und kleiner oder gleich bits.Length - start sein)</param>
-    /// <remarks>Es werden nur BitArrays mit einer max. Länge von 32 Bit unterstützt.</remarks>
+    /// <remarks>
+    /// The bits are read in little endian format so bits[length - 1] is the bit with the hightest value (2^bits.Length).
+    /// </remarks>
+    /// <param name="bits">The BitArray to convert to a 32 bit integer value (<i>bits</i>/> content stays unchanded)</param>
+    /// <param name="start">Start index of the slice to convert</param>
+    /// <param name="length">Length of continuous slice where bits are converted from (can not exceed 32 bits)</param>
+    /// <returns>Integer value of the BitArray slice</returns>
     public static int ConvertToInt(this BitArray bits, int start, int length)
     {
         ArgumentNullException.ThrowIfNull(bits);
         if(length > 32)
         {
-            throw new ArgumentException("Es sind nur Aufrufe mit Länge <= 32 Bits erlaubt", nameof(length));
-        }
-        if(bits.Length < start + length || length < 0)
-        {
-            throw new IndexOutOfRangeException("Der zu konvertierende Bereich liegt ausserhalb des BitArrays");
+            throw new ArgumentException("Only slices with a length of <= 32 bits are supported.", nameof(length));
         }
 
         var slice = bits.Slice(start, length);
@@ -90,10 +89,10 @@ public static class BitArrayExtensions
     }
 
     /// <summary>
-    /// Spiegelt ein BitArray und liefert das Ergebnis als neues BitArray zurück.
+    /// Reverses the bits in a BitArray and returns this value as a new object.
     /// </summary>
-    /// <param name="bits">Das zu spiegelnde Array (dessen Inhalt wird dabei nicht geändert)</param>
-    /// <returns>bits gespiegelt</returns>
+    /// <param name="bits">The BitArray to reverse (the function doesnt change the content)</param>
+    /// <returns>new BitArray object with the reverse bits of the input BitArray</returns>
     public static BitArray Reverse(this BitArray bits)
     {
         ArgumentNullException.ThrowIfNull(bits);
@@ -108,7 +107,7 @@ public static class BitArrayExtensions
     }
 
     /// <summary>
-    /// Zählt die Anzahl an gesetzten Bits im Array.
+    /// Counts the number of set bits in the BitArray.
     /// </summary>
     public static long CountOnes(this BitArray bits)
     {
@@ -128,7 +127,7 @@ public static class BitArrayExtensions
     }
 
     /// <summary>
-    /// Zählt die Anzahl an ungesetzten Bits im Array.
+    /// Counts the number of unset bits (zeroes) in the BitArray.
     /// </summary>
     public static long CountZeroes(this BitArray bits)
     {

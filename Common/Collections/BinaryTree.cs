@@ -3,42 +3,41 @@ using System.Collections;
 namespace matthiasffm.Common.Collections;
 
 /// <summary>
-/// Knoten eines binären Baums.
+/// Single node of a binary tree.
 /// </summary>
-/// <typeparam name="T">Typ des im Knoten gespeicherten Wertes.</typeparam>
+/// <typeparam name="T">Type of the value at the node. <see cref="Item"/></typeparam>
 public class BinaryTreeNode<T>
 {
     /// <summary>
-    /// Referenz auf den Elternknoten.
+    /// Reference to parent node.
     /// </summary>
-    /// <remarks>Ist im Fall des Wurzelknotens <i>null</i>.</remarks>
+    /// <remarks>Is <i>null</i> if the node is the root node of the tree.</remarks>
     public BinaryTreeNode<T>? Parent { get; internal set; }
 
     /// <summary>
-    /// Referenz auf den linken Kindknoten.
+    /// Reference to left child node.
     /// </summary>
-    /// <remarks>Ist im Fall eines Blattknotens <i>null</i>.</remarks>
+    /// <remarks>Is <i>null</i> if the node has no left child.</remarks>
     public BinaryTreeNode<T>? Left { get; internal set; }
 
     /// <summary>
-    /// Referenz auf den rechten Kindknoten.
+    /// Reference to right child node.
     /// </summary>
-    /// <remarks>Ist im Fall eines Blattknotens <i>null</i>.</remarks>
+    /// <remarks>Is <i>null</i> if the node has no right child.</remarks>
     public BinaryTreeNode<T>? Right { get; internal set; }
 
     /// <summary>
-    /// Im Knoten gespeicherter Wert.
+    /// Value stored at the node.
     /// </summary>
     public T Item { get; set; }
 
     /// <summary>
-    /// Ist der Knoten ein Blattknoten ohne Kinder?
+    /// Is <i>true</i> if the node has no left child and no right child nodes.
     /// </summary>
-    public bool IsLeaf { get => Left == null && Right == null; }
-
+    public bool IsLeaf { get => Left is null && Right is null; }
 
     /// <summary>
-    /// Erstellt einen neuen Knoten mit item als Wert.
+    /// Creates a new node and stores the value <paramref name="item"/> there.
     /// </summary>
     public BinaryTreeNode(T item)
     {
@@ -47,37 +46,39 @@ public class BinaryTreeNode<T>
 }
 
 /// <summary>
-/// Datenstruktur binärer Baum.
+/// Data structure for a binary tree where every node in the tree has 0 to 1 parent node and 0 to 2 child nodes.
 /// </summary>
-/// <typeparam name="T">Typ des in den Knoten gespeicherten Wertes.</typeparam>
+/// <typeparam name="T">Type of the value at the node. <see cref="BinaryTreeNode{T}.Item"/></typeparam>
 public class BinaryTree<T> : IEnumerable<T>, ICloneable
 {
     /// <summary>
-    /// Wurzelknoten des Baumes.
+    /// Root node of the tree.
     /// </summary>
+    /// <remarks>Is <i>null</i> if the tree is empty.</remarks>
     public BinaryTreeNode<T>? Root { get; protected set; }
 
     /// <summary>
-    /// Erstellt einen leeren Binärbaum ohne Knoten.
+    /// Creates a new empty binary tree.
     /// </summary>
     public BinaryTree()
     {
     }
 
     /// <summary>
-    /// Erstellt einen Binärbaum mit einem Wurzelknoten vom Wert <i>root</i>.
+    /// Creates a new binary tree with one new node as its root and <paramref name="root"/> as its value.
     /// </summary>
+    /// <param name="root">The value for the root node.</param>
     public BinaryTree(T root)
     {
         Root = new BinaryTreeNode<T>(root);
     }
 
     /// <summary>
-    /// Erstellt einen neuen Wurzelknoten mit dem Wert <i>item</i>.
+    /// Creates a new root node for the binary tree.
     /// </summary>
-    /// <param name="item">der Wert des neuen Wurzelknotens</param>
-    /// <returns>der neue Wurzelknoten</returns>
-    /// <remarks>Alle vorherigen Informationen im Binärbaum gehen dabei verloren.</remarks>
+    /// <param name="item">The value of the new root node.</param>
+    /// <returns>New root node data structure</returns>
+    /// <remarks>All previous informations of the binary tree are lost after this operation!</remarks>
     public BinaryTreeNode<T> AddRoot(T item)
     {
         Root = new BinaryTreeNode<T>(item);
@@ -85,14 +86,20 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     }
 
     /// <summary>
-    /// Fügt unterhalt eines Elternknotens einen linken Kindknoten mit dem Wert <i>item</i> ein.
+    /// Creates a new child node and adds it as a left child to a parent node.
     /// </summary>
-    /// <param name="parent">Referenz auf den Elternknoten</param>
-    /// <param name="item">der Wert des neuen linken Kindknotens</param>
-    /// <returns>der neue linke Kindknoten</returns>
+    /// <param name="parent">Reference to parent node.</param>
+    /// <param name="item">The value of the new left child node.</param>
+    /// <returns>New left child node data structure</returns>
+    /// <remarks>All previous informations of a left child node for <paramref name="parent"/> are lost after this operation!</remarks>
     public BinaryTreeNode<T> AddLeft(BinaryTreeNode<T> parent, T item)
     {
         ArgumentNullException.ThrowIfNull(parent);
+
+        if(parent.Left != null)
+        {
+            parent.Left.Parent = null;
+        }
 
         var newNode = new BinaryTreeNode<T>(item);
 
@@ -103,14 +110,20 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     }
 
     /// <summary>
-    /// Fügt unterhalt eines Elternknotens einen rechten Kindknoten mit dem Wert <i>item</i> ein.
+    /// Creates a new child node and adds it as a right child to a parent node.
     /// </summary>
-    /// <param name="parent">Referenz auf den Elternknoten</param>
-    /// <param name="item">der Wert des neuen rechten Kindknotens</param>
-    /// <returns>der neue linke Kindknoten</returns>
+    /// <param name="parent">Reference to parent node.</param>
+    /// <param name="item">The value of the new right child node.</param>
+    /// <returns>New right child node data structure</returns>
+    /// <remarks>All previous informations of a right child node for <paramref name="parent"/> are lost after this operation!</remarks>
     public BinaryTreeNode<T> AddRight(BinaryTreeNode<T> parent, T item)
     {
         ArgumentNullException.ThrowIfNull(parent);
+
+        if(parent.Right != null)
+        {
+            parent.Right.Parent = null;
+        }
 
         var newNode = new BinaryTreeNode<T>(item);
 
@@ -121,37 +134,56 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     }
 
     /// <summary>
-    /// Ersetzt unterhalb eines Elternknotens einen linken Kindknoten mit dem Klon des anderen Teilbaums <i>leftSubtree</i>.
+    /// Clones a complete subtree beginning from its root and adds it as a left child to a parent node.
     /// </summary>
-    /// <param name="parent">Referenz auf den Elternknoten</param>
-    /// <param name="leftSubtree">der Teilbaum wird geklont links unterhalb des Elternknotens eingefügt</param>
-    public void ReplaceLeftChild(BinaryTreeNode<T> parent, BinaryTreeNode<T> leftSubtree)
+    /// <param name="parent">Reference to parent node.</param>
+    /// <param name="rootOfSubtreeToClone">the root of a subtree to clone and add</param>
+    /// <returns>New left child node data structure == the root of the cloned subtree.</returns>
+    /// <remarks>All previous informations of a left child node for <paramref name="parent"/> are lost after this operation!</remarks>
+    public BinaryTreeNode<T> AddLeftSubtree(BinaryTreeNode<T> parent, BinaryTreeNode<T> rootOfSubtreeToClone)
     {
         ArgumentNullException.ThrowIfNull(parent);
-        ArgumentNullException.ThrowIfNull(leftSubtree);
+        ArgumentNullException.ThrowIfNull(rootOfSubtreeToClone);
 
-        var clonedSubtree = parent.Left = CloneNode(leftSubtree);
+        if(parent.Left != null)
+        {
+            parent.Left.Parent = null;
+        }
+
+        var clonedSubtree = parent.Left = CloneNode(rootOfSubtreeToClone);
         clonedSubtree.Parent = parent;
+
+        return clonedSubtree;
     }
 
     /// <summary>
-    /// Ersetzt unterhalb eines Elternknotens einen rechten Kindknoten mit dem Klon des anderen Teilbaums <i>rightSubtree</i>.
+    /// Clones a complete subtree beginning from its root and adds it as a right child to a parent node.
     /// </summary>
-    /// <param name="parent">Referenz auf den Elternknoten</param>
-    /// <param name="rightSubtree">der Teilbaum wird geklont rechts unterhalb des Elternknotens eingefügt</param>
-    public void ReplaceRightChild(BinaryTreeNode<T> parent, BinaryTreeNode<T> rightSubtree)
+    /// <param name="parent">Reference to parent node.</param>
+    /// <param name="rootOfSubtreeToClone">the root of a subtree to clone and add</param>
+    /// <returns>New right child node data structure == the root of the cloned subtree.</returns>
+    /// <remarks>All previous informations of a right child node for <paramref name="parent"/> are lost after this operation!</remarks>
+    public BinaryTreeNode<T> AddRightSubtree(BinaryTreeNode<T> parent, BinaryTreeNode<T> rootOfSubtreeToClone)
     {
         ArgumentNullException.ThrowIfNull(parent);
-        ArgumentNullException.ThrowIfNull(rightSubtree);
+        ArgumentNullException.ThrowIfNull(rootOfSubtreeToClone);
 
-        var clonedSubtree = parent.Right = CloneNode(rightSubtree);
+        if(parent.Right != null)
+        {
+            parent.Right.Parent = null;
+        }
+
+        var clonedSubtree = parent.Right = CloneNode(rootOfSubtreeToClone);
         clonedSubtree.Parent = parent;
+
+        return clonedSubtree;
     }
 
     /// <summary>
-    /// Löscht den linken Kind-Teilbaum unterhalb des Elternknotens.
+    /// Removes the left child tree beneath a parent node.
     /// </summary>
-    /// <param name="parent">Referenz auf den Elternknoten</param>
+    /// <param name="parent">the parent node</param>
+    /// <remarks>All previous informations of a left child node for <paramref name="parent"/> are lost after this operation!</remarks>
     public void DeleteLeftChild(BinaryTreeNode<T> parent)
     {
         ArgumentNullException.ThrowIfNull(parent);
@@ -165,9 +197,10 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     }
 
     /// <summary>
-    /// Löscht den rechten Kind-Teilbaum unterhalb des Elternknotens.
+    /// Removes the right child tree beneath a parent node.
     /// </summary>
-    /// <param name="parent">Referenz auf den Elternknoten</param>
+    /// <param name="parent">the parent node</param>
+    /// <remarks>All previous informations of a right child node for <paramref name="parent"/> are lost after this operation!</remarks>
     public void DeleteRightChild(BinaryTreeNode<T> parent)
     {
         ArgumentNullException.ThrowIfNull(parent);
@@ -181,11 +214,9 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     }
 
     /// <summary>
-    /// Ermittelt die Tiefe einen Knotens innerhalb des Binärbaums.
+    /// Counts the depth of a node in the tree (root is at depth 1).
     /// </summary>
-    /// <param name="node">der Knoten, dessen Tiefe ermittelt werden soll.</param>
-    /// <returns>Die Tiefe von <i>node</i>, dabei hat der Wurzelknoten die Tiefe 1</returns>
-    /// <remarks>O(logn)</remarks>
+    /// <remarks>runs in O(log n)</remarks>
     public int Depth(BinaryTreeNode<T>? node)
     {
         int depth = 0;
@@ -200,17 +231,19 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     }
 
     /// <summary>
-    /// Ermittelt den nächsten Blattknoten links von <i>node</i>.
+    /// Searches for the nearest leaf node left (rightmost leaf) to <paramref name="node"/>.
     /// </summary>
-    /// <param name="node">von diesem Knoten aus wird links der nächste Blattknoten gesucht</param>
-    /// <returns>den nächsten Blattknoten links oder <i>null</i>, wenn keiner gefunden wird</returns>
-    /// <remarks>O(logn)</remarks>
+    /// <param name="node">start of search</param>
+    /// <returns>Returns the rightmost leaf left from <paramref name="node"/> or <i>null</i> if no leaf was found.</returns>
+    /// <remarks>runs in O(log n)</remarks>
     public BinaryTreeNode<T>? NextLeafToLeft(BinaryTreeNode<T>? node)
     {
         if(node is null)
         {
             return null;
         }
+
+        // move to a node with a left child
 
         var prev = node;
         while(node.Left is null || node.Left == prev)
@@ -223,11 +256,13 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
             node = node.Parent;
         }
 
+        // now move to the rightmost child
+
         do
         {
             node = node!.Left;
 
-            while(!node!.IsLeaf && node.Right is not null)
+            while(node!.Right is not null)
             {
                 node = node.Right;
             }
@@ -238,17 +273,19 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     }
 
     /// <summary>
-    /// Ermittelt den nächsten Blattknoten rechts von <i>node</i>.
+    /// Searches for the nearest leaf node right (leftmost leaf) to <paramref name="node"/>.
     /// </summary>
-    /// <param name="node">von diesem Knoten aus wird rechts der nächste Blattknoten gesucht</param>
-    /// <returns>den nächsten Blattknoten rechts oder <i>null</i>, wenn keiner gefunden wird</returns>
-    /// <remarks>O(logn)</remarks>
+    /// <param name="node">start of search</param>
+    /// <returns>Returns the leftmost leaf right from <paramref name="node"/> or <i>null</i> if no leaf was found.</returns>
+    /// <remarks>runs in O(log n)</remarks>
     public BinaryTreeNode<T>? NextLeafToRight(BinaryTreeNode<T>? node)
     {
         if(node is null)
         {
             return null;
         }
+
+        // move to a node with a right child
 
         var prev = node;
         while(node.Right is null || node.Right == prev)
@@ -261,11 +298,13 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
             node = node.Parent;
         }
 
+        // now move to the leftmost child
+
         do
         {
             node = node!.Right;
 
-            while(!node!.IsLeaf && node.Left is not null)
+            while(node!.Left is not null)
             {
                 node = node.Left;
             }
@@ -278,10 +317,10 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     #region Iterators
 
     /// <summary>
-    /// Iteriert über die Binärbaum-Knoten in Preorder-Reihenfolge ausgehend von <i>node</i>.
+    /// Traverses all nodes in a subtree in preorder sequence starting at <i>node</i>.
     /// </summary>
-    /// <param name="node">Ausgangspunkt der Iteration</param>
-    /// <returns>Preorder-Iterator</returns>
+    /// <param name="node">Starting node of the iteration</param>
+    /// <returns>Preorder iterator</returns>
     public IEnumerable<BinaryTreeNode<T>> IteratePreOrder(BinaryTreeNode<T>? node)
     {
         if(node is not null)
@@ -307,10 +346,10 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     }
 
     /// <summary>
-    /// Iteriert über die Binärbaum-Knoten in Inorder-Reihenfolge ausgehend von <i>node</i>.
+    /// Traverses all nodes in a subtree in inorder sequence starting at <i>node</i>.
     /// </summary>
-    /// <param name="node">Ausgangspunkt der Iteration</param>
-    /// <returns>Inorder-Iterator</returns>
+    /// <param name="node">Starting node of the iteration</param>
+    /// <returns>Inorder iterator</returns>
     public IEnumerable<BinaryTreeNode<T>> IterateInOrder(BinaryTreeNode<T>? node)
     {
         var stack = new Stack<BinaryTreeNode<T>>();
@@ -332,10 +371,10 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     }
 
     /// <summary>
-    /// Iteriert über die Binärbaum-Knoten in Postorder-Reihenfolge ausgehend von <i>node</i>.
+    /// Traverses all nodes in a subtree in postorder sequence starting at <i>node</i>.
     /// </summary>
-    /// <param name="node">Ausgangspunkt der Iteration</param>
-    /// <returns>Postorder-Iterator</returns>
+    /// <param name="node">Starting node of the iteration</param>
+    /// <returns>Postorder iterator</returns>
     public IEnumerable<BinaryTreeNode<T>> IteratePostOrder(BinaryTreeNode<T>? node)
     {
         var stack = new Stack<BinaryTreeNode<T>>();
@@ -366,10 +405,10 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     }
 
     /// <summary>
-    /// Iteriert über die Binärbaum-Knoten in Levelorder-Reihenfolge ausgehend von <i>node</i>.
+    /// Traverses all nodes in a subtree in level order sequence starting at <i>node</i>.
     /// </summary>
-    /// <param name="node">Ausgangspunkt der Iteration</param>
-    /// <returns>Levelorder-Iterator</returns>
+    /// <param name="node">Starting node of the iteration</param>
+    /// <returns>Level order iterator</returns>
     public IEnumerable<BinaryTreeNode<T>> IterateLevelOrder(BinaryTreeNode<T> node)
     {
         var nodeQueue = new Queue<BinaryTreeNode<T>>();
@@ -396,9 +435,9 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     #region IEnumerable<T>
 
     /// <summary>
-    /// Liefert den typisierten Preorder-Iterator für den gesamten Binärbaum.
+    /// Returns typed iterator to traverse all nodes in the tree in preorder sequence.
     /// </summary>
-    /// <returns>Preorder-Iterator</returns>
+    /// <returns>Preorder iterator</returns>
     public IEnumerator<T> GetEnumerator()
     {
         if(Root is not null)
@@ -411,9 +450,9 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     }
 
     /// <summary>
-    /// Liefert den Preorder-Iterator für den gesamten Binärbaum.
+    /// Returns iterator to traverse all nodes in the tree in preorder sequence.
     /// </summary>
-    /// <returns>Preorder-Iterator</returns>
+    /// <returns>Preorder iterator</returns>
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();
@@ -424,10 +463,9 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     #region ICloneable
 
     /// <summary>
-    /// Klont die Struktur des kompletten Binärbaums (flach, kein Klon der Werte im Baum).
+    /// Clones the tree data structure (flat clone, values in nodes are not cloned).
     /// </summary>
-    /// <returns>geklonter Binärbaum</returns>
-    /// <remarks>Dabei wird die Datenstruktur des Baums geklont, die Werte in den Knoten aber nicht.</remarks>
+    /// <returns>Cloned binary tree</returns>
     public object Clone()
     {
         var tree = new BinaryTree<T>();
@@ -438,7 +476,7 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
         return tree;
     }
 
-    private BinaryTreeNode<T> CloneNode(BinaryTreeNode<T> toClone)
+    private static BinaryTreeNode<T> CloneNode(BinaryTreeNode<T> toClone)
     {
         var clonedNode = new BinaryTreeNode<T>(toClone.Item);
 

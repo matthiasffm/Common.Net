@@ -1,79 +1,95 @@
 namespace matthiasffm.Common.Math;
 
 /// <summary>
-/// Stellt Erweiterungsmethoden für zweidimensionale .net Arrays bzw. Matrizen der Form [,] bereit.
+/// Provides extension methods for using 2 dimensional arrays of the form [m, n].
 /// </summary>
 public static class MatrixExtensions
 {
+#pragma warning disable CA1814 // its a basic matrix, no space is wasted here by definition
+
     /// <summary>
-    /// Mappt jedes Element der Matrix per Select-Functor auf ein TResult.
+    /// Maps every element of a matrix to a result value and provides an enumeration over these values in column and then row order.
     /// </summary>
-    /// <typeparam name="TSource">Elementtyp der Matrix</typeparam>
-    /// <typeparam name="TResult">Ergebnistyp der Selektion</typeparam>
-    /// <param name="matrix">Matrix deren Elemente spalten- und dann zeilenweise iteriert werden.</param>
-    /// <param name="selector">der Functor mappt einzelne Elemente der Matrix auf den Ergebnistypen</param>
-    /// <returns>Menge der Ergebnisdaten in der Reihenfolge spalten- und dann zeilenweise.</returns>
+    /// <typeparam name="TSource">Element type of the [m, n] matrix</typeparam>
+    /// <typeparam name="TResult">Result type</typeparam>
+    /// <param name="matrix">the source [m, n] matrix</param>
+    /// <param name="selector">
+    /// A transform function to map each source element to a TResult value;
+    /// the second parameter of the function represents the row index of the source element.
+    /// the third parameter of the function represents the column index of the source element.
+    /// </param>
+    /// <returns>Enumeration of all mapped values of the [m, n] matrix in column and then row order.</returns>
     public static IEnumerable<TResult> Select<TSource, TResult>(this TSource[,] matrix, Func<TSource, int, int, TResult> selector)
     {
         ArgumentNullException.ThrowIfNull(matrix);
         ArgumentNullException.ThrowIfNull(selector);
 
-        for(int i = 0; i < matrix.GetLength(0); i++)
+        for(int row = 0; row < matrix.GetLength(0); row++)
         {
-            for(int j = 0; j < matrix.GetLength(1); j++)
+            for(int col = 0; col < matrix.GetLength(1); col++)
             {
-                yield return selector(matrix[i, j], i, j);
+                yield return selector(matrix[row, col], row, col);
             }
         }
     }
 
     /// <summary>
-    /// Führt auf jedem Element der Matrix eine Methode aus.
+    /// Applies a function to every element of a matrix.
     /// </summary>
-    /// <typeparam name="TSource">Elementtyp der Matrix</typeparam>
-    /// <param name="matrix">Matrix deren Elemente spalten- und dann zeilenweise iteriert werden.</param>
-    /// <param name="action">die Methode wird für jeden Elementtyp mit dem Element, der Zeile und dann der Spalte aufgerufen.</param>
+    /// <typeparam name="TSource">Element type of the [m, n] matrix</typeparam>
+    /// <param name="matrix">the source [m, n] matrix</param>
+    /// <param name="action">
+    /// This function is applied to every element of the matrix;
+    /// the second parameter of the function represents the row index of the source element.
+    /// the third parameter of the function represents the column index of the source element.
+    /// </param>
     public static void ForEach<TSource>(this TSource[,] matrix, Action<TSource, int, int> action)
     {
         ArgumentNullException.ThrowIfNull(matrix);
         ArgumentNullException.ThrowIfNull(action);
 
-        for(int i = 0; i < matrix.GetLength(0); i++)
+        for(int row = 0; row < matrix.GetLength(0); row++)
         {
-            for(int j = 0; j < matrix.GetLength(1); j++)
+            for(int col = 0; col < matrix.GetLength(1); col++)
             {
-                action(matrix[i, j], i, j);
+                action(matrix[row, col], row, col);
             }
         }
     }
 
     /// <summary>
-    /// Füllt die Matrix per Functor mit Werten.
+    /// Fills a matrix with values provided by a function.
     /// </summary>
-    /// <typeparam name="TSource">Elementtyp der Matrix</typeparam>
-    /// <param name="matrix">Matrix deren Elemente spalten- und dann zeilenweise iteriert werden.</param>
-    /// <param name="func">der Functor erzeugt den Wert für eine Zeile und Spalte</param>
+    /// <typeparam name="TSource">Element type of the [m, n] matrix</typeparam>
+    /// <param name="matrix">the source [m, n] matrix</param>
+    /// <param name="func">
+    /// This function is called for every position in the matrix and the result values are written to the matrix elements;
+    /// the first parameter of the function represents the row index of the source element.
+    /// the second parameter of the function represents the column index of the source element.
+    /// </param>
     public static void Populate<TSource>(this TSource[,] matrix, Func<int, int, TSource> func)
     {
         ArgumentNullException.ThrowIfNull(matrix);
         ArgumentNullException.ThrowIfNull(func);
 
-        for(int i = 0; i < matrix.GetLength(0); i++)
+        for(int row = 0; row < matrix.GetLength(0); row++)
         {
-            for(int j = 0; j < matrix.GetLength(1); j++)
+            for(int col = 0; col < matrix.GetLength(1); col++)
             {
-                matrix[i, j] = func(i, j);
+                matrix[row, col] = func(row, col);
             }
         }
     }
 
     /// <summary>
-    /// Zählt alle Elemente der Matrix die eine Bedingung erfüllen.
+    /// Counts all elements of the matrix satisfying the condition specified in <i>predicate</i>.
     /// </summary>
-    /// <typeparam name="TSource">Elementtyp der Matrix</typeparam>
-    /// <param name="matrix">Matrix deren Elemente spalten- und dann zeilenweise iteriert werden.</param>
-    /// <param name="predicate">die Entscheidungsfunktion wird für jedes Element der Matrix aufgerufen</param>
-    /// <returns>Anzahl an Elementen in der Matrix, für die <paramref name="predicate"/> <i>true</i> liefert.</returns>
+    /// <typeparam name="TSource">Element type of the [m, n] matrix</typeparam>
+    /// <param name="matrix">the source [m, n] matrix</param>
+    /// <param name="predicate">
+    /// This function is called for every element in the matrix and if the predicate function returns true the count is raised by 1;
+    /// </param>
+    /// <returns>Number of elements in the matrix fulfilling <paramref name="predicate"/>.</returns>
     public static int Count<TSource>(this TSource[,] matrix, Func<TSource, bool> predicate)
     {
         ArgumentNullException.ThrowIfNull(matrix);
@@ -81,11 +97,11 @@ public static class MatrixExtensions
 
         var count = 0;
 
-        for(int i = 0; i < matrix.GetLength(0); i++)
+        for(int row = 0; row < matrix.GetLength(0); row++)
         {
-            for(int j = 0; j < matrix.GetLength(1); j++)
+            for(int col = 0; col < matrix.GetLength(1); col++)
             {
-                if(predicate(matrix[i, j]))
+                if(predicate(matrix[row, col]))
                 {
                     count++;
                 }
@@ -96,22 +112,28 @@ public static class MatrixExtensions
     }
 
     /// <summary>
-    /// Konvertiert ein Matrix in der Form Array of Arrays in eine Matrix als multidimensionales Array.
+    /// Converts a matrix of the form 'array of arrays' into a [m, n] matrix of the same type.
     /// </summary>
-    /// <typeparam name="TSource">Elementtyp der Matrix</typeparam>
-    /// <param name="input">Die Matrix als Array of Arrays.</param>
-    /// <returns>eine Matrix als multidimensionales Array mit den gleichen Dimensionen wie <paramref name="input"/>.</returns>
+    /// <typeparam name="TSource">Element type of both matrix objects</typeparam>
+    /// <param name="input">the source matrix in the form 'array of arrays'</param>
+    /// <returns>a [m, n] matrix with the same dimensions and elements as <paramref name="input"/>.</returns>
+    /// <exception cref="ArgumentOutOfRangeException">when not all arrays in the input array have the same length (== row width).</exception>
     public static TSource[,] ConvertToMatrix<TSource>(this TSource[][] input)
     {
         ArgumentNullException.ThrowIfNull(input);
 
-        var res = new TSource[input.Length, input.Length > 0 ? input[0].Length : 0];
+        var cols = input.Length > 0 ? input[0].Length : 0;
+        var res = new TSource[input.Length, cols];
 
-        for(int i = 0; i < res.GetLength(0); i++)
+        for(int row = 0; row < res.GetLength(0); row++)
         {
-            for(int j = 0; j < res.GetLength(1); j++)
+            if(input[row].Length != cols)
             {
-                res[i, j] = input[i][j];
+                throw new ArgumentOutOfRangeException(nameof(input), $"Row {row} has not the same number of elements ({cols}) like reference row 0");
+            }
+            for(int col = 0; col < res.GetLength(1); col++)
+            {
+                res[row, col] = input[row][col];
             }
         }
 
@@ -119,15 +141,16 @@ public static class MatrixExtensions
     }
 
     /// <summary>
-    /// Vergleicht zwei Matrizen auf Gleichheit in Dimension und Inhalt.
+    /// Compares two matrices for equality in dimensions and content.
     /// </summary>
-    /// <typeparam name="TSource">Elementtyp der Matrix</typeparam>
-    /// <param name="left">Matrix 1</param>
-    /// <param name="right">Matrix 2</param>
+    /// <typeparam name="TSource">Element type of both matrix objects</typeparam>
+    /// <param name="left">first matrix</param>
+    /// <param name="right">second matrix</param>
     /// <returns>
-    /// <i>true</i>, wenn sich die Matrizen weder in Dimension noch in Inhalt unterscheiden.
-    /// <i>false</i>, sonst.
+    /// <i>true</i> when both matrices have the same dimensions and the same elements.
     /// </returns>
+    /// <remarks>
+    /// Uses the default EqualityComparer of <typeparamref name="TSource"/> for equality tests.</remarks>
     public static bool SequenceEquals<TSource>(this TSource[,] left, TSource[,] right)
     {
         ArgumentNullException.ThrowIfNull(left);
@@ -140,11 +163,11 @@ public static class MatrixExtensions
             return false;
         }
 
-        for(int i = 0; i < left.GetLength(0); i++)
+        for(int row = 0; row < left.GetLength(0); row++)
         {
-            for(int j = 0; j < left.GetLength(1); j++)
+            for(int col = 0; col < left.GetLength(1); col++)
             {
-                if(!EqualityComparer<TSource>.Default.Equals(left[i, j], right[i, j]))
+                if(!EqualityComparer<TSource>.Default.Equals(left[row, col], right[row, col]))
                 {
                     return false;
                 }
@@ -155,29 +178,30 @@ public static class MatrixExtensions
     }
 
     /// <summary>
-    /// Aggregiert alle Elemente einer Matrix per Aggregat-Funktion
+    /// Applies an accumulator function over all elements of a [m, n] matrix. The specified seed value is
+    /// used as the initial accumulator value.
     /// </summary>
-    /// <typeparam name="TSource">Elementtyp der Matrix</typeparam>
-    /// <typeparam name="TResult">Aggregatstyp</typeparam>
-    /// <param name="matrix">Matrix mit den spalten- und dann zeilenweisen zu aggregierenden Elementen</param>
-    /// <param name="seed">Startzustand der Aggregation</param>
-    /// <param name="aggregateFunc">Aggregat-Funktion die elementweise die Matrix auf-aggregiert</param>
-    /// <returns>Ergebnis der Aggregation</returns>
-    public static TResult Aggregate<TSource, TResult>(this TSource[,] matrix, TResult seed, Func<TResult, TSource, TResult> aggregateFunc)
+    /// <typeparam name="TSource">Element type of the [m, n] matrix</typeparam>
+    /// <param name="matrix">the [m, n] matrix with all values to accumulate over   </param>
+    /// <typeparam name="TResult">The type of the accumulator value.</typeparam>
+    /// <param name="seed">The initial accumulator value.</param>
+    /// <param name="accumulateFunc">An accumulator function to be invoked on each element.</param>
+    /// <returns>The final accumulator value</returns>
+    public static TResult Aggregate<TSource, TResult>(this TSource[,] matrix, TResult seed, Func<TResult, TSource, TResult> accumulateFunc)
     {
         ArgumentNullException.ThrowIfNull(matrix);
-        ArgumentNullException.ThrowIfNull(aggregateFunc);
+        ArgumentNullException.ThrowIfNull(accumulateFunc);
 
-        TResult aggregate = seed;
+        TResult accumulator = seed;
 
-        for(int i = 0; i < matrix.GetLength(0); i++)
+        for(int row = 0; row < matrix.GetLength(0); row++)
         {
-            for(int j = 0; j < matrix.GetLength(1); j++)
+            for(int col = 0; col < matrix.GetLength(1); col++)
             {
-                aggregate = aggregateFunc(aggregate, matrix[i, j]);
+                accumulator = accumulateFunc(accumulator, matrix[row, col]);
             }
         }
 
-        return aggregate;
+        return accumulator;
     }
 }

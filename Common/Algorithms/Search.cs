@@ -1,23 +1,37 @@
 using System.Numerics;
 
+using matthiasffm.Common.Collections;
+
 namespace matthiasffm.Common.Algorithms;
 
 /// <summary>
-/// Stellt generische Suchalgorithmen in Graphen wie A* oder Breitensuche zur Verfügung.
-/// Dabei erwarten die Algorithmen die Spezifikation des jeweiligen Graphen über die Angabe von Start-Knoten und Lambdas zur
-/// Iteration über die Umgebung eines Knotens.
+/// Provides generic search and iteration algorithms for graph or tree like data structures.
 /// </summary>
+/// <remarks>
+/// To define the search space the caller has to provide a lambda function to enumerate all direct neighbors of a 
+/// element in the search space.
+/// </remarks>
 public static class Search
 {
     /// <summary>
-    /// Iteriert die Knoten eines Graphen per Breitensuchstrategie, wobei zuerst _alle_ Knotens auf gleicher Tiefe besucht werden und
-    /// erst dann die weiteren Kindknoten.
+    /// Enumerates a search space by iterating over _all_ direct neighbors of the current elements
+    /// before moving on to search at theses neighbors.
     /// </summary>
-    /// <param name="start">Startknoten</param>
-    /// <param name="stopEnumeration">optionale Abbruchbedingung der Iteration. Darf null sein, dann wird der komplette Graph durchlaufen.</param>
-    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
-    /// <returns>Alle Knoten im Graph von <i>start</i> ausgehend, dabei immer zuerst alle Knoten auf gleicher Tiefe, dann deren Kindknoten.</returns>
-    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    /// <param name="start">
+    /// Element to start the enumeration from
+    /// </param>
+    /// <param name="stopEnumeration">
+    /// Optional condition to stop the enumeration. If it is <i>null</i> the whole graph will be iterated.
+    /// </param>
+    /// <param name="adjacentNodes">
+    /// Provides an enumeration of all direct neighbors of an element.
+    /// </param>
+    /// <returns>
+    /// Starting at <i>start</i> all of its direct neighbors, then the neighbors of these elements and so on.
+    /// </returns>
+    /// <remarks>
+    /// Runs in O(n + m), where n is the number of elements in the search space and m is the number of neighbor relationships of these elements.
+    /// </remarks>
     public static IEnumerable<TElem> BreadthFirstEnumerate<TElem>(TElem start,
                                                                   Func<TElem, bool> stopEnumeration,
                                                                   Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
@@ -25,15 +39,14 @@ public static class Search
         ArgumentNullException.ThrowIfNull(start);
         ArgumentNullException.ThrowIfNull(adjacentNodes);
 
-        // Die direkten Nachbarknoten werden in eine Queue eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
-        // in der Breite gesucht wird. Vergleiche dazu Tiefensuche, wo ein Stack verwendet wird.
+        // the neighbors are stored in a fifo queue
+        // this ensures _all_ elements of a specific depth are looked at first before any element of depth + 1 is enumerated
+        // see also depth first enumeration where a stack is used
 
         var nextToVisit = new Queue<TElem>();
         nextToVisit.Enqueue(start);
 
         var visited = new HashSet<TElem> { start };
-
-        // für Algorithmus siehe Corman oder https://de.wikipedia.org/wiki/Breitensuche
 
         do
         {
@@ -45,6 +58,7 @@ public static class Search
                 break;
             }
 
+            // TODO: check in Corman if O(n+m) is correct with Except calls
             foreach(var adjacent in adjacentNodes(nextNode).Except(visited))
             {
                 visited.Add(adjacent);
@@ -55,28 +69,48 @@ public static class Search
     }
 
     /// <summary>
-    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goal</i>. Dabei verwendet die Suche eine
-    /// Breitensuchstrategie, wobei zuerst _alle_ Knoten einer Tiefe und dann erst deren Kindknoten besucht werden.
+    /// Search a space of elements from start to goal element by iterating over _all_ direct neighbors
+    /// of the current elements before moving on to search at theses neighbors.
     /// </summary>
-    /// <param name="start">Startknoten</param>
-    /// <param name="goal">Zielknoten</param>
-    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
-    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goal</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
-    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    /// <param name="start">
+    /// Element to start the search from
+    /// </param>
+    /// <param name="goal">
+    /// Element to reach
+    /// </param>
+    /// <param name="adjacentNodes">
+    /// Provides an enumeration of all direct neighbors of an element.
+    /// </param>
+    /// <returns>
+    /// The elements on a path from <paramref name="start"/> to <paramref name="goal"/>.
+    /// </returns>
+    /// <remarks>
+    /// Runs in O(n + m), where n is the number of elements in the search space and m is the number of neighbor relationships of these elements.
+    /// </remarks>
     public static IEnumerable<TElem> BreadthFirstSearch<TElem>(TElem start,
                                                                TElem goal,
                                                                Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
         => BreadthFirstSearch(start, node => goal.Equals(node), adjacentNodes);
 
     /// <summary>
-    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goalReached()</i>. Dabei verwendet die Suche eine
-    /// Breitensuchstrategie, wobei zuerst _alle_ Knoten einer Tiefe und dann erst deren Kindknoten besucht werden.
+    /// Search a space of elements from start to goal element by iterating over _all_ direct neighbors
+    /// of the current elements before moving on to search at theses neighbors.
     /// </summary>
-    /// <param name="start">Startknoten</param>
-    /// <param name="goalReached">Bedingung für Erreichen des Zielknotens</param>
-    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
-    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goalReached()</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
-    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    /// <param name="start">
+    /// Element to start the search from
+    /// </param>
+    /// <param name="goalReached">
+    /// Optional condition to indicate that at the specific element the goal of the search is reached.
+    /// </param>
+    /// <param name="adjacentNodes">
+    /// Provides an enumeration of all direct neighbors of an element.
+    /// </param>
+    /// <returns>
+    /// The elements on a path from <paramref name="start"/> until the goal is reached./>.
+    /// </returns>
+    /// <remarks>
+    /// Runs in O(n + m), where n is the number of elements in the search space and m is the number of neighbor relationships of these elements.
+    /// </remarks>
     public static IEnumerable<TElem> BreadthFirstSearch<TElem>(TElem start,
                                                                Func<TElem, bool> goalReached,
                                                                Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
@@ -85,19 +119,18 @@ public static class Search
         ArgumentNullException.ThrowIfNull(goalReached);
         ArgumentNullException.ThrowIfNull(adjacentNodes);
 
-        // Die direkten Nachbarknoten werden in eine Queue eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
-        // in der Breite gesucht wird. Vergleiche dazu Tiefensuche, wo ein Stack verwendet wird.
+        // the neighbors are stored in a fifo queue
+        // this ensures _all_ elements of a specific depth are looked at first before any element of depth + 1 are searched
+        // see also depth first search where a stack is used
 
         var nextToVisit = new Queue<TElem>();
         nextToVisit.Enqueue(start);
 
         var visited = new HashSet<TElem> { start };
 
-        // für Merken des Pfades (siehe BuildPath)
+        // here the parents of nodes are stored to rebuild the path back from goal to start (see BuildPath)
 
         var parents = new Dictionary<TElem, TElem>();
-
-        // für Algorithmus siehe Corman oder https://de.wikipedia.org/wiki/Breitensuche
 
         do
         {
@@ -105,7 +138,7 @@ public static class Search
 
             if(goalReached(nextNode))
             {
-                return BuildPath(parents, start, nextNode);
+                return BuildPath(nextNode, parents);
             }
 
             foreach(var adjacent in adjacentNodes(nextNode).Except(visited))
@@ -118,22 +151,31 @@ public static class Search
         }
         while(nextToVisit.Any());
 
-        // keinen Pfad gefunden
+        // enumerated the whole search space but goal was not reached or found
 
         return Array.Empty<TElem>();
     }
 
-    // TODO: optionales Abbruchkriterium für max. Tiefe bei Tiefensuche
-    // TODO: damit iterative Tiefensuche implementieren
+    // TODO: add max depth parameter for search and implement iterative depth search with it
 
     /// <summary>
-    /// Iteriert die Knoten eines Graphen per Tiefensuchstrategie, wobei Kindknoten vor den anderen Knoten auf gleicher Tiefe besucht werden.
+    /// Enumerates a search space by moving to the first neighbor element before enumerating all other neighbor elements.
     /// </summary>
-    /// <param name="start">Startknoten</param>
-    /// <param name="stopEnumeration">optionale Abbruchbedingung der Iteration. Darf null sein, dann wird der komplette Graph durchlaufen.</param>
-    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
-    /// <returns>Von <i>start</i> ausgehend werden Kindknoten ausgegeben, dann erst Knoten auf gleicher Tiefe.</returns>
-    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    /// <param name="start">
+    /// Element to start the enumeration from
+    /// </param>
+    /// <param name="stopEnumeration">
+    /// Optional condition to stop the enumeration. If it is <i>null</i> the whole graph will be iterated.
+    /// </param>
+    /// <param name="adjacentNodes">
+    /// Provides an enumeration of all direct neighbors of an element.
+    /// </param>
+    /// <returns>
+    /// Starting at <i>start</i> moves to the first neighbor before enumeration the other neighbors of start and so on.
+    /// </returns>
+    /// <remarks>
+    /// Runs in O(n + m), where n is the number of elements in the search space and m is the number of neighbor relationships of these elements.
+    /// </remarks>
     public static IEnumerable<TElem> DepthFirstEnumerate<TElem>(TElem start,
                                                                 Func<TElem, bool> stopEnumeration,
                                                                 Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
@@ -141,15 +183,15 @@ public static class Search
         ArgumentNullException.ThrowIfNull(start);
         ArgumentNullException.ThrowIfNull(adjacentNodes);
 
-        // Die direkten Nachbarknoten werden in einen Stack eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
-        // in der Tiefe gesucht wird. Vergleiche dazu Breitensuche, wo eine Queue verwendet wird.
+        // the neighbors are stored in a stack
+        // this ensures the only one neighbor of the current element is enumerated next (depth first) and
+        // all other neighbors go to the end of the queue
+        // see also breadth first enumeration where a fifo queue is used
 
         var nextToVisit = new Stack<TElem>();
         nextToVisit.Push(start);
 
         var visited = new HashSet<TElem> { start };
-
-        // für Algorithmus siehe Corman oder https://de.wikipedia.org/wiki/Tiefensuche
 
         do
         {
@@ -171,28 +213,48 @@ public static class Search
     }
 
     /// <summary>
-    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goal</i>. Dabei verwendet die Suche eine
-    /// Tiefensuchstrategie, wobei zuerst Kindknoten und dann erst andere Knoten auf gleicher Tiefe besucht werden.
+    /// Searches a space of elements by moving to the first neighbor element before searching
+    /// all other neighbor elements (depth before breadth).
     /// </summary>
-    /// <param name="start">Startknoten</param>
-    /// <param name="goal">Zielknoten</param>
-    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
-    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goal</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
-    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    /// <param name="start">
+    /// Element to start the search from
+    /// </param>
+    /// <param name="goal">
+    /// Element to reach
+    /// </param>
+    /// <param name="adjacentNodes">
+    /// Provides an enumeration of all direct neighbors of an element.
+    /// </param>
+    /// <returns>
+    /// The elements on a path from <paramref name="start"/> to <paramref name="goal"/>.
+    /// </returns>
+    /// <remarks>
+    /// Runs in O(n + m), where n is the number of elements in the search space and m is the number of neighbor relationships of these elements.
+    /// </remarks>
     public static IEnumerable<TElem> DepthFirstSearch<TElem>(TElem start,
                                                              TElem goal,
                                                              Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
         => DepthFirstSearch(start, node => goal.Equals(node), adjacentNodes);
 
     /// <summary>
-    /// Sucht den (kürzesten) Pfad von <i>start</i> zu <i>goalReached()</i>. Dabei verwendet die Suche eine
-    /// Tiefensuchstrategie, wobei zuerst Kindknoten und dann erst andere Knoten auf gleicher Tiefe besucht werden.
+    /// Searches a space of elements by moving to the first neighbor element before searching
+    /// all other neighbor elements (depth before breadth).
     /// </summary>
-    /// <param name="start">Startknoten</param>
-    /// <param name="goalReached">Bedingung für Erreichen des Zielknotens</param>
-    /// <param name="adjacentNodes">gibt die von einem Knoten direkt erreichbaren weiteren Nachbarknoten zurück</param>
-    /// <returns>Der Knoten auf dem Pfad von <i>start</i> zu <i>goalReached()</i> oder die leere Menge, wenn kein Pfad gefunden wird.</returns>
-    /// <remarks>Läuft in O(n + m), wobei n die Anzahl der Knoten und m die Anzahl der Verbindungen zwischen den Knoten ist.</remarks>
+    /// <param name="start">
+    /// Element to start the search from
+    /// </param>
+    /// <param name="goalReached">
+    /// Optional condition to indicate that at the specific element the goal of the search is reached.
+    /// </param>
+    /// <param name="adjacentNodes">
+    /// Provides an enumeration of all direct neighbors of an element.
+    /// </param>
+    /// <returns>
+    /// The elements on a path from <paramref name="start"/> until the goal is reached.
+    /// </returns>
+    /// <remarks>
+    /// Runs in O(n + m), where n is the number of elements in the search space and m is the number of neighbor relationships of these elements.
+    /// </remarks>
     public static IEnumerable<TElem> DepthFirstSearch<TElem>(TElem start,
                                                              Func<TElem, bool> goalReached,
                                                              Func<TElem, IEnumerable<TElem>> adjacentNodes) where TElem : notnull
@@ -201,19 +263,19 @@ public static class Search
         ArgumentNullException.ThrowIfNull(goalReached);
         ArgumentNullException.ThrowIfNull(adjacentNodes);
 
-        // Die direkten Nachbarknoten werden in einen Stack eingefügt. Damit wird sichergestellt, dass von einem Knoten aus
-        // in der Tiefe gesucht wird. Vergleiche dazu Breitensuche, wo eine Queue verwendet wird.
+        // the neighbors are stored in a stack
+        // this ensures the only one neighbor of the current element is enumerated next (depth first) and
+        // all other neighbors go to the end of the queue
+        // see also breadth first enumeration where a fifo queue is used
 
         var nextToVisit = new Stack<TElem>();
         nextToVisit.Push(start);
 
         var visited = new HashSet<TElem> { start };
 
-        // für Merken des Pfades (siehe BuildPath)
+        // here the parents of nodes are stored to rebuild the path back from goal to start (see BuildPath)
 
         var parents = new Dictionary<TElem, TElem>();
-
-        // für Algorithmus siehe Corman oder https://de.wikipedia.org/wiki/Tiefensuche
 
         do
         {
@@ -221,7 +283,7 @@ public static class Search
 
             if(goalReached(nextNode))
             {
-                return BuildPath(parents, start, nextNode);
+                return BuildPath(nextNode, parents);
             }
 
             foreach(var adjacent in adjacentNodes(nextNode).Except(visited))
@@ -234,118 +296,241 @@ public static class Search
         }
         while(nextToVisit.Any());
 
-        // keinen Pfad gefunden
+        // enumerated the whole search space but goal was not reached or found
 
         return Array.Empty<TElem>();
     }
 
     /// <summary>
-    /// Erstellt aus den in <i>parents</i> gemerkten Eltern-Beziehungen den Pfad als Liste von Knoten von <i>start</i> zu <i>goal</i>.
+    /// A* algorithm to search the best path from <paramref name="start"/> to <paramref name="finish"/> condition by optimizing the search on <typeparamref name="TCost"/>.
     /// </summary>
-    /// <param name="parents">Abbildung von Kind => Elternknoten im (besten) Pfad</param>
-    /// <param name="start">Startknoten</param>
-    /// <param name="goal">Zielknoten</param>
-    /// <returns>Liste der Knoten im (besten) Pfad von <i>start</i> zu <i>goal</i> inkl. dieser beiden Knoten.</returns>
-    private static IEnumerable<TElem> BuildPath<TElem>(IDictionary<TElem, TElem> parents, TElem start, TElem goal) where TElem : notnull
+    /// <param name="start">The start node for searching the best path.</param>
+    /// <param name="finish">The node to reach.</param>
+    /// <param name="Neighbors">This function has to return all neighbors of a single position in the graph.</param>
+    /// <param name="CalcCosts">This function has to return the <i>actual</i> costs from one node to a neighbor.</param>
+    /// <param name="EstimateToFinish">This function has to return the <i>estimated</i> costs from one node to another. The estimated cost must be equal or less than the actual costs!</param>
+    /// <param name="maxCost">The maximum value of <typeparamref name="TCost"/> i.e. int.MaxValue.</param>
+    /// <typeparam name="TPos">Type of nodes in the graph.</typeparam>
+    /// <typeparam name="TCost">The type of the distance values.</typeparam>
+    /// <returns>The nodes in the path from <paramref name="start"/> until <paramref name="finish"/> is reached</returns>
+    public static IEnumerable<TPos> AStar<TPos, TCost>(
+         TPos start,
+         TPos finish,
+         Func<TPos, IEnumerable<TPos>> Neighbors,
+         Func<TPos, TPos, TCost> CalcCosts,
+         Func<TPos, TCost> EstimateToFinish,
+         TCost maxCost)
+        where TPos : notnull
+        where TCost : notnull, IComparisonOperators<TCost, TCost, bool>, IAdditionOperators<TCost, TCost, TCost>
     {
-        List<TElem> path = new() { goal };
-
-        while(!start.Equals(path[^1]))
-        {
-            path.Add(parents[path[^1]]);
-        }
-
-        return Enumerable.Reverse(path);
-
-        // hier als LINQ-Query
-        // return Enumerable.Range(1, parents.Count)
-        //                  .Aggregate((IEnumerable<TElem>)(new[] { goal }), (path, _) => start.Equals(path.Last()) ? path : path.Append(parents[path.Last()]))
-        //                  .Reverse();
+        return AStar<TPos, TCost, BinaryHeap<(TPos, TCost)>>(
+            start,
+            finish,
+            Neighbors,
+            CalcCosts,
+            EstimateToFinish,
+            maxCost,
+            () => new BinaryHeap<(TPos, TCost)>(1000, new CostComparer<TPos, TCost>()));
     }
 
     /// <summary>
-    /// A*-Suche von start zu end unter Berücksichtigung der Distanz-Heuristik und Nachbarschaft von TPos.
+    /// A* algorithm to search the best path from <paramref name="start"/> to <paramref name="finish"/> condition by optimizing the search on <typeparamref name="TCost"/>.
     /// </summary>
-    /// <param name="nodes">Liefert alle Knoten in der Karte/dem Graphen</param>
-    /// <param name="start">Legt den Start-Knoten der Pfadsuche fest</param>
-    /// <param name="finish">Legt den Ziel-Knoten der Pfadsuche und damit das Abbruchkriterium fest</param>
-    /// <param name="Neighbors">diese Funktion muss alle direkten Nachbarn eines Knotens liefern</param>
-    /// <param name="CalcCosts">diese Funktion liefert die tatsächlichen Kosten von einem Knoten zu einem Nachbarknoten</param>
-    /// <param name="EstimateToFinish">diese Funktion liefert die geschätzten Kosten von einem Knoten zum Ziel-Knoten</param>
-    /// <param name="maxCost">der Maximalwert von TCost zB int.MaxValue</param>
-    /// <typeparam name="TCost">Typ der Distanz</typeparam>
-    /// <typeparam name="TPos">Elementetyp von <paramref name="nodes"/></typeparam>
-    /// <returns>die Knoten bilden den besten Pfad von <paramref name="start"/> zum <paramref name="finish"/></returns>
-    public static IEnumerable<TPos> AStar<TPos, TCost>(IEnumerable<TPos> nodes,
-                                                       TPos start,
-                                                       TPos finish,
-                                                       Func<TPos, IEnumerable<TPos>> Neighbors,
-                                                       Func<TPos, TPos, TCost> CalcCosts,
-                                                       Func<TPos, TCost> EstimateToFinish,
-                                                       TCost maxCost)
-        where TPos  : notnull
+    /// <param name="start">The start node for searching the best path.</param>
+    /// <param name="finish">The node to reach.</param>
+    /// <param name="Neighbors">This function has to return all neighbors of a single position in the graph.</param>
+    /// <param name="CalcCosts">This function has to return the <i>actual</i> costs from one node to a neighbor.</param>
+    /// <param name="EstimateToFinish">This function has to return the <i>estimated</i> costs from one node to another. The estimated cost must be equal or less than the actual costs!</param>
+    /// <param name="maxCost">The maximum value of <typeparamref name="TCost"/> i.e. int.MaxValue.</param>
+    /// <param name="CreateQueue">creates the priority queue for storing the open set in the A* algorithm</param>
+    /// <typeparam name="TPos">Type of nodes in the graph.</typeparam>
+    /// <typeparam name="TCost">The type of the distance values.</typeparam>
+    /// <typeparam name="TPriorityQueue">Type of the priority queue for storing the open set of the A* algorithm</typeparam>
+    /// <returns>The nodes in the path from <paramref name="start"/> until <paramref name="finish"/> is reached</returns>
+    public static IEnumerable<TPos> AStar<TPos, TCost, TPriorityQueue>(
+        TPos start,
+        TPos finish,
+        Func<TPos, IEnumerable<TPos>> Neighbors,
+        Func<TPos, TPos, TCost> CalcCosts,
+        Func<TPos, TCost> EstimateToFinish,
+        TCost maxCost,
+        Func<TPriorityQueue> CreateQueue)
+        where TPos : notnull
+        where TCost : notnull, IComparisonOperators<TCost, TCost, bool>, IAdditionOperators<TCost, TCost, TCost>
+        where TPriorityQueue : IPriorityQueue<(TPos, TCost), Handle>
+    {
+        return AStar<TPos, TCost, TPriorityQueue>(
+            start,
+            node => object.Equals(node, finish),
+            Neighbors,
+            CalcCosts,
+            EstimateToFinish,
+            maxCost,
+            CreateQueue);
+    }
+
+    /// <summary>
+    /// A* algorithm to search the best path from <paramref name="start"/> to <paramref name="GoalReached"/> condition by optimizing the search on <typeparamref name="TCost"/>.
+    /// </summary>
+    /// <param name="start">The start node for searching the best path.</param>
+    /// <param name="GoalReached">The function to determine if the goal is reached at a specific position.</param>
+    /// <param name="Neighbors">This function has to return all neighbors of a single position in the graph.</param>
+    /// <param name="CalcCosts">This function has to return the <i>actual</i> costs from one node to a neighbor.</param>
+    /// <param name="EstimateToFinish">This function has to return the <i>estimated</i> costs from one node to another. The estimated cost must be equal or less than the actual costs!</param>
+    /// <param name="maxCost">The maximum value of <typeparamref name="TCost"/> i.e. int.MaxValue.</param>
+    /// <typeparam name="TPos">Type of nodes in the graph.</typeparam>
+    /// <typeparam name="TCost">The type of the distance values.</typeparam>
+    /// <returns>The nodes in the path from <paramref name="start"/> until the goal is reached</returns>
+    public static IEnumerable<TPos> AStar<TPos, TCost>(
+        TPos start,
+        Func<TPos, bool> GoalReached,
+        Func<TPos, IEnumerable<TPos>> Neighbors,
+        Func<TPos, TPos, TCost> CalcCosts,
+        Func<TPos, TCost> EstimateToFinish,
+        TCost maxCost)
+        where TPos : notnull
         where TCost : notnull, IComparisonOperators<TCost, TCost, bool>, IAdditionOperators<TCost, TCost, TCost>
     {
+        return AStar<TPos, TCost, BinaryHeap<(TPos, TCost)>>(
+            start,
+            GoalReached,
+            Neighbors,
+            CalcCosts,
+            EstimateToFinish,
+            maxCost,
+            () => new BinaryHeap<(TPos, TCost)>(1000, new CostComparer<TPos, TCost>()));
+    }
+
+    /// <summary>
+    /// A* algorithm to search the best path from node <paramref name="start"/> to <paramref name="GoalReached"/> condition by
+    /// optimizing the search on cost heuristic of <typeparamref name="TCost"/>.
+    /// </summary>
+    /// <param name="start">The start node for searching the best path.</param>
+    /// <param name="GoalReached">The function to determine if the goal is reached at a specific position.</param>
+    /// <param name="Neighbors">This function has to return all neighbors of a single position in the graph.</param>
+    /// <param name="CalcCosts">This function has to return the <i>actual</i> costs from one node to a neighbor.</param>
+    /// <param name="EstimateToFinish">This function has to return the <i>estimated</i> costs from one node to another. The estimated cost must be equal or less than the actual costs!</param>
+    /// <param name="maxCost">The maximum value of <typeparamref name="TCost"/> i.e. int.MaxValue.</param>
+    /// <param name="CreateQueue">creates the priority queue for storing the open set in the A* algorithm</param>
+    /// <typeparam name="TPos">Type of nodes in the graph.</typeparam>
+    /// <typeparam name="TCost">The type of the distance values.</typeparam>
+    /// <typeparam name="TPriorityQueue">Type of the priority queue for storing the open set of the A* algorithm</typeparam>
+    /// <returns>The nodes in the path from <paramref name="start"/> until the goal is reached</returns>
+    public static IEnumerable<TPos> AStar<TPos, TCost, TPriorityQueue>(
+        TPos start,
+        Func<TPos, bool> GoalReached,
+        Func<TPos, IEnumerable<TPos>> Neighbors,
+        Func<TPos, TPos, TCost> CalcCosts,
+        Func<TPos, TCost> EstimateToFinish,
+        TCost maxCost,
+        Func<TPriorityQueue> CreateQueue)
+        where TPos  : notnull
+        where TCost : notnull, IComparisonOperators<TCost, TCost, bool>, IAdditionOperators<TCost, TCost, TCost>
+        where TPriorityQueue : IPriorityQueue<(TPos, TCost), Handle>
+    {
+        ArgumentNullException.ThrowIfNull(GoalReached);
         ArgumentNullException.ThrowIfNull(Neighbors);
         ArgumentNullException.ThrowIfNull(CalcCosts);
         ArgumentNullException.ThrowIfNull(EstimateToFinish);
+        ArgumentNullException.ThrowIfNull(CreateQueue);
 
-        // init Maps für Pfade und Kosten mit dem Startknoten
+        // init maps for path and costs with the start node
 
-        var openSet  = new HashSet<TPos>(new [] { start });
-        var cameFrom = new Dictionary<TPos, TPos>();
+        var openSet = CreateQueue();
+        var startHandle = openSet.Insert((start, EstimateToFinish(start)));
 
-        var minPathCosts = nodes.ToDictionary(coord => coord, _ => maxCost);
-        minPathCosts[start] = default!;
-
-        var estimatedCostToFinish = new Dictionary<TPos, TCost>(minPathCosts)
-        {
-            [start] = EstimateToFinish(start)
+        var openSetHandles = new Dictionary<TPos, Handle> {
+            { start, startHandle }
         };
 
-        // besten Knoten aus openSet auswählen und mit dessen Kosten
-        // minPathCosts und finishedPathCosts aktualisieren
+        var cameFrom = new Dictionary<TPos, TPos>();
 
-        while(openSet.Any())
+        var minPathCosts = new Dictionary<TPos, TCost>
         {
-            // TODO: Fibonacci-Heap für openSet verwenden
-            var current = openSet.MinBy(o => estimatedCostToFinish[o])!;
+            [start] = default!
+        };
 
-            if(object.Equals(current, finish))
+        // repeatedly take the nearest node from openSet and update the costs in minPathCosts und finishedPathCosts for all direct
+        // neighbors of this node
+
+        while(openSet.Count > 0)
+        {
+            (var current, _) = openSet.ExtractMin();
+            openSetHandles.Remove(current);
+
+            if(GoalReached(current))
             {
-                var bestPath = new[] { current }.ToList();
-                while(cameFrom.ContainsKey(current))
-                {
-                    current = cameFrom[current];
-                    bestPath.Insert(0, current);
-                }
-                return bestPath;
+                return BuildPath(current, cameFrom);
             }
             else
             {
-                openSet.Remove(current);
-
                 foreach(var neighbor in Neighbors(current))
                 {
                     var costToNeighbor = minPathCosts[current] + CalcCosts(current, neighbor);
 
-                    if(costToNeighbor < minPathCosts[neighbor])
+                    if(costToNeighbor < minPathCosts.GetValueOrDefault(neighbor, maxCost))
                     {
-                        // dieser Pfad zu neighbor ist besser als alle bisherigen => merken
+                        // new best path from current to neighbor => update costs, openSet and the path taken (cameFrom)
 
-                        cameFrom[neighbor] = current;
+                        cameFrom[neighbor]     = current;
                         minPathCosts[neighbor] = costToNeighbor;
-                        estimatedCostToFinish[neighbor] = costToNeighbor + EstimateToFinish(neighbor);
 
-                        if(!openSet.Contains(neighbor))
+                        var estimanedCostToNeighbor = costToNeighbor + EstimateToFinish(neighbor);
+
+                        if(!openSetHandles.TryGetValue(neighbor, out var neighborPos))
                         {
-                            openSet.Add(neighbor);
+                            openSetHandles[neighbor] = openSet.Insert((neighbor, estimanedCostToNeighbor));
+                        }
+                        else
+                        {
+                            openSet.DecreaseElement(neighborPos, (neighbor, estimanedCostToNeighbor));
                         }
                     }
                 }
             }
         }
 
+        // no path found
         return Array.Empty<TPos>();
+    }
+
+    /// <summary>
+    /// Builds a path of visited nodes on the optimal path from goal (initial value of end) back to start by using
+    /// the parent-child relationship for the path stored in cameFrom.
+    /// </summary>
+    /// <return>Path from start to end.</return>
+    private static List<TPos> BuildPath<TPos>(TPos end, Dictionary<TPos, TPos> cameFrom) where TPos : notnull
+    {
+        var bestPath = new List<TPos>() { end };
+        while(cameFrom.TryGetValue(end, out var parent))
+        {
+            // result should be path from start to end, so new nodes have to be inserted at the
+            // start of the list to reverse it
+
+            // TODO: check if this is really O(1)
+            bestPath.Insert(0, parent);
+            end = parent;
+        }
+
+        return bestPath;
+    }
+
+    /// <summary>
+    /// Helper class for A* algorithm to store elements and their costs and order them only by cost values.
+    /// </summary>
+    private sealed class CostComparer<TElem, TCost> : IComparer<(TElem Elem, TCost Cost)>
+        where TCost : notnull, IComparisonOperators<TCost, TCost, bool>
+    {
+        public int Compare((TElem Elem, TCost Cost) left, (TElem Elem, TCost Cost) right)
+        {
+            if(left.Cost == right.Cost)
+            {
+                return 0;
+            }
+            else
+            {
+                return left.Cost < right.Cost ? -1 : 1;
+            }
+        }
     }
 }

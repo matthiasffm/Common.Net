@@ -1,69 +1,76 @@
 ﻿namespace matthiasffm.Common;
 
 /// <summary>
-/// Loglevel
+/// log level
 /// </summary>
 public enum Severity
 {
-    /// <summary>Loglevel Debug</summary>
+    /// <summary>log level Debug</summary>
     Debug,
 
-    /// <summary>Loglevel Information</summary>
+    /// <summary>log level Information</summary>
     Information,
 
-    /// <summary>Loglevel Warning</summary>
+    /// <summary>log level Warning</summary>
     Warning,
 
-    /// <summary>Loglevel Error</summary>
+    /// <summary>log level Error</summary>
     Error,
 
-    /// <summary>Loglevel Fatal</summary>
+    /// <summary>log level Fatal</summary>
     Fatal
 }
 
 /// <summary>
-/// Eintrag im Logger
+/// a single entry in the log
 /// </summary>
 public record LogEntry(Severity Severity, string Message, Exception? Exception);
 
 /// <summary>
-/// abstrahiert das Logging in ein einfach per DI zu füllendes Interface
+/// this interface abstracts the logging for use in di containers
 /// </summary>
-/// <remarks>
-/// einfache Abbildung auf NLog z.B. im DI Setup per
+/// <example>
+/// here is a simple mapping to NLog in a DI container setup
 /// container.RegisterConditional(typeof(ILogger),
 ///     c => typeof(NlogAdapter).MakeGenericType(c.Consumer.ImplementationType),
 ///     Lifestyle.Singleton,
 ///     c => true);
-/// </remarks>
+/// </example>
 public interface ILogger
 {
     /// <summary>
-    /// Loggt <paramref name="entry"/>
+    /// logs the data in <paramref name="entry"/>
     /// </summary>
     void Log(LogEntry entry);
 }
 
 /// <summary>
-/// Leere Logging-Implementierung z.B. für Unittests
+/// empty implementation for unit tests
 /// </summary>
 public class NoLogger : ILogger
 {
     /// <summary>
-    /// Macht nichts mit <paramref name="entry"/>, da leere Logging-Implementierung.
+    /// does nothing with <paramref name="entry"/>
     /// </summary>
     public void Log(LogEntry entry) { }
 }
 
 /// <summary>
-/// Hilfsklasse für quality of life Logging-Methoden, die es einerseits einfacher machen, Exceptions oder Informations zu loggen ohne
-/// extra einen <see cref="LogEntry"/> erstellen zu müssen, trotzdem aber immer noch nur eine Methode im <see cref="ILogger"/> erfordern
-/// um jegliches konkrete Logger-Framework per DI zu konfigurieren.
+/// extension methods to log a message or exception directly without creating a <see cref="LogEntry"/> object first.
 /// </summary>
 public static class LoggerExtension
 {
     /// <summary>
-    /// Loggt eine Message auf dem Loglevel 'Information'.
+    /// logs a text message on log level 'Debug'
+    /// </summary>
+    public static void Debug(this ILogger logger, string message)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        logger.Log(new LogEntry(Severity.Debug, message, null));
+    }
+
+    /// <summary>
+    /// logs a text message on log level 'Information'
     /// </summary>
     public static void Log(this ILogger logger, string message)
     {
@@ -72,7 +79,7 @@ public static class LoggerExtension
     }
 
     /// <summary>
-    /// Loggt eine Message auf dem angegebenen Loglevel.
+    /// logs a text message on the specified log level
     /// </summary>
     public static void Log(this ILogger logger, Severity severity, string message)
     {
@@ -81,7 +88,7 @@ public static class LoggerExtension
     }
 
     /// <summary>
-    /// Loggt eine Exception auf dem Loglevel 'Error'.
+    /// logs an exception on log level 'Error'
     /// </summary>
     public static void Log(this ILogger logger, Exception exception)
     {
@@ -91,7 +98,7 @@ public static class LoggerExtension
     }
 
     /// <summary>
-    /// Loggt eine Exception mit angegebener Message auf dem Loglevel 'Error'.
+    /// logs an exception with the specified text message on log level 'Error'
     /// </summary>
     public static void Log(this ILogger logger, string message, Exception exception)
     {

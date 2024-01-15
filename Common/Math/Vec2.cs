@@ -2,14 +2,12 @@
 
 namespace matthiasffm.Common.Math;
 
-// unpassende Regeln abstellen
-#pragma warning disable CA1000 // Do not declare static members on generic types
 
 /// <summary>
-/// 2D-Vektor mit immutable Charakteristik
+/// Generic immutable 2D vector
 /// </summary>
-/// <typeparam name="T">Typ der Koordinaten, muss INumber implementieren</typeparam>
-public record Vec2<T>(T X, T Y) :
+/// <typeparam name="T">type of the vector coordinates</typeparam>
+public record struct Vec2<T>(T X, T Y) :
     IAdditiveIdentity<Vec2<T>, Vec2<T>>, IMultiplicativeIdentity<Vec2<T>, Vec2<T>>,
     IEquatable<Vec2<T>>, IEqualityOperators<Vec2<T>, Vec2<T>, bool>,
     IFormattable, ISpanFormattable,
@@ -20,15 +18,18 @@ public record Vec2<T>(T X, T Y) :
     IUnaryNegationOperators<Vec2<T>, Vec2<T>>, IUnaryPlusOperators<Vec2<T>, Vec2<T>>
     where T : INumber<T>
 {
+    #pragma warning disable CA1000 // operators are static members
+    #pragma warning disable CA2225 // not providing this and its not needed for INumber implementation
+
     #region INumberBase<T> Properties
 
     /// <summary>
-    /// Einheitsvektor, d.h. alle Koordinaten sind vom Wert One des Typs T
+    /// Unit vector (all coordinates are of value INumberBase.One)
     /// </summary>
     public static Vec2<T> One => new(T.One, T.One);
 
     /// <summary>
-    /// Null-Vektor, d.h. alle Koordinaten sind vom Wert Zero des Typs T
+    /// Zero vector (all coordinates are of value INumberBase.Zero)
     /// </summary>
     public static Vec2<T> Zero => new(T.Zero, T.Zero);
 
@@ -44,20 +45,25 @@ public record Vec2<T>(T X, T Y) :
 
     #endregion
 
-    /// <summary>Länge² des Vektors</summary>
-    public T LengthSquared => X * X + Y * Y;
+    /// <summary>
+    /// length of the vector squared
+    /// </summary>
+    public readonly T LengthSquared => X * X + Y * Y;
 
     #region IFormattable, ISpanFormattable
 
     /// <summary>
-    /// Schreibt die 2 Koordinatenwerte des Vektors formatiert in das durch den Aufrufer bereitgestellte char-Array.
+    /// Writes the vector coordinates to the destination char array.
     /// </summary>
-    /// <param name="destination">hier hinein schreibt die Methode den formatierten Wert des Vektors</param>
-    /// <param name="charsWritten">Anzahl an in destination geschriebene Zeichen</param>
-    /// <param name="format">wird ignoriert</param>
-    /// <param name="provider">wird ignoriert</param>
-    /// <returns><i>true</i>, wenn destination ausreichend Speicher für alle Zeichen der Formatierung bereitstellt, sonst <i>false</i></returns>
-    public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    /// <param name="destination">writes the formatted vector coordinates here</param>
+    /// <param name="charsWritten">number of chars written to destination</param>
+    /// <param name="format">is ignored</param>
+    /// <param name="provider">is ignored</param>
+    /// <returns>
+    /// <i>true</i>if the destination array has enough space left for the formatted vector coordinates
+    /// <i>false</i> else.
+    /// </returns>
+    public readonly bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
         charsWritten = 0;
 
@@ -92,11 +98,11 @@ public record Vec2<T>(T X, T Y) :
     }
 
     /// <summary>
-    /// Gibt die 2 Koordinatenwerte des Vektors als Zeichenkette aus.
+    /// Returns the vector coordinates formatted in a string.
     /// </summary>
-    /// <param name="format">wird ignoriert</param>
-    /// <param name="formatProvider">wird ignoriert</param>
-    public string ToString(string? format, IFormatProvider? formatProvider)
+    /// <param name="format">is ignored</param>
+    /// <param name="formatProvider">is ignored</param>
+    public readonly string ToString(string? format, IFormatProvider? formatProvider)
     {
         return this.ToString();
     }
@@ -106,43 +112,35 @@ public record Vec2<T>(T X, T Y) :
     #region object Overrides
 
     /// <summary>
-    /// Gibt die 2 Koordinatenwerte des Vektors als Zeichenkette aus.
+    /// Returns the vector coordinates formatted in a string.
     /// </summary>
-    public override string ToString() => $"({X}, {Y}";
+    public override readonly string ToString() => $"({X}, {Y})";
 
     #endregion
 
     #region IAdditionOperators
 
     /// <summary>
-    /// Addiert die 2 Vektoren koordinatenweise.
+    /// Adds the coordinates of two vectors.
     /// </summary>
     public static Vec2<T> operator +(Vec2<T> left, Vec2<T> right)
     {
-        ArgumentNullException.ThrowIfNull(left);
-        ArgumentNullException.ThrowIfNull(right);
-
         return new Vec2<T>(left.X + right.X, left.Y + right.Y);
     }
 
     /// <summary>
-    /// Addiert die 2 Vektoren koordinatenweise.
+    /// Adds the coordinates of two vectors.
     /// </summary>
     public static Vec2<T> operator checked +(Vec2<T> left, Vec2<T> right)
     {
-        ArgumentNullException.ThrowIfNull(left);
-        ArgumentNullException.ThrowIfNull(right);
-
         return new Vec2<T>(left.X + right.X, left.Y + right.Y);
     }
 
     /// <summary>
-    /// Addiert den Wert von <i>value</i> koordinatenweise zum Vektor dazu.
+    /// Adds a scalar value to both coordinates of a vector.
     /// </summary>
     public static Vec2<T> operator +(Vec2<T> value)
     {
-        ArgumentNullException.ThrowIfNull(value);
-
         return new Vec2<T>(value.X, value.Y);
     }
 
@@ -151,44 +149,34 @@ public record Vec2<T>(T X, T Y) :
     #region ISubtractionOperators
 
     /// <summary>
-    /// Subtrahiert die 2 Vektoren koordinatenweise.
+    /// Subtracts the coordinates of two vectors.
     /// </summary>
     public static Vec2<T> operator -(Vec2<T> left, Vec2<T> right)
     {
-        ArgumentNullException.ThrowIfNull(left);
-        ArgumentNullException.ThrowIfNull(right);
-
         return new Vec2<T>(left.X - right.X, left.Y - right.Y);
     }
 
     /// <summary>
-    /// Subtrahiert die 2 Vektoren koordinatenweise.
+    /// Subtracts the coordinates of two vectors.
     /// </summary>
     public static Vec2<T> operator checked -(Vec2<T> left, Vec2<T> right)
     {
-        ArgumentNullException.ThrowIfNull(left);
-        ArgumentNullException.ThrowIfNull(right);
-
         return new Vec2<T>(left.X - right.X, left.Y - right.Y);
     }
 
     /// <summary>
-    /// Ändert das Vorzeichen aller Koordinaten des Vektors.
+    /// Changes the sign of all coordinates a vector.
     /// </summary>
     public static Vec2<T> operator -(Vec2<T> value)
     {
-        ArgumentNullException.ThrowIfNull(value);
-
         return new Vec2<T>(-value.X, -value.Y);
     }
 
     /// <summary>
-    /// Ändert das Vorzeichen aller Koordinaten des Vektors.
+    /// Changes the sign of all coordinates a vector.
     /// </summary>
     public static Vec2<T> operator checked -(Vec2<T> value)
     {
-        ArgumentNullException.ThrowIfNull(value);
-
         return new Vec2<T>(-value.X, -value.Y);
     }
 
@@ -197,24 +185,18 @@ public record Vec2<T>(T X, T Y) :
     #region IMultiplyOperators
 
     /// <summary>
-    /// Multipliziert 2 Vektoren koordinatenweise und bildet damit das Hadamard-Produkt.
+    /// Multiplies the coordinates of two vectors (Hadamard product).
     /// </summary>
     public static Vec2<T> operator *(Vec2<T> left, Vec2<T> right)
     {
-        ArgumentNullException.ThrowIfNull(left);
-        ArgumentNullException.ThrowIfNull(right);
-
         return new Vec2<T>(left.X * right.X, left.Y * right.Y);
     }
 
     /// <summary>
-    /// Multipliziert 2 Vektoren koordinatenweise und bildet damit das Hadamard-Produkt.
+    /// Multiplies the coordinates of two vectors (Hadamard product).
     /// </summary>
     public static Vec2<T> operator checked *(Vec2<T> left, Vec2<T> right)
     {
-        ArgumentNullException.ThrowIfNull(left);
-        ArgumentNullException.ThrowIfNull(right);
-
         return new Vec2<T>(left.X * right.X, left.Y * right.Y);
     }
 
@@ -223,115 +205,87 @@ public record Vec2<T>(T X, T Y) :
     #region IDivisionOperators
 
     /// <summary>
-    /// Dividiert 2 Vektoren koordinatenweise und bildet damit den Hadamard-Quotienten.
+    /// Divides the coordinates of two vectors (Hadamard division).
     /// </summary>
     public static Vec2<T> operator /(Vec2<T> left, Vec2<T> right)
     {
-        ArgumentNullException.ThrowIfNull(left);
-        ArgumentNullException.ThrowIfNull(right);
-
         return new Vec2<T>(left.X / right.X, left.Y / right.Y);
     }
 
     /// <summary>
-    /// Dividiert 2 Vektoren koordinatenweise und bildet damit den Hadamard-Quotienten.
+    /// Divides the coordinates of two vectors (Hadamard division).
     /// </summary>
     public static Vec2<T> operator checked /(Vec2<T> left, Vec2<T> right)
     {
-        ArgumentNullException.ThrowIfNull(left);
-        ArgumentNullException.ThrowIfNull(right);
-
         return new Vec2<T>(left.X / right.X, left.Y / right.Y);
     }
 
     #endregion
 
     /// <summary>
-    /// Bildet den absoluten Wert dieses Vektoren durch koordinatenweise absoluten Betrag.
+    /// Returns the absolute value of the vector by calculating the absolute value of each coordinate.
     /// </summary>
-    public Vec2<T> Abs()
+    public readonly Vec2<T> Abs()
     {
-        return new Vec2<T>(Abs(X), Abs(Y));
+        return new Vec2<T>(X.Abs(), Y.Abs());
     }
 
     /// <summary>
-    /// Hack, weil es kein Interface a la T.IAbsOperation gibt und IComparable für T nicht vorausgesetzt wird
-    /// </summary>
-    private static T Abs(T number) => number >= T.Zero ? number : -number;
-
-    /// <summary>
-    /// Multipliziert die Koordinaten des Vektors jeweils mit dem Skalarwert.
+    /// Multiplies the coordinates of a vector by a scalar value.
     /// </summary>
     public static Vec2<T> operator *(Vec2<T> vec, T scalar)
     {
-        ArgumentNullException.ThrowIfNull(vec);
-
         return new Vec2<T>(vec.X * scalar, vec.Y * scalar);
     }
 
     /// <summary>
-    /// Multipliziert die Koordinaten des Vektors jeweils mit dem Skalarwert.
+    /// Multiplies the coordinates of a vector by a scalar value.
     /// </summary>
     public static Vec2<T> operator *(T scalar, Vec2<T> vec)
     {
-        ArgumentNullException.ThrowIfNull(vec);
-
         return new Vec2<T>(scalar * vec.X, scalar * vec.Y);
     }
 
     /// <summary>
-    /// Dividiert die Koordinaten des Vektors jeweils durch den Skalarwert.
+    /// Divides the coordinates of a vector by a scalar value.
     /// </summary>
     public static Vec2<T> operator /(Vec2<T> vec, T scalar)
     {
-        ArgumentNullException.ThrowIfNull(vec);
-
         return new Vec2<T>(vec.X / scalar, vec.Y / scalar);
     }
 
     /// <summary>
-    /// Bildet das Kreuzprodukt des Vektors mit X² + Y²
+    /// Calculates the dot product of the vector with <paramref name="right"/> (dot = X1 * X2 + Y1 * Y2)
     /// </summary>
-    public T Dot(Vec2<T> right)
+    public readonly T Dot(Vec2<T> right)
     {
-        ArgumentNullException.ThrowIfNull(right);
-
         return X * right.X + Y * right.Y;
     }
 
     /// <summary>
-    /// Prüft ob der durch den Vektor festgelegte 3D-Punkt innerhalb des Raumes liegt, der
-    /// durch bottomLeft und topRight aufgespannt wird.
+    /// Checks if the 2D point specified by this vector lies within the 2D space defined by
+    /// <paramref name="bottomLeft"/> and <paramref name="topRight"/>.
     /// </summary>
-    public bool In(Vec2<T> bottomLeft, Vec2<T> topRight)
+    public readonly bool In(Vec2<T> bottomLeft, Vec2<T> topRight)
     {
-        ArgumentNullException.ThrowIfNull(bottomLeft);
-        ArgumentNullException.ThrowIfNull(topRight);
-
         return X >= bottomLeft.X && X <= topRight.X &&
                Y >= bottomLeft.Y && Y <= topRight.Y;
     }
 
     /// <summary>
-    /// Erstellt einen neuen Vektor genau zwischen min und max nach min + (max - min) * amount
+    /// Creates a new vector so that it fulfills: new vec = min + (max - min) * amount
     /// </summary>
     public static Vec2<T> Lerp(Vec2<T> min, Vec2<T> max, T amount)
     {
-        ArgumentNullException.ThrowIfNull(min);
-        ArgumentNullException.ThrowIfNull(max);
-
         return new Vec2<T>(min.X + amount * (max.X - min.X),
                            min.Y + amount * (max.Y - min.Y));
     }
 
     /// <summary>
-    /// Berechnet die Entfernung² zwischen dem durch diesen Vektor bestimmten 2D-Punkt und dem durch <i>right</i>
-    /// festgelegten 2D-Punkt.
+    /// Calculates the Euclidian distance² between the 2D point specified by this vector and <paramref name="right"/>.
     /// </summary>
-    public T SquaredDistance(Vec2<T> right)
+    public readonly T SquaredDistance(Vec2<T> right)
     {
-        ArgumentNullException.ThrowIfNull(right);
-
         var dx = X - right.X;
         var dy = Y - right.Y;
 
@@ -339,18 +293,14 @@ public record Vec2<T>(T X, T Y) :
     }
 
     /// <summary>
-    /// Berechnet die Manhattan-Entfernung zwischen dem durch diesen Vektor bestimmten 2D-Punkt und dem durch <i>right</i>
-    /// festgelegten 2D-Punkt.
+    /// Calculates the Manhattan distance between the 2D point specified by this vector and <paramref name="right"/>.
     /// </summary>
-    public T ManhattanDistance(Vec2<T> right)
+    public readonly T ManhattanDistance(Vec2<T> right)
     {
-        ArgumentNullException.ThrowIfNull(right);
-
         var dx = X - right.X;
         var dy = Y - right.Y;
 
-        return (dx > T.Zero ? dx : -dx) +
-               (dy > T.Zero ? dy : -dy);
+        return dx.Abs() + dy.Abs();
     }
 }
 
