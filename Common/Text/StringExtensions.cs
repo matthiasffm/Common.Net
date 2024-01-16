@@ -70,7 +70,7 @@ public static class StringExtensions
         // essentially compute a matrix MxN of character edits where every position is a min of the 3 edits
         // - delete char from left char
         // - delete char from right string
-        // - swap chars
+        // - swap chars in left and right
         // the end result for minimum numbers of character edits is then the bottom right cell in the matrix
         //
         // here is a matrix for the Levenshtein distance between lawn and flaw:
@@ -120,39 +120,52 @@ public static class StringExtensions
         ArgumentNullException.ThrowIfNull(left);
         ArgumentNullException.ThrowIfNull(right);
 
-        return OsaDistance(left, right, left.Length, right.Length);
-    }
+        // works similar to Levenshteins algorithm by essentially computing a matrix MxN of character
+        // edits where every position is a min of the 4 edits
+        // - delete char from left char
+        // - delete char from right string
+        // - swap chars in left and right
+        // - transpose of chars in left and right (transpose is an additional edit in comparison to Levenshteins algorithm)
+        // the end result for minimum numbers of character edits is then the bottom right cell in the matrix
 
-    // TODO: replace O(n³) recursive calls with a linear algorithm like for Levenshtein distance
-    //       see https://en.wikipedia.org/wiki/Damerau%E2%80%93Levenshtein_distance#Optimal_string_alignment_distance
-    private static int OsaDistance(string left, string right, int i, int j)
-    {
-        if(i == 0 && j == 0)
+        // to reduce the memory footprint this method only keeps the last three rows of the matrix in memory
+        // this is possible because to compute a value in the matrix one needs only the values directly to
+        // the left two rows, the top and the top left of this value.
+        // one additional row is needed in comparison to Levenshteins algorithm for calculation the transpose value
+
+        var d1 = new int[left.Length + 1];
+        var d2 = new int[left.Length + 1];
+        var d3 = new int[left.Length + 1];
+
+        for(var i = 0; i <= left.Length; i++)
         {
-            return 0;
+            d2[i] = i;
         }
 
-        int min = int.MaxValue;
-        if(i > 0)
+        for(var j = 1; j <= right.Length; j++)
         {
-            min = System.Math.Min(min, OsaDistance(left, right, i - 1, j) + 1);
-        }
-        if(j > 0)
-        {
-            min = System.Math.Min(min, OsaDistance(left, right, i, j - 1) + 1);
+            d3[0] = j;
+
+            for(var i = 1; i <= left.Length; i++)
+            {
+                var swapCost = (left[i - 1] == right[j - 1]) ? 0 : 1;
+
+                d3[i] = Min(d3[i - 1] + 1,         // remove a char from left string
+                            d2[i] + 1,             // remove a char from right string
+                            d2[i - 1] + swapCost); // swap chars from left and right
+
+                // transpose chars from left and right if iteration is at least in third row of MxN matrix
+                if(i >= 2 && j >= 2 && left[i - 1] == right[j - 2] && left[i - 2] == right[j - 1])
+                {
+                    d3[i] = System.Math.Min(d3[i], d1[i - 2] + 1);
+                }
+            }
+
+            (d1, d2) = (d2, d1);
+            (d2, d3) = (d3, d2);
         }
 
-        if(i > 0 && j > 0)
-        {
-            min = System.Math.Min(min, OsaDistance(left, right, i - 1, j - 1) + (left[i - 1] != right[j - 1] ? 1 : 0));
-        }
-
-        if(i > 1 && j > 1 && left[i - 1] == right[j - 2] && left[i - 2] == right[j - 1])
-        {
-            min = System.Math.Min(min, OsaDistance(left, right, i - 2, j - 2) + 1);
-        }
-
-        return min;
+        return d2[left.Length];
     }
 
     private static int Min(int a, int b, int c)
