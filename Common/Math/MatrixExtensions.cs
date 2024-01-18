@@ -90,7 +90,7 @@ public static class MatrixExtensions
     /// This function is called for every element in the matrix and if the predicate function returns true the count is raised by 1;
     /// </param>
     /// <returns>Number of elements in the matrix fulfilling <paramref name="predicate"/>.</returns>
-    public static int Count<TSource>(this TSource[,] matrix, Func<TSource, bool> predicate)
+    public static int Count<TSource>(this TSource[,] matrix, Func<TSource, int, int, bool> predicate)
     {
         ArgumentNullException.ThrowIfNull(matrix);
         ArgumentNullException.ThrowIfNull(predicate);
@@ -101,7 +101,7 @@ public static class MatrixExtensions
         {
             for(int col = 0; col < matrix.GetLength(1); col++)
             {
-                if(predicate(matrix[row, col]))
+                if(predicate(matrix[row, col], row, col))
                 {
                     count++;
                 }
@@ -182,7 +182,7 @@ public static class MatrixExtensions
     /// used as the initial accumulator value.
     /// </summary>
     /// <typeparam name="TSource">Element type of the [m, n] matrix</typeparam>
-    /// <param name="matrix">the [m, n] matrix with all values to accumulate over   </param>
+    /// <param name="matrix">the [m, n] matrix with all values to accumulate over</param>
     /// <typeparam name="TResult">The type of the accumulator value.</typeparam>
     /// <param name="seed">The initial accumulator value.</param>
     /// <param name="accumulateFunc">An accumulator function to be invoked on each element.</param>
@@ -203,5 +203,77 @@ public static class MatrixExtensions
         }
 
         return accumulator;
+    }
+
+    /// <summary>
+    /// Filters all elements of a matrix which fulfill a predicate.
+    /// </summary>
+    /// <typeparam name="TSource">Element type of the [m, n] matrix</typeparam>
+    /// <param name="matrix">the [m, n] matrix with all values to filter</param>
+    /// <param name="predicate">
+    /// This function is called for every element in the matrix and if the predicate function returns true the value is returned.
+    /// </param>
+    /// <returns>
+    /// All elements in the matrix fulfilling <paramref name="predicate"/>.
+    /// Returns a tuple of the element with its row and column index.</returns>
+    public static IEnumerable<(TSource, int, int)> Where<TSource>(this TSource[,] matrix, Func<TSource, int, int, bool> predicate)
+    {
+        ArgumentNullException.ThrowIfNull(matrix);
+        ArgumentNullException.ThrowIfNull(predicate);
+
+        for(int i = 0; i < matrix.GetLength(0); i++)
+        {
+            for(int j = 0; j < matrix.GetLength(1); j++)
+            {
+                if(predicate(matrix[i, j], i, j))
+                {
+                    yield return (matrix[i, j], i, j);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Selects all values of one row from the matrix.
+    /// </summary>
+    /// <typeparam name="TSource">Element type of the [m, n] matrix</typeparam>
+    /// <param name="matrix">the [m, n] matrix with all values to select the row from</param>
+    /// <param name="row">index of the row to select</param>
+    /// <returns>tuple of all values of the matrix in <paramref name="row"/> with their column index</returns>
+    public static IEnumerable<(int, TSource)> Row<TSource>(this TSource[,] matrix, int row)
+    {
+        ArgumentNullException.ThrowIfNull(matrix);
+
+        if(row < 0 || row >= matrix.GetLength(0))
+        {
+            throw new ArgumentOutOfRangeException(nameof(row));
+        }
+
+        for(int col = 0; col < matrix.GetLength(1); col++)
+        {
+            yield return (col, matrix[row, col]);
+        }
+    }
+
+    /// <summary>
+    /// Selects all values of one column from the matrix.
+    /// </summary>
+    /// <typeparam name="TSource">Element type of the [m, n] matrix</typeparam>
+    /// <param name="matrix">the [m, n] matrix with all values to select the column from</param>
+    /// <param name="col">index of the column to select</param>
+    /// <returns>tuple of all values of the matrix in <paramref name="col"/> with their row index</returns>
+    public static IEnumerable<(int, TSource)> Col<TSource>(this TSource[,] matrix, int col)
+    {
+        ArgumentNullException.ThrowIfNull(matrix);
+
+        if(col < 0 || col >= matrix.GetLength(1))
+        {
+            throw new ArgumentOutOfRangeException(nameof(col));
+        }
+
+        for(int row = 0; row < matrix.GetLength(0); row++)
+        {
+            yield return (row, matrix[row, col]);
+        }
     }
 }
