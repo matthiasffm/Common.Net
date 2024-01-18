@@ -226,7 +226,7 @@ internal class TestEnumerableExtensions
     }
 
     [Test]
-    public void TestVariations()
+    public void TestVariationsSingleCollection()
     {
         // arrange
 
@@ -249,5 +249,36 @@ internal class TestEnumerableExtensions
                                                            (2, 1), (2, 3), (2, 5),
                                                            (3, 1), (3, 2), (3, 5),
                                                            (5, 1), (5, 2), (5, 3));
+    }
+
+
+    [Test]
+    public void TestVariationsTwoCollections()
+    {
+        // arrange
+
+        var empty = Array.Empty<int>();
+        var coll1 = new int[] { 1, 2, 3 };
+        var coll2 = new int[] { 1, 5, 6 };
+
+        // act
+
+        var nullVariations = () => coll1.Variations(null);
+
+        var emptyVariations = empty.Variations(coll1);
+        var collVariations1 = coll1.Variations(coll2);
+        var collVariations2 = coll2.Variations(coll1);
+
+        // assert
+
+        nullVariations.Should().Throw<ArgumentNullException>();
+
+        emptyVariations.Should().HaveCount(0);
+        collVariations1.Should().HaveCount(3 * 3).And.Equal((1, 1), (1, 5), (1, 6),
+                                                            (2, 1), (2, 5), (2, 6),
+                                                            (3, 1), (3, 5), (3, 6));
+        collVariations2.Should().HaveCount(3 * 3).And.Equal((1, 1), (1, 2), (1, 3),
+                                                            (5, 1), (5, 2), (5, 3),
+                                                            (6, 1), (6, 2), (6, 3));
     }
 }

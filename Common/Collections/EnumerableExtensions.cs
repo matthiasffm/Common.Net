@@ -136,6 +136,18 @@ public static class EnumerableExtensions
                                              .Select(elem2 => (elem1, elem2)));
 
     /// <summary>
+    /// Returns all possible pairings of elements from <i>collLeft</i> and <i>collRight</i>.
+    /// </summary>
+    public static IEnumerable<(T, T)> Variations<T>(this IEnumerable<T> collLeft,
+                                                    IEnumerable<T> collRight)
+    {
+        ArgumentNullException.ThrowIfNull(collLeft);
+        ArgumentNullException.ThrowIfNull(collRight);
+
+        return collLeft.SelectMany(leftItem => collRight.Select(rightItem => (leftItem, rightItem)));
+    }
+
+    /// <summary>
     /// Calls <i>action</i> on every element of the enumeration.
     /// </summary>
     public static void Do<T>(this IEnumerable<T> coll, Action<T> action)
