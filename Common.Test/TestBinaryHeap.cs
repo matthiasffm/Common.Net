@@ -2,13 +2,26 @@ using NUnit.Framework;
 using FluentAssertions;
 
 using matthiasffm.Common.Collections;
-using System.Reflection.Metadata;
 
 namespace matthiasffm.Common.Test;
 
 [TestFixture]
 public partial class TestBinaryHeap
 {
+    [Test]
+    public void TestCreateHeapWithNegativeCapacity()
+    {
+        // arrange
+
+        // act
+        var tryCreate0 = () => new BinaryHeap<int>(0);
+        var tryCreateMinus = () => new BinaryHeap<int>(-4);
+
+        // assert
+        tryCreate0.Should().Throw<ArgumentOutOfRangeException>();
+        tryCreateMinus.Should().Throw<ArgumentOutOfRangeException>();
+    }
+
     [Test]
     public void TestEmptyHeap()
     {
