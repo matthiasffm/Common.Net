@@ -43,6 +43,11 @@ public class BinaryHeap<TElement> : IPriorityQueue<TElement, Handle>
     /// <remarks>Uses the default comparer for 'less than' comparisons of <typeparamref name="TElement"/> instances.</remarks>
     public BinaryHeap(int capacity = 10)
     {
+        if(capacity <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(capacity));
+        }
+
         _elems = new BinaryHeapHandle[capacity];
 
         _comparer = Comparer<TElement>.Default;
@@ -55,6 +60,11 @@ public class BinaryHeap<TElement> : IPriorityQueue<TElement, Handle>
     /// <param name="comparer">The comparer to use for 'less than' comparisons of <typeparamref name="TElement"/> instances.</param>
     public BinaryHeap(int capacity, IComparer<TElement> comparer)
     {
+        if(capacity <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(capacity));
+        }
+
         _elems = new BinaryHeapHandle[capacity];
 
         _comparer = comparer;
@@ -135,7 +145,7 @@ public class BinaryHeap<TElement> : IPriorityQueue<TElement, Handle>
             }
         }
     }
-
+ 
     /// <see cref="IPriorityQueue{TElement, THandle}.ExtractMin"/>
     /// <remarks>Removes and returns the minimum element from the binary heap in O(log n) steps.</remarks>
     public TElement ExtractMin()
