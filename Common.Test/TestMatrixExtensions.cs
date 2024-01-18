@@ -123,12 +123,12 @@ internal class TestMatrixExtensions
 
         // act
 
-        var nullCount = () => nullMatrix.Count((item) => item > 11);
-        var emptyCount  = emptyMatrix.Count((item) => item > 11);
-        var singleCount = singleMatrix.Count((item) => item > 11);
-        var horCount    = horMatrix.Count((item) => item > 11);
-        var vertCount   = vertMatrix.Count((item) => item > 11);
-        var simpleCount = simpleMatrix.Count((item) => item > 11);
+        var nullCount = () => nullMatrix.Count((item, row, col) => item > 11);
+        var emptyCount  = emptyMatrix.Count((item, row, col) => item > 11);
+        var singleCount = singleMatrix.Count((item, row, col) => item > 11);
+        var horCount    = horMatrix.Count((item, row, col) => item > 11);
+        var vertCount   = vertMatrix.Count((item, row, col) => item > 11);
+        var simpleCount = simpleMatrix.Count((item, row, col) => item > 11);
 
         // assert
 
@@ -249,5 +249,98 @@ internal class TestMatrixExtensions
         horAggr.Should().Be(11 + 12 + 13);
         vertAggr.Should().Be(11 + 21 + 31);
         simpleAggr.Should().Be(11 + 12 + 13 + 21 + 22 + 23 + 31 + 32 + 33);
+    }
+
+    [Test]
+    public void TestWhere()
+    {
+        // arrange
+
+        var nullMatrix      = CreateNullMatix();
+        var emptyMatrix     = CreateEmptyMatix();
+        var singleMatrix    = CreateSingleMatix();
+        var horMatrix       = CreateHorizontalMatix();
+        var vertMatrix      = CreateVerticalMatix();
+        var simpleMatrix    = CreateSimpleMatix();
+
+        // act
+
+        var whereNull       = () => nullMatrix.Where((item, row, col) => item > 12).ToArray();
+        var whereEmpty      = emptyMatrix.Where((item, row, col) => item > 12);
+        var whereSingle     = singleMatrix.Where((item, row, col) => item > 12);
+        var whereHor        = horMatrix.Where((item, row, col) => item > 12);
+        var whereVert       = vertMatrix.Where((item, row, col) => item > 12);
+        var whereSimple     = simpleMatrix.Where((item, row, col) => item > 12);
+
+        // assert
+
+        whereNull.Should().Throw<ArgumentNullException>("matrix");
+        whereEmpty.Should().HaveCount(0);
+        whereSingle.Should().HaveCount(0);
+        whereHor.Should().HaveCount(1);
+        whereVert.Should().HaveCount(2);
+        whereSimple.Should().HaveCount(1 + 3 + 3);
+    }
+
+    [Test]
+    public void TestRow()
+    {
+        // arrange
+
+        var nullMatrix      = CreateNullMatix();
+        var emptyMatrix     = CreateEmptyMatix();
+        var singleMatrix    = CreateSingleMatix();
+        var horMatrix       = CreateHorizontalMatix();
+        var vertMatrix      = CreateVerticalMatix();
+        var simpleMatrix    = CreateSimpleMatix();
+
+        // act
+
+        var rowNull       = () => nullMatrix.Row(1).ToArray();
+        var rowEmpty      = () => emptyMatrix.Row(1).ToArray();
+        var rowSingle     = singleMatrix.Row(0);
+        var rowHor        = horMatrix.Row(0);
+        var rowVert       = vertMatrix.Row(1);
+        var rowSimple     = simpleMatrix.Row(1);
+
+        // assert
+
+        rowNull.Should().Throw<ArgumentNullException>("matrix");
+        rowEmpty.Should().Throw<ArgumentOutOfRangeException>("row");
+        rowSingle.Should().HaveCount(1).And.BeEquivalentTo(new[] { (0, 1) });
+        rowHor.Should().HaveCount(3).And.BeEquivalentTo(new[] { (0, 11), (1, 12), (2, 13) });
+        rowVert.Should().HaveCount(1).And.BeEquivalentTo(new[] { (0, 21) });
+        rowSimple.Should().HaveCount(3).And.BeEquivalentTo(new[] { (0, 21), (1, 22), (2, 23) }); ;
+    }
+
+    [Test]
+    public void TestCol()
+    {
+        // arrange
+
+        var nullMatrix      = CreateNullMatix();
+        var emptyMatrix     = CreateEmptyMatix();
+        var singleMatrix    = CreateSingleMatix();
+        var horMatrix       = CreateHorizontalMatix();
+        var vertMatrix      = CreateVerticalMatix();
+        var simpleMatrix    = CreateSimpleMatix();
+
+        // act
+
+        var colNull       = () => nullMatrix.Col(1).ToArray();
+        var colEmpty      = () => emptyMatrix.Col(1).ToArray();
+        var colSingle     = singleMatrix.Col(0);
+        var colHor        = horMatrix.Col(2);
+        var colVert       = vertMatrix.Col(0);
+        var colSimple     = simpleMatrix.Col(2);
+
+        // assert
+
+        colNull.Should().Throw<ArgumentNullException>("matrix");
+        colEmpty.Should().Throw<ArgumentOutOfRangeException>("col");
+        colSingle.Should().HaveCount(1).And.BeEquivalentTo(new[] { (0, 1) });
+        colHor.Should().HaveCount(1).And.BeEquivalentTo(new[] { (0, 13) });
+        colVert.Should().HaveCount(3).And.BeEquivalentTo(new[] { (0, 11), (1, 21), (2, 31) });
+        colSimple.Should().HaveCount(3).And.BeEquivalentTo(new[] { (0, 13), (1, 23), (2, 33) }); ;
     }
 }
