@@ -17,7 +17,7 @@ internal class TestSearch
 
         // act
 
-        var edgesNotFound = Search.BreadthFirstEnumerate("start", null, city => new List<string>{ });
+        var edgesNotFound = Search.BreadthFirstEnumerate("start", null, city => []);
 
         // assert
 
@@ -89,7 +89,7 @@ internal class TestSearch
 
         // act
 
-        var edgesNotFound = Search.DepthFirstEnumerate("start", null, city => new List<string> { });
+        var edgesNotFound = Search.DepthFirstEnumerate("start", null, city => []);
 
         // assert
 
@@ -163,7 +163,7 @@ internal class TestSearch
 
         var goalNotFound = Search.AStar("start",
                                         "goal",
-                                        city => Array.Empty<string>(),
+                                        city => [],
                                         (a, b) => 10L,
                                         city => 10L,
                                         1000L);
@@ -364,17 +364,17 @@ internal class TestSearch
 
     // test data and helper functions
 
-    private static IEnumerable<string> SurroundingCities(string city) => city switch {
+    private static string[] SurroundingCities(string city) => city switch {
         "Frankfurt"   => new[] { "Bad Vilbel", "Hanau", "Offenbach" },
-        "Bad Vilbel"  => new[] { "Frankfurt", "Ilbenstadt" },
-        "Hanau"       => new[] { "Offenbach", "Frankfurt", "Erlensee" },
-        "Erlensee"    => new[] { "Hanau" },
-        "Offenbach"   => new[] { "Hanau", "Frankfurt" },
-        "Ilbenstadt"  => new[] { "Bad Vilbel", "Florstadt", "Friedberg" },
-        "Florstadt"   => new[] { "Ilbenstadt" },
-        "Friedberg"   => new[] { "Ilbenstadt" },
-        "Köln"        => new[] { "Bonn" },
-        "Bonn"        => new[] { "Köln" },
+        "Bad Vilbel"  => ["Frankfurt", "Ilbenstadt"],
+        "Hanau"       => ["Offenbach", "Frankfurt", "Erlensee"],
+        "Erlensee"    => ["Hanau"],
+        "Offenbach"   => ["Hanau", "Frankfurt"],
+        "Ilbenstadt"  => ["Bad Vilbel", "Florstadt", "Friedberg"],
+        "Florstadt"   => ["Ilbenstadt"],
+        "Friedberg"   => ["Ilbenstadt"],
+        "Köln"        => ["Bonn"],
+        "Bonn"        => ["Köln"],
         _             => throw new InvalidOperationException(),
     };
 

@@ -43,10 +43,7 @@ public class BinaryHeap<TElement> : IPriorityQueue<TElement, Handle>
     /// <remarks>Uses the default comparer for 'less than' comparisons of <typeparamref name="TElement"/> instances.</remarks>
     public BinaryHeap(int capacity = 10)
     {
-        if(capacity <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(capacity));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
 
         _elems = new BinaryHeapHandle[capacity];
 
@@ -60,10 +57,7 @@ public class BinaryHeap<TElement> : IPriorityQueue<TElement, Handle>
     /// <param name="comparer">The comparer to use for 'less than' comparisons of <typeparamref name="TElement"/> instances.</param>
     public BinaryHeap(int capacity, IComparer<TElement> comparer)
     {
-        if(capacity <= 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(capacity));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
 
         _elems = new BinaryHeapHandle[capacity];
 
@@ -80,8 +74,7 @@ public class BinaryHeap<TElement> : IPriorityQueue<TElement, Handle>
     /// </remarks>
     public BinaryHeap(IEnumerable<TElement> items)
     {
-        _elems = items.Select((elem, idx) => new BinaryHeapHandle(elem, idx))
-                      .ToArray();
+        _elems = [.. items.Select((elem, idx) => new BinaryHeapHandle(elem, idx))];
 
         _last     = _elems.Length - 1;
         _comparer = Comparer<TElement>.Default;
@@ -99,8 +92,7 @@ public class BinaryHeap<TElement> : IPriorityQueue<TElement, Handle>
     /// </remarks>
     public BinaryHeap(IEnumerable<TElement> items, IComparer<TElement> comparer)
     {
-        _elems = items.Select((elem, idx) => new BinaryHeapHandle(elem, idx))
-                      .ToArray();
+        _elems = [.. items.Select((elem, idx) => new BinaryHeapHandle(elem, idx))];
 
         _last = _elems.Length - 1;
         _comparer = comparer;

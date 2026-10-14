@@ -47,7 +47,7 @@ public partial class TestBinaryHeap
     public void TestCountSingleElementHeap()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 1 });
+        var heap = new BinaryHeap<int>([1]);
 
         // act
         var count = heap.Count;
@@ -73,7 +73,7 @@ public partial class TestBinaryHeap
     public void TestContainsSingleElementHeap()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 1 });
+        var heap = new BinaryHeap<int>([1]);
 
         // act
         var contains1 = heap.Contains(1, out var dummy);
@@ -89,7 +89,7 @@ public partial class TestBinaryHeap
     public void TestContainsMultipleElementHeap()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 3, 5, 1, 4, 2 });
+        var heap = new BinaryHeap<int>([3, 5, 1, 4, 2]);
 
         // act
         var contains1 = heap.Contains(1, out var dummy1);
@@ -117,7 +117,7 @@ public partial class TestBinaryHeap
     public void TestMinSingleElementHeap()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 1 });
+        var heap = new BinaryHeap<int>([1]);
 
         // act
         var min = heap.Min;
@@ -143,7 +143,7 @@ public partial class TestBinaryHeap
     public void TestExtractMinSingleElementHeap()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 4 });
+        var heap = new BinaryHeap<int>([4]);
 
         // act
         var initialCount = heap.Count;
@@ -161,7 +161,7 @@ public partial class TestBinaryHeap
     public void TestExtractMinMultipleElementHeap()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 3, 5, 1, 4, 2 });
+        var heap = new BinaryHeap<int>([3, 5, 1, 4, 2]);
         // heap tree:
         //             1
         //          2     3
@@ -200,7 +200,7 @@ public partial class TestBinaryHeap
     public void TestTryExtractMin()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 1, 3, 1 });
+        var heap = new BinaryHeap<int>([1, 3, 1]);
 
         // act
         var initialCount = heap.Count;
@@ -227,7 +227,7 @@ public partial class TestBinaryHeap
     public void TestDecreaseElementWithIllegalHandleFails()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 1, 2, 4, 3 });
+        var heap = new BinaryHeap<int>([1, 2, 4, 3]);
         heap.Contains(1, out var handle1);
 
         // act, decrease with handle not in heap fails
@@ -244,7 +244,7 @@ public partial class TestBinaryHeap
     public void TestDecreaseElementToGreaterValueFails()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 1, 2, 4, 3 });
+        var heap = new BinaryHeap<int>([1, 2, 4, 3]);
         heap.Contains(3, out var handle3);
 
         // act, decrease with higher value fails
@@ -258,7 +258,7 @@ public partial class TestBinaryHeap
     public void TestDecreaseSingleElementHeap()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 4 });
+        var heap = new BinaryHeap<int>([4]);
         heap.Contains(4, out var handle4);
 
         // act, decrease single item 4 to 2
@@ -279,7 +279,7 @@ public partial class TestBinaryHeap
     public void TestDecreaseMultiElementHeap()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 4, 2, 3, 5, 7, 9, 1 });
+        var heap = new BinaryHeap<int>([4, 2, 3, 5, 7, 9, 1]);
         // heap tree:
         //             1
         //          2     3
@@ -314,7 +314,7 @@ public partial class TestBinaryHeap
     public void TestHandlePersistence()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 4, 2, 3, 5, 7, 9, 1 });
+        var heap = new BinaryHeap<int>([4, 2, 3, 5, 7, 9, 1]);
         // heap tree:
         //             1
         //          2     3
@@ -342,7 +342,7 @@ public partial class TestBinaryHeap
     public void TestDecreaseToNewMin()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 4, 2, 3, 5, 7, 9, 2 });
+        var heap = new BinaryHeap<int>([4, 2, 3, 5, 7, 9, 2]);
         // heap tree:
         //             2
         //          4     2
@@ -371,7 +371,7 @@ public partial class TestBinaryHeap
     public void TestDecreaseExistingMin()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 6, 2, 3, 5, 4, 6 });
+        var heap = new BinaryHeap<int>([6, 2, 3, 5, 4, 6]);
         // heap tree:
         //             2
         //          4     3
@@ -437,7 +437,7 @@ public partial class TestBinaryHeap
     public void TestInsertWithResize()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new[] { 6, 5, 4, 2 });
+        var heap = new BinaryHeap<int>([6, 5, 4, 2]);
         // heap tree:
         //            2
         //          5   4
@@ -507,7 +507,7 @@ public partial class TestBinaryHeap
     public void TestInsertAndExtractSingleElementHeap()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 1 });
+        var heap = new BinaryHeap<int>([1]);
 
         // act, first replace a min with a greater value, then with a lesser one
         var min1 = heap.InsertAndExtractMin(2);
@@ -522,7 +522,7 @@ public partial class TestBinaryHeap
     public void TestInsertAndExtractMultiElementHeap()
     {
         // arrange
-        var heap = new BinaryHeap<int>(new int[] { 1, 2, 3, 4, 5 });
+        var heap = new BinaryHeap<int>([1, 2, 3, 4, 5]);
 
         // act
         var min1 = heap.InsertAndExtractMin(1);

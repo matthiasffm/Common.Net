@@ -147,11 +147,11 @@ internal class TestMatrixExtensions
 
         int[][] nullMatrix  = null;
         var emptyArray     = Array.Empty<int[]>();
-        var singleArray    = new int[][] { new int[] { 1 } };
-        var horArray       = new int[][] { new int[] { 11, 12, 13 } };
-        var vertArray      = new int[][] { new int[] { 11 }, new int[] { 21 }, new int[] { 31 } };
-        var simpleArray    = new int[][] { new int[] { 11, 12, 13 }, new int[] { 21, 22, 23 }, new int[] { 31, 32, 33 } };
-        var irregularArray = new int[][] { new int[] { 11, 12, 13 }, new int[] { 21, 22 }, new int[] { 31, 32, 33 } };
+        var singleArray    = new int[][] { [1] };
+        var horArray       = new int[][] { [11, 12, 13] };
+        var vertArray      = new int[][] { [11], [21], [31] };
+        var simpleArray    = new int[][] { [11, 12, 13], [21, 22, 23], [31, 32, 33] };
+        var irregularArray = new int[][] { [11, 12, 13], [21, 22], [31, 32, 33] };
 
         // act
 
@@ -307,10 +307,10 @@ internal class TestMatrixExtensions
 
         rowNull.Should().Throw<ArgumentNullException>("matrix");
         rowEmpty.Should().Throw<ArgumentOutOfRangeException>("row");
-        rowSingle.Should().HaveCount(1).And.BeEquivalentTo(new[] { (0, 1) });
-        rowHor.Should().HaveCount(3).And.BeEquivalentTo(new[] { (0, 11), (1, 12), (2, 13) });
-        rowVert.Should().HaveCount(1).And.BeEquivalentTo(new[] { (0, 21) });
-        rowSimple.Should().HaveCount(3).And.BeEquivalentTo(new[] { (0, 21), (1, 22), (2, 23) }); ;
+        rowSingle.Should().HaveCount(1).And.BeEquivalentTo([(0, 1)]);
+        rowHor.Should().HaveCount(3).And.BeEquivalentTo([(0, 11), (1, 12), (2, 13)]);
+        rowVert.Should().HaveCount(1).And.BeEquivalentTo([(0, 21)]);
+        rowSimple.Should().HaveCount(3).And.BeEquivalentTo([(0, 21), (1, 22), (2, 23)]); ;
     }
 
     [Test]
@@ -338,9 +338,9 @@ internal class TestMatrixExtensions
 
         colNull.Should().Throw<ArgumentNullException>("matrix");
         colEmpty.Should().Throw<ArgumentOutOfRangeException>("col");
-        colSingle.Should().HaveCount(1).And.BeEquivalentTo(new[] { (0, 1) });
-        colHor.Should().HaveCount(1).And.BeEquivalentTo(new[] { (0, 13) });
-        colVert.Should().HaveCount(3).And.BeEquivalentTo(new[] { (0, 11), (1, 21), (2, 31) });
-        colSimple.Should().HaveCount(3).And.BeEquivalentTo(new[] { (0, 13), (1, 23), (2, 33) }); ;
+        colSingle.Should().HaveCount(1).And.BeEquivalentTo([(0, 1)]);
+        colHor.Should().HaveCount(1).And.BeEquivalentTo([(0, 13)]);
+        colVert.Should().HaveCount(3).And.BeEquivalentTo([(0, 11), (1, 21), (2, 31)]);
+        colSimple.Should().HaveCount(3).And.BeEquivalentTo([(0, 13), (1, 23), (2, 33)]); ;
     }
 }

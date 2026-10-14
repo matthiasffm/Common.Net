@@ -65,7 +65,7 @@ public static class Search
                 nextToVisit.Enqueue(adjacent);
             }
         }
-        while(nextToVisit.Any());
+        while(nextToVisit.Count > 0);
     }
 
     /// <summary>
@@ -149,11 +149,11 @@ public static class Search
                 parents[adjacent] = nextNode;
             }
         }
-        while(nextToVisit.Any());
+        while(nextToVisit.Count > 0);
 
         // enumerated the whole search space but goal was not reached or found
 
-        return Array.Empty<TElem>();
+        return [];
     }
 
     // TODO: add max depth parameter for search and implement iterative depth search with it
@@ -209,7 +209,7 @@ public static class Search
                 nextToVisit.Push(adjacent);
             }
         }
-        while(nextToVisit.Any());
+        while(nextToVisit.Count > 0);
     }
 
     /// <summary>
@@ -294,11 +294,11 @@ public static class Search
                 parents[adjacent] = nextNode;
             }
         }
-        while(nextToVisit.Any());
+        while(nextToVisit.Count > 0);
 
         // enumerated the whole search space but goal was not reached or found
 
-        return Array.Empty<TElem>();
+        return [];
     }
 
     /// <summary>
@@ -491,7 +491,7 @@ public static class Search
         }
 
         // no path found
-        return Array.Empty<TPos>();
+        return [];
     }
 
     /// <summary>
