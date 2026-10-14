@@ -38,7 +38,7 @@ internal class TestSwap
         list.Swap(1, 2);
 
         // assert
-        list.Should().BeEquivalentTo(new List<int>() { 5, 1, 3, 4, 2, 6 });
+        list.Should().BeEquivalentTo([5, 1, 3, 4, 2, 6]);
     }
 
     [Test]

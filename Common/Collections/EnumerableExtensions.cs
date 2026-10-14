@@ -85,10 +85,7 @@ public static class EnumerableExtensions
     /// </remarks>
     public static IEnumerable<T> RotateLeft<T>(this IEnumerable<T> coll, int count = 1)
     {
-        if(count < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(count));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
 
         if(!coll.Any())
         {
@@ -109,10 +106,7 @@ public static class EnumerableExtensions
     /// </remarks>
     public static IEnumerable<T> RotateRight<T>(this IEnumerable<T> coll, int count = 1)
     {
-        if(count < 0)
-        {
-            throw new ArgumentOutOfRangeException(nameof(count));
-        }
+        ArgumentOutOfRangeException.ThrowIfNegative(count);
 
         if(!coll.Any())
         {
@@ -164,12 +158,12 @@ public static class EnumerableExtensions
     /// <summary>
     /// Calls <i>action</i> on every element of the async enumeration.
     /// </summary>
-    public static async Task DoAsync<T>(this IAsyncEnumerable<T> collAsync, Action<T> action)
+    public static async Task DoAsync<T>(this IAsyncEnumerable<T> collAsync, Action<T> action, bool continueOnCapturedContext)
     {
         ArgumentNullException.ThrowIfNull(collAsync);
         ArgumentNullException.ThrowIfNull(action);
 
-        await foreach(var elem in collAsync)
+        await foreach(var elem in collAsync.ConfigureAwait(continueOnCapturedContext))
         {
             action(elem);
         }

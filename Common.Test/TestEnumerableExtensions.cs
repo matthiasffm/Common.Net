@@ -12,13 +12,13 @@ internal class TestEnumerableExtensions
     {
         // arrange
 
-        int[]               testArray   = new[] { 1, 2, 3 };
+        int[]               testArray   = [1, 2, 3];
         IEnumerable<string> testColl    = new List<string> { "", "eins", "zwei" };
 
         // act
 
-        var inNullArray  = () => 1.In(null);
-        var inEmptyArray = 1.In(Array.Empty<int>());
+        var inNullArray  = 1.In(null);
+        var inEmptyArray = 1.In([]);
 
         var in1Array     = 1.In(testArray);
         var in2Array     = 2.In(testArray);
@@ -33,7 +33,7 @@ internal class TestEnumerableExtensions
 
         // assert
 
-        inNullArray.Should().Throw<ArgumentNullException>();
+        inNullArray.Should().BeFalse();
         inEmptyArray.Should().BeFalse();
 
         in1Array.Should().BeTrue();
@@ -57,7 +57,7 @@ internal class TestEnumerableExtensions
 
         // act
 
-        testColl.AddRange(new[] { "drei", "vier" });
+        testColl.AddRange(["drei", "vier"]);
 
         // assert
 

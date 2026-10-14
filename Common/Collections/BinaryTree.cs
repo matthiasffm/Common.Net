@@ -6,7 +6,7 @@ namespace matthiasffm.Common.Collections;
 /// Single node of a binary tree.
 /// </summary>
 /// <typeparam name="T">Type of the value at the node. <see cref="Item"/></typeparam>
-public class BinaryTreeNode<T>
+public class BinaryTreeNode<T>(T item)
 {
     /// <summary>
     /// Reference to parent node.
@@ -29,20 +29,12 @@ public class BinaryTreeNode<T>
     /// <summary>
     /// Value stored at the node.
     /// </summary>
-    public T Item { get; set; }
+    public T Item { get; set; } = item;
 
     /// <summary>
     /// Is <i>true</i> if the node has no left child and no right child nodes.
     /// </summary>
     public bool IsLeaf { get => Left is null && Right is null; }
-
-    /// <summary>
-    /// Creates a new node and stores the value <paramref name="item"/> there.
-    /// </summary>
-    public BinaryTreeNode(T item)
-    {
-        Item = item;
-    }
 }
 
 /// <summary>
@@ -96,10 +88,7 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     {
         ArgumentNullException.ThrowIfNull(parent);
 
-        if(parent.Left != null)
-        {
-            parent.Left.Parent = null;
-        }
+        parent.Left?.Parent = null;
 
         var newNode = new BinaryTreeNode<T>(item);
 
@@ -120,10 +109,7 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     {
         ArgumentNullException.ThrowIfNull(parent);
 
-        if(parent.Right != null)
-        {
-            parent.Right.Parent = null;
-        }
+        parent.Right?.Parent = null;
 
         var newNode = new BinaryTreeNode<T>(item);
 
@@ -145,10 +131,7 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
         ArgumentNullException.ThrowIfNull(parent);
         ArgumentNullException.ThrowIfNull(rootOfSubtreeToClone);
 
-        if(parent.Left != null)
-        {
-            parent.Left.Parent = null;
-        }
+        parent.Left?.Parent = null;
 
         var clonedSubtree = parent.Left = CloneNode(rootOfSubtreeToClone);
         clonedSubtree.Parent = parent;
@@ -168,10 +151,7 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
         ArgumentNullException.ThrowIfNull(parent);
         ArgumentNullException.ThrowIfNull(rootOfSubtreeToClone);
 
-        if(parent.Right != null)
-        {
-            parent.Right.Parent = null;
-        }
+        parent.Right?.Parent = null;
 
         var clonedSubtree = parent.Right = CloneNode(rootOfSubtreeToClone);
         clonedSubtree.Parent = parent;
@@ -188,10 +168,7 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     {
         ArgumentNullException.ThrowIfNull(parent);
 
-        if(parent.Left != null)
-        {
-            parent.Left.Parent = null;
-        }
+        parent.Left?.Parent = null;
 
         parent.Left = null;
     }
@@ -205,10 +182,7 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     {
         ArgumentNullException.ThrowIfNull(parent);
 
-        if(parent.Right != null)
-        {
-            parent.Right.Parent = null;
-        }
+        parent.Right?.Parent = null;
 
         parent.Right = null;
     }
@@ -354,7 +328,7 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
     {
         var stack = new Stack<BinaryTreeNode<T>>();
 
-        while(stack.Any() || node is not null)
+        while(stack.Count > 0 || node is not null)
         {
             if(node is not null)
             {
@@ -380,7 +354,7 @@ public class BinaryTree<T> : IEnumerable<T>, ICloneable
         var stack = new Stack<BinaryTreeNode<T>>();
         BinaryTreeNode<T>? lastVisited = null;
 
-        while(stack.Any() || node is not null)
+        while(stack.Count > 0 || node is not null)
         {
             if(node is not null)
             {

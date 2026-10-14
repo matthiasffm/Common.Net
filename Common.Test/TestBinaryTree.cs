@@ -106,7 +106,7 @@ internal class TestBinaryTree
                                .Select(n => n.Item);
 
         // assert
-        preOrder.Should().BeEquivalentTo(new[] { 1, 2, 4, 3, 5, 7, 6 });
+        preOrder.Should().BeEquivalentTo([1, 2, 4, 3, 5, 7, 6]);
     }
 
     [Test]
@@ -120,7 +120,7 @@ internal class TestBinaryTree
                               .Select(n => n.Item);
 
         // assert
-        inOrder.Should().BeEquivalentTo(new[] { 4, 2, 1, 5, 7, 3, 6 });
+        inOrder.Should().BeEquivalentTo([4, 2, 1, 5, 7, 3, 6]);
     }
 
     [Test]
@@ -134,7 +134,7 @@ internal class TestBinaryTree
                                 .Select(n => n.Item);
 
         // assert
-        postOrder.Should().BeEquivalentTo(new[] { 4, 2, 7, 5, 6, 3, 1 });
+        postOrder.Should().BeEquivalentTo([4, 2, 7, 5, 6, 3, 1]);
     }
 
     [Test]
@@ -148,7 +148,7 @@ internal class TestBinaryTree
                                  .Select(n => n.Item);
 
         // assert
-        levelOrder.Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 6, 7 });
+        levelOrder.Should().BeEquivalentTo([1, 2, 3, 4, 5, 6, 7]);
     }
 
     [Test]

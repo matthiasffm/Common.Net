@@ -48,13 +48,13 @@ internal class TestListSelections
         listToPartition1[partitionIdx1].Should().Be(5);
         listToPartition1.GetRange(0, partitionIdx1).Should().OnlyContain(x => x <= listToPartition1[partitionIdx1]);
         listToPartition1.GetRange(partitionIdx1, listToPartition1.Count - partitionIdx1).Should().OnlyContain(x => x >= listToPartition1[partitionIdx1]);
-        listToPartition1.Should().HaveCount(8).And.BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 7, 8, 10 });
+        listToPartition1.Should().HaveCount(8).And.BeEquivalentTo([1, 2, 3, 4, 5, 7, 8, 10]);
 
         partitionIdx2.Should().Be(7);
         listToPartition2[partitionIdx2].Should().Be(10);
         listToPartition2.GetRange(0, partitionIdx2).Should().OnlyContain(x => x <= 10);
         listToPartition2.GetRange(partitionIdx2, listToPartition2.Count - partitionIdx2).Should().OnlyContain(x => x >= 10);
-        listToPartition2.Should().HaveCount(8).And.BeEquivalentTo(new[] { 1, 2, 3, 4, 5, 7, 8, 10 });
+        listToPartition2.Should().HaveCount(8).And.BeEquivalentTo([1, 2, 3, 4, 5, 7, 8, 10]);
     }
 
     [Test]
@@ -105,7 +105,7 @@ internal class TestListSelections
         listToPartition1.GetRange(5, 3).Should().Equal(3, 10, 5);
         listToPartition1.GetRange(2, partition2To4Idx - 1).Should().OnlyContain(x => x <= 4);
         listToPartition1.GetRange(partition2To4Idx, 3).Should().OnlyContain(x => x >= 4);
-        listToPartition1.Should().HaveCount(8).And.BeEquivalentTo(new[] { 2, 1, 4, 7, 8, 3, 10, 5 });
+        listToPartition1.Should().HaveCount(8).And.BeEquivalentTo([2, 1, 4, 7, 8, 3, 10, 5]);
 
         // after partition of sublist { 1, 7, 8, 4, 3 }, full list looks like = { 2, <=3, <=3, >=3, >=3, =>3, 10, 5)
         partition1To5Idx.Should().Be(2);
@@ -113,7 +113,7 @@ internal class TestListSelections
         listToPartition1.GetRange(6, 2).Should().Equal(10, 5);
         listToPartition2.GetRange(1, partition1To5Idx).Should().OnlyContain(x => x <= 3);
         listToPartition2.GetRange(partition1To5Idx, 4).Should().OnlyContain(x => x >= 3);
-        listToPartition2.Should().HaveCount(8).And.BeEquivalentTo(new[] { 2, 1, 4, 7, 8, 3, 10, 5 });
+        listToPartition2.Should().HaveCount(8).And.BeEquivalentTo([2, 1, 4, 7, 8, 3, 10, 5]);
     }
 
     [Test]
